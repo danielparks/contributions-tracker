@@ -52,21 +52,17 @@ export default function App() {
       setLoading(true);
       setError(null);
 
-      try {
-        const url = new URL("/api/oauth/callback", BACKEND_URL);
-        url.searchParams.set("code", code);
-        const response = await fetch(url);
-        const data = await response.json() as { access_token?: string };
+      const url = new URL("/api/oauth/callback", BACKEND_URL);
+      url.searchParams.set("code", code);
+      const response = await fetch(url);
+      const data = await response.json() as { access_token?: string };
 
-        if (data.access_token) {
-          setAccessToken(data.access_token);
-          localStorage.setItem("github_token", data.access_token);
-          history.replaceState({}, document.title, "/");
-        } else {
-          setError("Failed to authenticate with GitHub");
-        }
-      } finally {
-        setLoading(false);
+      if (data.access_token) {
+        setAccessToken(data.access_token);
+        localStorage.setItem("github_token", data.access_token);
+        history.replaceState({}, document.title, "/");
+      } else {
+        setError("Failed to authenticate with GitHub");
       }
     })().catch((error: unknown) => {
       setError("Error during authentication");
@@ -81,6 +77,7 @@ export default function App() {
       setInfo(null);
       return;
     }
+    setLoading(true);
     graphql({
       query: `query {
         viewer {
@@ -105,6 +102,7 @@ export default function App() {
     }).then((result: unknown) => {
       const { viewer } = result as { viewer: ViewerContributions };
       setInfo(viewer);
+      setLoading(false);
     }).catch((error: unknown) => {
       console.error("Error getting contribution data", error);
       setError("Error getting contribution data");
@@ -132,10 +130,6 @@ export default function App() {
     localStorage.removeItem("github_token");
   }
 
-  if (loading) {
-    return <b>Loading</b>;
-  }
-
   if (accessToken === null) {
     return (
       <>
@@ -147,10 +141,30 @@ export default function App() {
 
   return (
     <>
-      <h1>Test</h1>
-      {error && <h3>Error: {error}</h3>}
-      <pre>{JSON.stringify(info)}</pre>
+      <h1>Contribution Graph{info && " for " + info.name}</h1>
       <button type="button" onClick={logout}>Log out</button>
+      {error && <h3 className="error">Error: {error}</h3>}
+      {loading
+        ? <h3 className="loading">Loading</h3>
+        : info
+        ? <ContributionsGraph viewer={info} />
+        : <h3>No contributions data</h3>}
     </>
+  );
+}
+
+function ContributionsGraph({ viewer }: { viewer: ViewerContributions }) {
+  const weeks = viewer.contributionsCollection.contributionCalendar.weeks;
+
+  return (
+    <table className="contributions">
+      {weeks.map((week) => (
+        <tr key={`week${week.contributionDays[0].date}`} className="week">
+          {week.contributionDays.map((day) => (
+            <td key={`day${day.date}`}>{day.contributionCount}</td>
+          ))}
+        </tr>
+      ))}
+    </table>
   );
 }
