@@ -5,28 +5,37 @@ import { graphql } from "@octokit/graphql";
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
 
-export interface ViewerContributions {
+interface ViewerContributions {
   login: string;
   name: string;
   contributionsCollection: ContributionsCollection;
 }
 
-export interface ContributionsCollection {
+interface ContributionsCollection {
   contributionCalendar: ContributionCalendar;
 }
 
-export interface ContributionCalendar {
+interface ContributionCalendar {
   totalContributions: number;
   weeks: ContributionWeek[];
 }
 
-export interface ContributionWeek {
+interface ContributionWeek {
   contributionDays: ContributionDay[];
 }
 
-export interface ContributionDay {
+interface ContributionDay {
   contributionCount: number;
+  contributionLevel: ContributionLevel;
   date: string;
+}
+
+enum ContributionLevel {
+  None = "NONE",
+  FirstQuartile = "FIRST_QUARTILE",
+  SecondQuartile = "SECOND_QUARTILE",
+  ThirdQuartile = "THIRD_QUARTILE",
+  FourthQuartile = "FOURTH_QUARTILE",
 }
 
 export default function App() {
@@ -89,6 +98,7 @@ export default function App() {
               weeks {
                 contributionDays {
                   contributionCount
+                  contributionLevel
                   date
                 }
               }
@@ -158,13 +168,20 @@ function ContributionsGraph({ viewer }: { viewer: ViewerContributions }) {
 
   return (
     <table className="contributions">
-      {weeks.map((week) => (
-        <tr key={`week${week.contributionDays[0].date}`} className="week">
-          {week.contributionDays.map((day) => (
-            <td key={`day${day.date}`}>{day.contributionCount}</td>
-          ))}
-        </tr>
-      ))}
+      <tbody>
+        {weeks.map((week) => (
+          <tr key={`week${week.contributionDays[0].date}`} className="week">
+            {week.contributionDays.map((day) => (
+              <td
+                key={`day${day.date}`}
+                className={"contrib_" + day.contributionLevel.toLowerCase()}
+              >
+                {day.contributionCount}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
     </table>
   );
 }
