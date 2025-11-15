@@ -1,5 +1,6 @@
 import "./App.css";
 import { useEffect, useState } from "react";
+import { graphql } from "@octokit/graphql";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
@@ -8,6 +9,8 @@ export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(
     localStorage.getItem("github_token"),
   );
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+  const [info, setInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +48,46 @@ export default function App() {
     })().catch((error: unknown) => {
       setError("Error during authentication");
       console.error(error);
-    })
+    });
     // This should only run on mount, not when accessToken changes:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!accessToken) {
+      setInfo(null);
+      return;
+    }
+    const graphqlWithAuth = graphql.defaults({
+      headers: {
+        authorization: `token ${accessToken}`,
+      },
+    });
+    graphqlWithAuth({
+      query: `query {
+        viewer {
+          login
+          name
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  date
+                }
+              }
+            }
+          }
+        }
+      }`,
+    }).then((result) => {
+      setInfo(result);
+    }).catch((error: unknown) => {
+      console.error("Error getting contribution data", error);
+      setError("Error getting contribution data");
+    });
+  }, [accessToken]);
 
   function login(): void {
     const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
@@ -88,7 +127,7 @@ export default function App() {
     <>
       <h1>Test</h1>
       {error && <h3>Error: {error}</h3>}
-      <pre>Access token: {accessToken}</pre>
+      <pre>{JSON.stringify(info)}</pre>
       <button type="button" onClick={logout}>Log out</button>
     </>
   );
