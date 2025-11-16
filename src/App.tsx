@@ -44,6 +44,7 @@ export default function App() {
   );
   const [info, setInfo] = useState<ViewerContributions | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showNumbers, setShowNumbers] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Handle OAuth callback. Runs only on mount.
@@ -154,17 +155,53 @@ export default function App() {
       <h1>Contribution Graph{info && " for " + info.name}</h1>
       <button type="button" onClick={logout}>Log out</button>
       {error && <h3 className="error">Error: {error}</h3>}
-      {loading
-        ? <h3 className="loading">Loading</h3>
-        : info
-        ? <ContributionsGraph viewer={info} />
+      {loading ? <h3 className="loading">Loading</h3> : info
+        ? (
+          <>
+            <label>
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  setShowNumbers(e.target.checked);
+                }}
+              />{" "}
+              Show numbers
+            </label>
+            <ContributionsGraph viewer={info} showNumbers={showNumbers} />
+          </>
+        )
         : <h3>No contributions data</h3>}
     </>
   );
 }
 
-function ContributionsGraph({ viewer }: { viewer: ViewerContributions }) {
+function ContributionsGraph(
+  { viewer, showNumbers }: {
+    viewer: ViewerContributions;
+    showNumbers: boolean;
+  },
+) {
   const weeks = viewer.contributionsCollection.contributionCalendar.weeks;
+  const day_max = Math.max(
+    ...weeks.map((week) =>
+      Math.max(...week.contributionDays.map((day) => day.contributionCount))
+    ),
+  );
+
+  function day_style(day: ContributionDay) {
+    let value = 100;
+    let color = "transparent";
+    if (day.contributionCount > 0) {
+      value = 55 * (1 - day.contributionCount / day_max) + 40;
+      if (showNumbers) {
+        color = value < 70 ? "#fff" : "#333";
+      }
+    }
+    return {
+      color,
+      background: `hsl(270deg 40 ${value.toString()})`,
+    };
+  }
 
   return (
     <table className="contributions">
@@ -174,7 +211,7 @@ function ContributionsGraph({ viewer }: { viewer: ViewerContributions }) {
             {week.contributionDays.map((day) => (
               <td
                 key={`day${day.date}`}
-                className={"contrib_" + day.contributionLevel.toLowerCase()}
+                style={day_style(day)}
               >
                 {day.contributionCount}
               </td>

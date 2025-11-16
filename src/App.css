@@ -17,26 +17,3 @@ table.contributions {
     }
   }
 }
-
-.contrib_none {
-  background: hsl(130deg 40 100);
-}
-
-.contrib_first_quartile {
-  background: hsl(130deg 40 75);
-}
-
-.contrib_second_quartile {
-  background: hsl(130deg 40 50);
-  color: #fff;
-}
-
-.contrib_third_quartile {
-  background: hsl(130deg 40 25);
-  color: #fff;
-}
-
-.contrib_fourth_quartile {
-  background: hsl(130deg 40 0);
-  color: #fff;
-}
