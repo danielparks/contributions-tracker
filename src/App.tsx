@@ -1,18 +1,14 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { graphql } from "@octokit/graphql";
+import { Octokit } from "@octokit/core";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
 
-interface ViewerContributions {
+interface Contributions {
   login: string;
   name: string;
-  contributionsCollection: ContributionsCollection;
-}
-
-interface ContributionsCollection {
-  contributionCalendar: ContributionCalendar;
+  calendar: ContributionCalendar;
 }
 
 interface ContributionCalendar {
@@ -42,7 +38,7 @@ export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(
     localStorage.getItem("github_token"),
   );
-  const [info, setInfo] = useState<ViewerContributions | null>(null);
+  const [info, setInfo] = useState<Contributions | null>(null);
   const [loading, setLoading] = useState(false);
   const [showNumbers, setShowNumbers] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,38 +80,52 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!accessToken) {
-      setInfo(null);
-      return;
-    }
-    setLoading(true);
-    graphql({
-      query: `query {
-        viewer {
-          login
-          name
-          contributionsCollection {
-            contributionCalendar {
-              totalContributions
-              weeks {
-                contributionDays {
-                  contributionCount
-                  contributionLevel
-                  date
+    (async () => {
+      if (!accessToken) {
+        setInfo(null);
+        return;
+      }
+      setLoading(true);
+      const octokit = new Octokit({ auth: `token ${accessToken}` });
+
+      const calendar: unknown = await octokit.graphql({
+        query: `query {
+          viewer {
+            login
+            name
+            contributionsCollection {
+              contributionCalendar {
+                totalContributions
+                weeks {
+                  contributionDays {
+                    contributionCount
+                    contributionLevel
+                    date
+                  }
                 }
               }
             }
           }
-        }
-      }`,
-      headers: {
-        authorization: `token ${accessToken}`,
-      },
-    }).then((result: unknown) => {
-      const { viewer } = result as { viewer: ViewerContributions };
-      setInfo(viewer);
+        }`,
+      });
+
+      const { viewer } = calendar as {
+        viewer: {
+          login: string;
+          name: string;
+          contributionsCollection: {
+            contributionCalendar: ContributionCalendar;
+          };
+        };
+      };
+
+      setInfo({
+        login: viewer.login,
+        name: viewer.name,
+        calendar: viewer.contributionsCollection.contributionCalendar,
+      });
       setLoading(false);
-    }).catch((error: unknown) => {
+    })().catch((error: unknown) => {
       console.error("Error getting contribution data", error);
       setError("Error getting contribution data");
     });
@@ -168,7 +178,10 @@ export default function App() {
               />{" "}
               Show numbers
             </label>
-            <ContributionsGraph viewer={info} showNumbers={showNumbers} />
+            <ContributionsGraph
+              contributions={info}
+              showNumbers={showNumbers}
+            />
           </>
         )
         : <h3>No contributions data</h3>}
@@ -177,12 +190,12 @@ export default function App() {
 }
 
 function ContributionsGraph(
-  { viewer, showNumbers }: {
-    viewer: ViewerContributions;
+  { contributions, showNumbers }: {
+    contributions: Contributions;
     showNumbers: boolean;
   },
 ) {
-  const weeks = viewer.contributionsCollection.contributionCalendar.weeks;
+  const weeks = contributions.calendar.weeks;
   const day_max = Math.max(
     ...weeks.map((week) =>
       Math.max(...week.contributionDays.map((day) => day.contributionCount))

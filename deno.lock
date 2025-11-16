@@ -3,7 +3,6 @@
   "specifiers": {
     "npm:@deno/vite-plugin@^1.0.5": "1.0.5_vite@7.2.2__@types+node@24.10.1__picomatch@4.0.3_@types+node@24.10.1",
     "npm:@eslint/js@^9.39.1": "9.39.1",
-    "npm:@octokit/graphql@^9.0.3": "9.0.3",
     "npm:@types/node@^24.10.0": "24.10.1",
     "npm:@types/react-dom@^19.2.2": "19.2.3_@types+react@19.2.4",
     "npm:@types/react@^19.2.4": "19.2.4",
@@ -1633,7 +1632,7 @@
       "dependencies": [
         "npm:@deno/vite-plugin@^1.0.5",
         "npm:@eslint/js@^9.39.1",
-        "npm:@octokit/graphql@^9.0.3",
+        "npm:@octokit/core@^7.0.6",
         "npm:@types/node@^24.10.0",
         "npm:@types/react-dom@^19.2.2",
         "npm:@types/react@^19.2.4",
