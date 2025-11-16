@@ -1,6 +1,7 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import { Octokit } from "@octokit/core";
+import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
@@ -9,6 +10,7 @@ interface Contributions {
   login: string;
   name: string;
   calendar: ContributionCalendar;
+  other?: string;
 }
 
 interface ContributionCalendar {
@@ -86,7 +88,20 @@ export default function App() {
         return;
       }
       setLoading(true);
-      const octokit = new Octokit({ auth: `token ${accessToken}` });
+      /*
+      contributionsCollection:
+        commitContributionsByRepository
+        issueContributions or issueContributionsByRepository // opened
+        pullRequestContributions or pullRequestContributionsByRepository
+        pullRequestReviewContributions or pullRequestReviewContributionsByRepository
+        repositoryContributions // repos created
+        joinedGitHubContribution
+        contributionYears // years the user has made contributions
+        hasActivityInThePast // alternative
+        mostRecentCollectionWithActivity // maybe automatically gets earlier stuff?
+      */
+      const MyOctokit = Octokit.plugin(paginateGraphQL);
+      const octokit = new MyOctokit({ auth: `token ${accessToken}` });
 
       const calendar: unknown = await octokit.graphql({
         query: `query {
@@ -119,10 +134,65 @@ export default function App() {
         };
       };
 
+      const commits: unknown = await octokit.graphql(
+        `query {
+          viewer {
+            contributionsCollection {
+              commitContributionsByRepository(maxRepositories: 25) {
+                repository {
+                  isFork
+                  isPrivate
+                  url
+                }
+                contributions(last: 50) {
+                  nodes {
+                    commitCount
+                    isRestricted
+                    url
+                  }
+                  pageInfo {
+                    hasNextPage
+                    endCursor
+                  }
+                }
+              }
+            }
+          }
+        }`,
+      );
+
+      const repos: unknown = await octokit.graphql.paginate(
+        `query paginate($cursor: String) {
+          viewer {
+            contributionsCollection {
+              repositoryContributions(last: 50, after: $cursor) {
+                nodes {
+                  isRestricted
+                  occurredAt
+                  repository {
+                    isFork
+                    isPrivate
+                    url
+                  }
+                  url
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+          }
+        }`,
+      );
+
       setInfo({
         login: viewer.login,
         name: viewer.name,
         calendar: viewer.contributionsCollection.contributionCalendar,
+        other: `commits: ${JSON.stringify(commits)}\n\nrepos: ${
+          JSON.stringify(repos)
+        }`,
       });
       setLoading(false);
     })().catch((error: unknown) => {
@@ -218,21 +288,24 @@ function ContributionsGraph(
   }
 
   return (
-    <table className="contributions">
-      <tbody>
-        {weeks.map((week) => (
-          <tr key={`week${week.contributionDays[0].date}`} className="week">
-            {week.contributionDays.map((day) => (
-              <td
-                key={`day${day.date}`}
-                style={day_style(day)}
-              >
-                {day.contributionCount}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <>
+      <table className="contributions">
+        <tbody>
+          {weeks.map((week) => (
+            <tr key={`week${week.contributionDays[0].date}`} className="week">
+              {week.contributionDays.map((day) => (
+                <td
+                  key={`day${day.date}`}
+                  style={day_style(day)}
+                >
+                  {day.contributionCount}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {contributions.other && <pre>{contributions.other}</pre>}
+    </>
   );
 }

@@ -3,6 +3,8 @@
   "specifiers": {
     "npm:@deno/vite-plugin@^1.0.5": "1.0.5_vite@7.2.2__@types+node@24.10.1__picomatch@4.0.3_@types+node@24.10.1",
     "npm:@eslint/js@^9.39.1": "9.39.1",
+    "npm:@octokit/core@^7.0.6": "7.0.6",
+    "npm:@octokit/plugin-paginate-graphql@6": "6.0.0_@octokit+core@7.0.6",
     "npm:@types/node@^24.10.0": "24.10.1",
     "npm:@types/react-dom@^19.2.2": "19.2.3_@types+react@19.2.4",
     "npm:@types/react@^19.2.4": "19.2.4",
@@ -458,6 +460,21 @@
         "fastq"
       ]
     },
+    "@octokit/auth-token@6.0.0": {
+      "integrity": "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="
+    },
+    "@octokit/core@7.0.6": {
+      "integrity": "sha512-DhGl4xMVFGVIyMwswXeyzdL4uXD5OGILGX5N8Y+f6W7LhC1Ze2poSNrkF/fedpVDHEEZ+PHFW0vL14I+mm8K3Q==",
+      "dependencies": [
+        "@octokit/auth-token",
+        "@octokit/graphql",
+        "@octokit/request",
+        "@octokit/request-error",
+        "@octokit/types",
+        "before-after-hook",
+        "universal-user-agent"
+      ]
+    },
     "@octokit/endpoint@11.0.2": {
       "integrity": "sha512-4zCpzP1fWc7QlqunZ5bSEjxc6yLAlRTnDwKtgXfcI/FxxGoqedDG8V2+xJ60bV2kODqcGB+nATdtap/XYq2NZQ==",
       "dependencies": [
@@ -475,6 +492,12 @@
     },
     "@octokit/openapi-types@27.0.0": {
       "integrity": "sha512-whrdktVs1h6gtR+09+QsNk2+FO+49j6ga1c55YZudfEG+oKJVvJLQi3zkOm5JjiUXAagWK2tI2kTGKJ2Ys7MGA=="
+    },
+    "@octokit/plugin-paginate-graphql@6.0.0_@octokit+core@7.0.6": {
+      "integrity": "sha512-crfpnIoFiBtRkvPqOyLOsw12XsveYuY2ieP6uYDosoUegBJpSVxGwut9sxUgFFcll3VTOTqpUf8yGd8x1OmAkQ==",
+      "dependencies": [
+        "@octokit/core"
+      ]
     },
     "@octokit/request-error@7.1.0": {
       "integrity": "sha512-KMQIfq5sOPpkQYajXHwnhjCC0slzCNScLHs9JafXc4RAJI+9f+jNDlBNaIMTvazOPLgb4BnlhGJOTbnN0wIjPw==",
@@ -810,6 +833,9 @@
     "baseline-browser-mapping@2.8.27": {
       "integrity": "sha512-2CXFpkjVnY2FT+B6GrSYxzYf65BJWEqz5tIRHCvNsZZ2F3CmsCB37h8SpYgKG7y9C4YAeTipIPWG7EmFmhAeXA==",
       "bin": true
+    },
+    "before-after-hook@4.0.0": {
+      "integrity": "sha512-q6tR3RPqIB1pMiTRMFcZwuG5T8vwp+vUvEG0vuI6B+Rikh5BfPp2fQ82c925FOs+b0lcFQ8CFrL+KbilfZFhOQ=="
     },
     "birecord@0.1.1": {
       "integrity": "sha512-VUpsf/qykW0heRlC8LooCq28Kxn3mAqKohhDG/49rrsQ1dT1CXyj/pgXS+5BSRzFTR/3DyIBOqQOrGyZOh71Aw=="
@@ -1633,6 +1659,7 @@
         "npm:@deno/vite-plugin@^1.0.5",
         "npm:@eslint/js@^9.39.1",
         "npm:@octokit/core@^7.0.6",
+        "npm:@octokit/plugin-paginate-graphql@6",
         "npm:@types/node@^24.10.0",
         "npm:@types/react-dom@^19.2.2",
         "npm:@types/react@^19.2.4",
