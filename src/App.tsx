@@ -69,6 +69,7 @@ export default function App() {
 
       if (data.access_token) {
         setAccessToken(data.access_token);
+        // FIXME? This will be available to the entire origin.
         localStorage.setItem("github_token", data.access_token);
         history.replaceState({}, document.title, "/");
       } else {
