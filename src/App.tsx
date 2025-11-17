@@ -1,92 +1,14 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { Octokit } from "@octokit/core";
-import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
-
+import * as github from "./github.ts";
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
-
-interface Contributions {
-  login: string;
-  name: string;
-  calendar: ContributionCalendar;
-  other?: string;
-}
-
-interface ContributionCalendar {
-  totalContributions: number;
-  weeks: ContributionWeek[];
-}
-
-interface ContributionWeek {
-  contributionDays: ContributionDay[];
-}
-
-interface ContributionDay {
-  contributionCount: number;
-  contributionLevel: ContributionLevel;
-  date: string;
-}
-
-enum ContributionLevel {
-  None = "NONE",
-  FirstQuartile = "FIRST_QUARTILE",
-  SecondQuartile = "SECOND_QUARTILE",
-  ThirdQuartile = "THIRD_QUARTILE",
-  FourthQuartile = "FOURTH_QUARTILE",
-}
-
-interface CommitContributionsByRepository {
-  repository: Repository;
-  contributions: CommitContributions;
-}
-
-interface CommitContributions {
-  nodes: CommitNode[];
-  pageInfo: CommitPageInfo;
-}
-
-interface CommitNode {
-  commitCount: number;
-  isRestricted: boolean;
-  occurredAt: string;
-  resourcePath: string;
-  url: string;
-}
-
-interface CommitPageInfo {
-  hasNextPage: boolean;
-  endCursor: string;
-}
-
-interface RepositoryContributions {
-  nodes: RepositoryNode[];
-  pageInfo: RepositoryPageInfo;
-}
-
-interface RepositoryNode {
-  isRestricted: boolean;
-  occurredAt: string;
-  repository: Repository;
-  url: string;
-}
-
-interface RepositoryPageInfo {
-  hasNextPage: boolean;
-  endCursor: string;
-}
-
-interface Repository {
-  isFork: boolean;
-  isPrivate: boolean;
-  url: string;
-}
 
 export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(
     localStorage.getItem("github_token"),
   );
-  const [info, setInfo] = useState<Contributions | null>(null);
+  const [info, setInfo] = useState<github.Contributions | null>(null);
   const [loading, setLoading] = useState(false);
   const [showNumbers, setShowNumbers] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,15 +28,11 @@ export default function App() {
       setLoading(true);
       setError(null);
 
-      const url = new URL("/api/oauth/callback", BACKEND_URL);
-      url.searchParams.set("code", code);
-      const response = await fetch(url);
-      const data = await response.json() as { access_token?: string };
-
-      if (data.access_token) {
-        setAccessToken(data.access_token);
+      const token = await github.getToken(code, BACKEND_URL);
+      if (token) {
+        setAccessToken(token);
         // FIXME? This will be available to the entire origin.
-        localStorage.setItem("github_token", data.access_token);
+        localStorage.setItem("github_token", token);
         history.replaceState({}, document.title, "/");
       } else {
         setError("Failed to authenticate with GitHub");
@@ -147,140 +65,11 @@ export default function App() {
         hasActivityInThePast // alternative
         mostRecentCollectionWithActivity // maybe automatically gets earlier stuff?
       */
-      const MyOctokit = Octokit.plugin(paginateGraphQL);
-      const octokit = new MyOctokit({ auth: `token ${accessToken}` });
-
-      let printJob: number | null = null;
-      octokit.hook.after("request", (response) => {
-        const limit = response.headers["x-ratelimit-limit"] || "";
-        const reset = response.headers["x-ratelimit-reset"];
-        const resource = response.headers["x-ratelimit-resource"];
-        const used = (response.headers["x-ratelimit-used"] || "").toString();
-
-        // Only print the rate limit info after a batch of requests.
-        if (printJob) {
-          clearTimeout(printJob);
-        }
-        printJob = setTimeout(() => {
-          printJob = null;
-          console.log(`Rate limit used: ${used}/${limit}`, resource);
-          if (reset) {
-            const seconds = Number.parseInt(reset, 10);
-            if (!Number.isNaN(seconds)) {
-              console.log("Rate limit resets:", new Date(seconds * 1000));
-            }
-          }
-        }, 1000);
-      });
-
-      const {
-        viewer: {
-          login,
-          name,
-          contributionsCollection: { contributionCalendar: calendar },
-        },
-      }: {
-        viewer: {
-          login: string;
-          name: string;
-          contributionsCollection: {
-            contributionCalendar: ContributionCalendar;
-          };
-        };
-      } = await octokit.graphql({
-        query: `query {
-          viewer {
-            login
-            name
-            contributionsCollection {
-              contributionCalendar {
-                totalContributions
-                weeks {
-                  contributionDays {
-                    contributionCount
-                    contributionLevel
-                    date
-                  }
-                }
-              }
-            }
-          }
-        }`,
-      });
-
-      const {
-        viewer: {
-          contributionsCollection: { commitContributionsByRepository: commits },
-        },
-      }: {
-        viewer: {
-          contributionsCollection: {
-            commitContributionsByRepository: CommitContributionsByRepository;
-          };
-        };
-      } = await octokit.graphql(
-        `query {
-          viewer {
-            contributionsCollection {
-              commitContributionsByRepository(maxRepositories: 25) {
-                repository {
-                  isFork
-                  isPrivate
-                  url
-                }
-                contributions(last: 50) {
-                  nodes {
-                    commitCount
-                    occurredAt
-                    isRestricted
-                    resourcePath
-                    url
-                  }
-                  pageInfo {
-                    hasNextPage
-                    endCursor
-                  }
-                }
-              }
-            }
-          }
-        }`,
-      );
-
-      const {
-        viewer: {
-          contributionsCollection: { repositoryContributions: repos },
-        },
-      }: {
-        viewer: {
-          contributionsCollection: {
-            repositoryContributions: RepositoryContributions;
-          };
-        };
-      } = await octokit.graphql.paginate(
-        `query paginate($cursor: String) {
-          viewer {
-            contributionsCollection {
-              repositoryContributions(last: 100, after: $cursor) {
-                nodes {
-                  isRestricted
-                  occurredAt
-                  repository {
-                    isFork
-                    isPrivate
-                    url
-                  }
-                  url
-                }
-                pageInfo {
-                  hasNextPage
-                  endCursor
-                }
-              }
-            }
-          }
-        }`,
-      );
+      const octokit = github.octokit(accessToken);
+      github.installRateLimitReport(octokit);
+      const { login, name, calendar } = await github.queryCalendar(octokit);
+      const commits = await github.queryCommits(octokit);
+      const repos = await github.queryRepositories(octokit);
 
       setInfo({
         login,
@@ -298,19 +87,12 @@ export default function App() {
   }, [accessToken]);
 
   function login(): void {
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-    if (!clientId) {
-      setError(
-        "GitHub Client ID not found. Set VITE_GITHUB_CLIENT_ID in your .env file.",
-      );
-      return;
+    try {
+      github.redirectToLogin(BASE_URL);
+    } catch (error: unknown) {
+      console.error("Error redirecting to GitHub login:", error);
+      setError("Configuration error. Could not log into GitHub.");
     }
-
-    const redirect = new URL("https://github.com/login/oauth/authorize");
-    redirect.searchParams.set("client_id", clientId);
-    redirect.searchParams.set("redirect_uri", BASE_URL);
-    redirect.searchParams.set("scope", "repo");
-    document.location.href = redirect.href;
   }
 
   function logout(): void {
@@ -357,7 +139,7 @@ export default function App() {
 
 function ContributionsGraph(
   { contributions, showNumbers }: {
-    contributions: Contributions;
+    contributions: github.Contributions;
     showNumbers: boolean;
   },
 ) {
@@ -368,7 +150,7 @@ function ContributionsGraph(
     ),
   );
 
-  function day_style(day: ContributionDay) {
+  function day_style(day: github.ContributionDay) {
     let value = 100;
     let color = "transparent";
     if (day.contributionCount > 0) {
