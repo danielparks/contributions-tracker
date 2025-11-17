@@ -103,7 +103,29 @@ export default function App() {
       const MyOctokit = Octokit.plugin(paginateGraphQL);
       const octokit = new MyOctokit({ auth: `token ${accessToken}` });
 
-      const calendar: unknown = await octokit.graphql({
+      let printJob: number | null = null;
+      octokit.hook.after("request", (response) => {
+        const limit = response.headers["x-ratelimit-limit"] || "";
+        const reset = response.headers["x-ratelimit-reset"];
+        const resource = response.headers["x-ratelimit-resource"];
+        const used = (response.headers["x-ratelimit-used"] || "").toString();
+
+        // Only print the rate limit info after a batch of requests.
+        if (printJob) {
+          clearTimeout(printJob);
+        }
+        printJob = setTimeout(() => {
+          printJob = null;
+          console.log(`Rate limit used: ${used}/${limit}`, resource);
+          if (reset) {
+            const seconds = Number.parseInt(reset, 10);
+            if (!Number.isNaN(seconds)) {
+              console.log("Rate limit resets:", new Date(seconds * 1000));
+            }
+          }
+        }, 1000);
+      });
+
         query: `query {
           viewer {
             login
