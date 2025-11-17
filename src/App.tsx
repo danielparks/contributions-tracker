@@ -36,6 +36,52 @@ enum ContributionLevel {
   FourthQuartile = "FOURTH_QUARTILE",
 }
 
+interface CommitContributionsByRepository {
+  repository: Repository;
+  contributions: CommitContributions;
+}
+
+interface CommitContributions {
+  nodes: CommitNode[];
+  pageInfo: CommitPageInfo;
+}
+
+interface CommitNode {
+  commitCount: number;
+  isRestricted: boolean;
+  occurredAt: string;
+  resourcePath: string;
+  url: string;
+}
+
+interface CommitPageInfo {
+  hasNextPage: boolean;
+  endCursor: string;
+}
+
+interface RepositoryContributions {
+  nodes: RepositoryNode[];
+  pageInfo: RepositoryPageInfo;
+}
+
+interface RepositoryNode {
+  isRestricted: boolean;
+  occurredAt: string;
+  repository: Repository;
+  url: string;
+}
+
+interface RepositoryPageInfo {
+  hasNextPage: boolean;
+  endCursor: string;
+}
+
+interface Repository {
+  isFork: boolean;
+  isPrivate: boolean;
+  url: string;
+}
+
 export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(
     localStorage.getItem("github_token"),
@@ -88,6 +134,7 @@ export default function App() {
         return;
       }
       setLoading(true);
+
       /*
       contributionsCollection:
         commitContributionsByRepository
@@ -126,6 +173,21 @@ export default function App() {
         }, 1000);
       });
 
+      const {
+        viewer: {
+          login,
+          name,
+          contributionsCollection: { contributionCalendar: calendar },
+        },
+      }: {
+        viewer: {
+          login: string;
+          name: string;
+          contributionsCollection: {
+            contributionCalendar: ContributionCalendar;
+          };
+        };
+      } = await octokit.graphql({
         query: `query {
           viewer {
             login
@@ -146,17 +208,17 @@ export default function App() {
         }`,
       });
 
-      const { viewer } = calendar as {
+      const {
         viewer: {
-          login: string;
-          name: string;
+          contributionsCollection: { commitContributionsByRepository: commits },
+        },
+      }: {
+        viewer: {
           contributionsCollection: {
-            contributionCalendar: ContributionCalendar;
+            commitContributionsByRepository: CommitContributionsByRepository;
           };
         };
-      };
-
-      const commits: unknown = await octokit.graphql(
+      } = await octokit.graphql(
         `query {
           viewer {
             contributionsCollection {
@@ -169,7 +231,9 @@ export default function App() {
                 contributions(last: 50) {
                   nodes {
                     commitCount
+                    occurredAt
                     isRestricted
+                    resourcePath
                     url
                   }
                   pageInfo {
@@ -183,11 +247,21 @@ export default function App() {
         }`,
       );
 
-      const repos: unknown = await octokit.graphql.paginate(
+      const {
+        viewer: {
+          contributionsCollection: { repositoryContributions: repos },
+        },
+      }: {
+        viewer: {
+          contributionsCollection: {
+            repositoryContributions: RepositoryContributions;
+          };
+        };
+      } = await octokit.graphql.paginate(
         `query paginate($cursor: String) {
           viewer {
             contributionsCollection {
-              repositoryContributions(last: 50, after: $cursor) {
+              repositoryContributions(last: 100, after: $cursor) {
                 nodes {
                   isRestricted
                   occurredAt
@@ -209,11 +283,11 @@ export default function App() {
       );
 
       setInfo({
-        login: viewer.login,
-        name: viewer.name,
-        calendar: viewer.contributionsCollection.contributionCalendar,
-        other: `commits: ${JSON.stringify(commits)}\n\nrepos: ${
-          JSON.stringify(repos)
+        login,
+        name,
+        calendar,
+        other: `commits: ${JSON.stringify(commits, null, 4)}\n\nrepos: ${
+          JSON.stringify(repos, null, 4)
         }`,
       });
       setLoading(false);
