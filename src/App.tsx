@@ -1,6 +1,8 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import * as github from "./github.ts";
+import type { ContributionCalendarDay } from "./gql.ts";
+
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
 
@@ -150,7 +152,7 @@ function ContributionsGraph(
     ),
   );
 
-  function day_style(day: github.ContributionDay) {
+  function day_style(day: ContributionCalendarDay) {
     let value = 100;
     let color = "transparent";
     if (day.contributionCount > 0) {

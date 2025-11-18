@@ -1,6 +1,12 @@
 import { Octokit } from "@octokit/core";
 import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
 import type { paginateGraphQLInterface } from "@octokit/plugin-paginate-graphql";
+import type {
+  CommitContributionsByRepository,
+  ContributionCalendar,
+  CreatedRepositoryContributionConnection,
+  User,
+} from "./gql.ts";
 
 export function redirectToLogin(redirectUrl: string) {
   const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
@@ -31,75 +37,6 @@ export interface Contributions {
   name: string;
   calendar: ContributionCalendar;
   other?: string;
-}
-
-export interface ContributionCalendar {
-  totalContributions: number;
-  weeks: ContributionWeek[];
-}
-
-export interface ContributionWeek {
-  contributionDays: ContributionDay[];
-}
-
-export interface ContributionDay {
-  contributionCount: number;
-  contributionLevel: ContributionLevel;
-  date: string;
-}
-
-export enum ContributionLevel {
-  None = "NONE",
-  FirstQuartile = "FIRST_QUARTILE",
-  SecondQuartile = "SECOND_QUARTILE",
-  ThirdQuartile = "THIRD_QUARTILE",
-  FourthQuartile = "FOURTH_QUARTILE",
-}
-
-export interface CommitContributionsByRepository {
-  repository: Repository;
-  contributions: CommitContributions;
-}
-
-export interface CommitContributions {
-  nodes: CommitNode[];
-  pageInfo: CommitPageInfo;
-}
-
-export interface CommitNode {
-  commitCount: number;
-  isRestricted: boolean;
-  occurredAt: string;
-  resourcePath: string;
-  url: string;
-}
-
-export interface CommitPageInfo {
-  hasNextPage: boolean;
-  endCursor: string;
-}
-
-export interface RepositoryContributions {
-  nodes: RepositoryNode[];
-  pageInfo: RepositoryPageInfo;
-}
-
-export interface RepositoryNode {
-  isRestricted: boolean;
-  occurredAt: string;
-  repository: Repository;
-  url: string;
-}
-
-export interface RepositoryPageInfo {
-  hasNextPage: boolean;
-  endCursor: string;
-}
-
-export interface Repository {
-  isFork: boolean;
-  isPrivate: boolean;
-  url: string;
 }
 
 export type OctokitWithPagination = Octokit & paginateGraphQLInterface;
@@ -138,21 +75,7 @@ export function installRateLimitReport(octokit: OctokitWithPagination) {
 export async function queryCalendar(
   octokit: OctokitWithPagination,
 ): Promise<{ login: string; name: string; calendar: ContributionCalendar }> {
-  const {
-    viewer: {
-      login,
-      name,
-      contributionsCollection: { contributionCalendar: calendar },
-    },
-  }: {
-    viewer: {
-      login: string;
-      name: string;
-      contributionsCollection: {
-        contributionCalendar: ContributionCalendar;
-      };
-    };
-  } = await octokit.graphql({
+  const { viewer } = await octokit.graphql<{ viewer: User }>({
     query: `query {
       viewer {
         login
@@ -173,23 +96,17 @@ export async function queryCalendar(
     }`,
   });
 
-  return { login, name, calendar };
+  return {
+    login: viewer.login,
+    name: viewer.name || "",
+    calendar: viewer.contributionsCollection.contributionCalendar,
+  };
 }
 
 export async function queryCommits(
   octokit: OctokitWithPagination,
-): Promise<CommitContributionsByRepository> {
-  const {
-    viewer: {
-      contributionsCollection: { commitContributionsByRepository: commits },
-    },
-  }: {
-    viewer: {
-      contributionsCollection: {
-        commitContributionsByRepository: CommitContributionsByRepository;
-      };
-    };
-  } = await octokit.graphql(
+): Promise<CommitContributionsByRepository[]> {
+  const { viewer } = await octokit.graphql<{ viewer: User }>(
     `query {
       viewer {
         contributionsCollection {
@@ -217,23 +134,13 @@ export async function queryCommits(
       }
     }`,
   );
-  return commits;
+  return viewer.contributionsCollection.commitContributionsByRepository;
 }
 
 export async function queryRepositories(
   octokit: OctokitWithPagination,
-): Promise<RepositoryContributions> {
-  const {
-    viewer: {
-      contributionsCollection: { repositoryContributions: repos },
-    },
-  }: {
-    viewer: {
-      contributionsCollection: {
-        repositoryContributions: RepositoryContributions;
-      };
-    };
-  } = await octokit.graphql.paginate(
+): Promise<CreatedRepositoryContributionConnection> {
+  const { viewer } = await octokit.graphql.paginate<{ viewer: User }>(
     `query paginate($cursor: String) {
       viewer {
         contributionsCollection {
@@ -257,5 +164,5 @@ export async function queryRepositories(
       }
     }`,
   );
-  return repos;
+  return viewer.contributionsCollection.repositoryContributions;
 }
