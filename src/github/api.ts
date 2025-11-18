@@ -32,13 +32,6 @@ export async function getToken(code: string, backendUrl: string) {
   return data.access_token;
 }
 
-export interface Contributions {
-  login: string;
-  name: string;
-  calendar: ContributionCalendar;
-  other?: string;
-}
-
 export type OctokitWithPagination = Octokit & paginateGraphQLInterface;
 
 // Get an octokit instance to work with.
@@ -72,9 +65,17 @@ export function installRateLimitReport(octokit: OctokitWithPagination) {
   });
 }
 
-export async function queryCalendar(
+export interface Contributions {
+  login: string;
+  name: string;
+  calendar: ContributionCalendar;
+  commits: CommitContributionsByRepository[];
+  repositories: CreatedRepositoryContributionConnection;
+}
+
+export async function queryBase(
   octokit: OctokitWithPagination,
-): Promise<{ login: string; name: string; calendar: ContributionCalendar }> {
+): Promise<Contributions> {
   const { viewer } = await octokit.graphql<{ viewer: User }>({
     query: `query {
       viewer {
@@ -91,25 +92,6 @@ export async function queryCalendar(
               }
             }
           }
-        }
-      }
-    }`,
-  });
-
-  return {
-    login: viewer.login,
-    name: viewer.name || "",
-    calendar: viewer.contributionsCollection.contributionCalendar,
-  };
-}
-
-export async function queryCommits(
-  octokit: OctokitWithPagination,
-): Promise<CommitContributionsByRepository[]> {
-  const { viewer } = await octokit.graphql<{ viewer: User }>(
-    `query {
-      viewer {
-        contributionsCollection {
           commitContributionsByRepository(maxRepositories: 25) {
             repository {
               isFork
@@ -130,21 +112,7 @@ export async function queryCommits(
               }
             }
           }
-        }
-      }
-    }`,
-  );
-  return viewer.contributionsCollection.commitContributionsByRepository;
-}
-
-export async function queryRepositories(
-  octokit: OctokitWithPagination,
-): Promise<CreatedRepositoryContributionConnection> {
-  const { viewer } = await octokit.graphql.paginate<{ viewer: User }>(
-    `query paginate($cursor: String) {
-      viewer {
-        contributionsCollection {
-          repositoryContributions(last: 100, after: $cursor) {
+          repositoryContributions(last: 100) {
             nodes {
               isRestricted
               occurredAt
@@ -163,6 +131,13 @@ export async function queryRepositories(
         }
       }
     }`,
-  );
-  return viewer.contributionsCollection.repositoryContributions;
+  });
+
+  return {
+    login: viewer.login,
+    name: viewer.name || "",
+    calendar: viewer.contributionsCollection.contributionCalendar,
+    commits: viewer.contributionsCollection.commitContributionsByRepository,
+    repositories: viewer.contributionsCollection.repositoryContributions,
+  };
 }

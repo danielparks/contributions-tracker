@@ -69,18 +69,7 @@ export default function App() {
       */
       const octokit = github.octokit(accessToken);
       github.installRateLimitReport(octokit);
-      const { login, name, calendar } = await github.queryCalendar(octokit);
-      const commits = await github.queryCommits(octokit);
-      const repos = await github.queryRepositories(octokit);
-
-      setInfo({
-        login,
-        name,
-        calendar,
-        other: `commits: ${JSON.stringify(commits, null, 4)}\n\nrepos: ${
-          JSON.stringify(repos, null, 4)
-        }`,
-      });
+      setInfo(await github.queryBase(octokit));
       setLoading(false);
     })().catch((error: unknown) => {
       console.error("Error getting contribution data", error);
@@ -185,7 +174,8 @@ function ContributionsGraph(
           ))}
         </tbody>
       </table>
-      {contributions.other && <pre>{contributions.other}</pre>}
+      <pre>{JSON.stringify(contributions.commits, null, 2)}</pre>
+      <pre>{JSON.stringify(contributions.repositories, null, 2)}</pre>
     </>
   );
 }
