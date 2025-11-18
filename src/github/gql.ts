@@ -1,3 +1,4 @@
+/* eslint-disable */
 // deno-lint-ignore-file
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;

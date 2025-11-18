@@ -1,7 +1,7 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import * as github from "./github.ts";
-import type { ContributionCalendarDay } from "./gql.ts";
+import * as github from "./github/api.ts";
+import type { ContributionCalendarDay } from "./github/gql.ts";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";

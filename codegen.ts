@@ -1,10 +1,10 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
-  schema: "./github.graphql",
+  schema: "src/github/schema.graphql",
   noSilentErrors: true,
   generates: {
-    "./src/gql.ts": {
+    "src/github/gql.ts": {
       config: {
         scalars: {
           Date: "string",
@@ -12,11 +12,12 @@ const config: CodegenConfig = {
         useTypeImports: true,
       },
       plugins: [
+        { add: { content: "/* eslint-disable */" } },
         { add: { content: "// deno-lint-ignore-file" } },
         "typescript",
       ],
     },
   },
-  hooks: { afterAllFileWrite: ["deno fmt src/gql.ts"] },
+  hooks: { afterAllFileWrite: ["deno fmt src/github/gql.ts"] },
 };
 export default config;
