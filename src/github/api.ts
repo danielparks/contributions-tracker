@@ -34,76 +34,85 @@ export async function getToken(code: string, backendUrl: string) {
 
 export type OctokitWithPagination = Octokit & paginateGraphQLInterface;
 
-// Get an octokit instance to work with.
-export function octokit(token: string): OctokitWithPagination {
-  const MyOctokit = Octokit.plugin(paginateGraphQL);
-  return new MyOctokit({ auth: `token ${token}` });
-}
+export class GitHub {
+  readonly octokit: OctokitWithPagination;
 
-export function installRateLimitReport(octokit: OctokitWithPagination) {
-  let printJob: number | null = null;
-  octokit.hook.after("request", (response) => {
-    const limit = response.headers["x-ratelimit-limit"] || "";
-    const reset = response.headers["x-ratelimit-reset"];
-    const resource = response.headers["x-ratelimit-resource"];
-    const used = (response.headers["x-ratelimit-used"] || "").toString();
+  constructor(token: string) {
+    const MyOctokit = Octokit.plugin(paginateGraphQL);
+    this.octokit = new MyOctokit({ auth: `token ${token}` });
+  }
 
-    // Only print the rate limit info after a batch of requests.
-    if (printJob) {
-      clearTimeout(printJob);
-    }
-    printJob = setTimeout(() => {
-      printJob = null;
-      console.log(`Rate limit used: ${used}/${limit}`, resource);
-      if (reset) {
-        const seconds = Number.parseInt(reset, 10);
-        if (!Number.isNaN(seconds)) {
-          console.log("Rate limit resets:", new Date(seconds * 1000));
-        }
+  installRateLimitReport() {
+    let printJob: number | null = null;
+    this.octokit.hook.after("request", (response) => {
+      const limit = response.headers["x-ratelimit-limit"] || "";
+      const reset = response.headers["x-ratelimit-reset"];
+      const resource = response.headers["x-ratelimit-resource"];
+      const used = (response.headers["x-ratelimit-used"] || "").toString();
+
+      // Only print the rate limit info after a batch of requests.
+      if (printJob) {
+        clearTimeout(printJob);
       }
-    }, 1000);
-  });
-}
+      printJob = setTimeout(() => {
+        printJob = null;
+        console.log(`Rate limit used: ${used}/${limit}`, resource);
+        if (reset) {
+          const seconds = Number.parseInt(reset, 10);
+          if (!Number.isNaN(seconds)) {
+            console.log("Rate limit resets:", new Date(seconds * 1000));
+          }
+        }
+      }, 1000);
+    });
+  }
 
-export interface Contributions {
-  login: string;
-  name: string;
-  calendar: ContributionCalendar;
-  commits: CommitContributionsByRepository[];
-  repositories: CreatedRepositoryContributionConnection;
-}
-
-export async function queryBase(
-  octokit: OctokitWithPagination,
-): Promise<Contributions> {
-  const { viewer } = await octokit.graphql<{ viewer: User }>({
-    query: `query {
-      viewer {
-        login
-        name
-        contributionsCollection {
-          contributionCalendar {
-            totalContributions
-            weeks {
-              contributionDays {
-                contributionCount
-                contributionLevel
-                date
+  async queryBase(): Promise<Contributions> {
+    const { viewer } = await this.octokit.graphql<{ viewer: User }>({
+      query: `query {
+        viewer {
+          login
+          name
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  contributionLevel
+                  date
+                }
               }
             }
-          }
-          commitContributionsByRepository(maxRepositories: 25) {
-            repository {
-              isFork
-              isPrivate
-              url
+            commitContributionsByRepository(maxRepositories: 25) {
+              repository {
+                isFork
+                isPrivate
+                url
+              }
+              contributions(last: 50) {
+                nodes {
+                  commitCount
+                  occurredAt
+                  isRestricted
+                  resourcePath
+                  url
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
             }
-            contributions(last: 50) {
+            repositoryContributions(last: 100) {
               nodes {
-                commitCount
-                occurredAt
                 isRestricted
-                resourcePath
+                occurredAt
+                repository {
+                  isFork
+                  isPrivate
+                  url
+                }
                 url
               }
               pageInfo {
@@ -112,32 +121,24 @@ export async function queryBase(
               }
             }
           }
-          repositoryContributions(last: 100) {
-            nodes {
-              isRestricted
-              occurredAt
-              repository {
-                isFork
-                isPrivate
-                url
-              }
-              url
-            }
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-          }
         }
-      }
-    }`,
-  });
+      }`,
+    });
 
-  return {
-    login: viewer.login,
-    name: viewer.name || "",
-    calendar: viewer.contributionsCollection.contributionCalendar,
-    commits: viewer.contributionsCollection.commitContributionsByRepository,
-    repositories: viewer.contributionsCollection.repositoryContributions,
-  };
+    return {
+      login: viewer.login,
+      name: viewer.name || "",
+      calendar: viewer.contributionsCollection.contributionCalendar,
+      commits: viewer.contributionsCollection.commitContributionsByRepository,
+      repositories: viewer.contributionsCollection.repositoryContributions,
+    };
+  }
+}
+
+export interface Contributions {
+  login: string;
+  name: string;
+  calendar: ContributionCalendar;
+  commits: CommitContributionsByRepository[];
+  repositories: CreatedRepositoryContributionConnection;
 }

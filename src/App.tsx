@@ -67,9 +67,9 @@ export default function App() {
         hasActivityInThePast // alternative
         mostRecentCollectionWithActivity // maybe automatically gets earlier stuff?
       */
-      const octokit = github.octokit(accessToken);
-      github.installRateLimitReport(octokit);
-      setInfo(await github.queryBase(octokit));
+      const gh = new github.GitHub(accessToken);
+      gh.installRateLimitReport();
+      setInfo(await gh.queryBase());
       setLoading(false);
     })().catch((error: unknown) => {
       console.error("Error getting contribution data", error);
