@@ -1,7 +1,6 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import * as github from "./github/api.ts";
-import type { ContributionCalendarDay } from "./github/gql.ts";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
@@ -128,24 +127,111 @@ export default function App() {
   );
 }
 
+function parseDateTime(input: string) {
+  const [year, month, ...rest] = input
+    .split(/\D+/)
+    .map((n) => Number.parseInt(n, 10));
+  return new Date(year, month - 1, ...rest);
+}
+
+class Calendar {
+  start: Date;
+  days: Day[];
+
+  constructor(start: Date, days: Day[] = []) {
+    this.start = start;
+    this.days = days;
+  }
+
+  static fromContributions(contributions: github.Contributions) {
+    return new Calendar(
+      parseDateTime(contributions.calendar.weeks[0].contributionDays[0].date),
+      contributions.calendar.weeks.map((week) =>
+        week.contributionDays.map((day) =>
+          new Day(parseDateTime(day.date), day.contributionCount)
+        )
+      ).flat(),
+    );
+  }
+
+  maxContributions() {
+    return Math.max(
+      ...this.days
+        .filter((day) => day.contributionCount !== null)
+        .map((day) => day.contributionCount as number),
+    );
+  }
+
+  // FIXME test this.
+  *weeks() {
+    // Weeks always start on Sunday; if .start isn’t Sunday, pad with null Days.
+    const firstWeek: Day[] = [];
+    const date = new Date(this.start);
+    for (let i = 0; i < this.start.getDay(); i++) {
+      firstWeek.push(new Day(date, null));
+      date.setDate(date.getDate() + 1);
+    }
+    firstWeek.push(...this.days.slice(0, 7 - this.start.getDay()));
+    yield firstWeek;
+
+    for (let i = 7 - this.start.getDay(); i < this.days.length; i += 7) {
+      yield this.days.slice(i, i + 7);
+    }
+  }
+}
+
+class Day {
+  date: Date;
+  contributionCount: number | null;
+  repositories: RepositoryDay[] = [];
+  constructor(
+    date: Date,
+    contributionCount: number | null = null,
+    repositories: RepositoryDay[] = [],
+  ) {
+    this.date = date;
+    this.contributionCount = contributionCount;
+    this.repositories = repositories;
+  }
+}
+
+class RepositoryDay {
+  readonly repository: Repository;
+  commitCount: number;
+  // How many times the repo was created this day. (Typically 0, sometimes 1.)
+  created = 0;
+  constructor(repository: Repository, commitCount = 0, created = 0) {
+    this.repository = repository;
+    this.commitCount = commitCount;
+    this.created = created;
+  }
+}
+
+class Repository {
+  url: string;
+  isFork: boolean;
+  isPrivate: boolean;
+  constructor(url: string, isFork = false, isPrivate = false) {
+    this.url = url;
+    this.isFork = isFork;
+    this.isPrivate = isPrivate;
+  }
+}
+
 function ContributionsGraph(
   { contributions, showNumbers }: {
     contributions: github.Contributions;
     showNumbers: boolean;
   },
 ) {
-  const weeks = contributions.calendar.weeks;
-  const day_max = Math.max(
-    ...weeks.map((week) =>
-      Math.max(...week.contributionDays.map((day) => day.contributionCount))
-    ),
-  );
+  const calendar = Calendar.fromContributions(contributions);
+  const dayMax = calendar.maxContributions();
 
-  function day_style(day: ContributionCalendarDay) {
+  function dayStyle(day: Day) {
     let value = 100;
     let color = "transparent";
-    if (day.contributionCount > 0) {
-      value = 55 * (1 - day.contributionCount / day_max) + 40;
+    if (day.contributionCount) {
+      value = 55 * (1 - day.contributionCount / dayMax) + 40;
       if (showNumbers) {
         color = value < 70 ? "#fff" : "#333";
       }
@@ -160,12 +246,12 @@ function ContributionsGraph(
     <>
       <table className="contributions">
         <tbody>
-          {weeks.map((week) => (
-            <tr key={`week${week.contributionDays[0].date}`} className="week">
-              {week.contributionDays.map((day) => (
+          {[...calendar.weeks()].map((week) => (
+            <tr key={`week ${week[0].date.toString()}`} className="week">
+              {week.map((day) => (
                 <td
-                  key={`day${day.date}`}
-                  style={day_style(day)}
+                  key={`day ${day.date.toString()}`}
+                  style={dayStyle(day)}
                 >
                   {day.contributionCount}
                 </td>
