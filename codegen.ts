@@ -6,9 +6,7 @@ const config: CodegenConfig = {
   generates: {
     "src/github/gql.ts": {
       config: {
-        scalars: {
-          Date: "string",
-        },
+        defaultScalarType: "string",
         useTypeImports: true,
       },
       plugins: [
