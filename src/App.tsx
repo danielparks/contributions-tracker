@@ -203,7 +203,6 @@ class Calendar {
         } else {
           const repoDay = day.repositories.get(url);
           if (repoDay) {
-            console.log("created", occurredAt, repoDay);
             repoDay.created++;
           } else {
             day.repositories.set(url, new RepositoryDay(repository, 0, 1));
