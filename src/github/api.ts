@@ -4,7 +4,8 @@ import type { paginateGraphQLInterface } from "@octokit/plugin-paginate-graphql"
 import type {
   CommitContributionsByRepository,
   ContributionCalendar,
-  CreatedRepositoryContributionConnection,
+  CreatedRepositoryContribution,
+  Maybe,
   User,
 } from "./gql.ts";
 
@@ -122,14 +123,22 @@ export class GitHub {
       }`,
     });
 
+    const contributions = viewer.contributionsCollection;
+
     return {
       login: viewer.login,
       name: viewer.name || "",
-      calendar: viewer.contributionsCollection.contributionCalendar,
-      commits: viewer.contributionsCollection.commitContributionsByRepository,
-      repositories: viewer.contributionsCollection.repositoryContributions,
+      calendar: contributions.contributionCalendar,
+      commits: contributions.commitContributionsByRepository,
+      repositories: cleanNodes(contributions.repositoryContributions.nodes),
     };
   }
+}
+
+export function cleanNodes<NodeType>(
+  nodes: Maybe<Maybe<NodeType>[]> | undefined,
+): NodeType[] {
+  return (nodes || []).filter((node) => node !== null && node !== undefined);
 }
 
 export interface Contributions {
@@ -137,5 +146,5 @@ export interface Contributions {
   name: string;
   calendar: ContributionCalendar;
   commits: CommitContributionsByRepository[];
-  repositories: CreatedRepositoryContributionConnection;
+  repositories: CreatedRepositoryContribution[];
 }

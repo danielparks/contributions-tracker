@@ -1,10 +1,6 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import * as github from "./github/api.ts";
-import type {
-  CreatedCommitContribution,
-  CreatedRepositoryContribution,
-} from "./github/gql.ts";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
@@ -159,54 +155,48 @@ class Calendar {
       } = entry;
       const _ = pageInfo; // FIXME?
       const repository = new Repository(url, isFork, isPrivate);
-      if (nodes) {
-        for (const node of nodes) {
-          const { commitCount, occurredAt, isRestricted } =
-            node as CreatedCommitContribution;
-          const _ = isRestricted; // FIXME?
-          // occurredAt seems to always be a localtime date explicitly in UTC,
-          // e.g. "2025-10-02T07:00:00Z", so using `new Date()` to parse it
-          // works well.
-          const day = calendar.day(new Date(occurredAt));
-          if (!day) {
-            console.warn(`Date "${occurredAt}" not in calendar`);
-          } else {
-            const repoDay = day.repositories.get(url);
-            if (repoDay) {
-              repoDay.commitCount += commitCount; // FIXME correct?
-            } else {
-              day.repositories.set(
-                url,
-                new RepositoryDay(repository, commitCount),
-              );
-            }
-          }
-        }
-      }
-    }
-
-    if (contributions.repositories.nodes) {
-      for (const node of contributions.repositories.nodes) {
-        const {
-          isRestricted,
-          occurredAt,
-          repository: { url, isFork, isPrivate },
-        } = node as CreatedRepositoryContribution;
+      for (const node of github.cleanNodes(nodes)) {
+        const { commitCount, occurredAt, isRestricted } = node;
         const _ = isRestricted; // FIXME?
-        const repository = new Repository(url, isFork, isPrivate);
-
-        // occurredAt seems to be a UTC datetime, e.g. "2025-11-06T21:41:51Z",
-        // so using `new Date()` to parse it works well.
+        // occurredAt seems to be a localtime date explicitly in UTC, e.g.
+        // "2025-10-02T07:00:00Z", so using `new Date()` to parse it works well.
         const day = calendar.day(new Date(occurredAt));
         if (!day) {
           console.warn(`Date "${occurredAt}" not in calendar`);
         } else {
           const repoDay = day.repositories.get(url);
           if (repoDay) {
-            repoDay.created++;
+            repoDay.commitCount += commitCount; // FIXME correct?
           } else {
-            day.repositories.set(url, new RepositoryDay(repository, 0, 1));
+            day.repositories.set(
+              url,
+              new RepositoryDay(repository, commitCount),
+            );
           }
+        }
+      }
+    }
+
+    for (const node of contributions.repositories) {
+      const {
+        isRestricted,
+        occurredAt,
+        repository: { url, isFork, isPrivate },
+      } = node;
+      const _ = isRestricted; // FIXME?
+      const repository = new Repository(url, isFork, isPrivate);
+
+      // occurredAt seems to be a UTC datetime, e.g. "2025-11-06T21:41:51Z", so
+      // using `new Date()` to parse it works well.
+      const day = calendar.day(new Date(occurredAt));
+      if (!day) {
+        console.warn(`Date "${occurredAt}" not in calendar`);
+      } else {
+        const repoDay = day.repositories.get(url);
+        if (repoDay) {
+          repoDay.created++;
+        } else {
+          day.repositories.set(url, new RepositoryDay(repository, 0, 1));
         }
       }
     }
