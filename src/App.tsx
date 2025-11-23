@@ -324,12 +324,27 @@ function ContributionsGraph(
           ))}
         </tbody>
       </table>
-      <pre>{
-        JSON.stringify(
-          contributions.repositories.map(
-            (node) => `${node.occurredAt} ${node.repository.url}`
-          ), null, 2)
-      }</pre>
+
+      <h2>Repository commits</h2>
+      <ol>
+        {contributions.commits.map(({ repository, contributions }) => (
+          <li key={`commits for ${repository.url}`}>
+            {repository.url}: {github.cleanNodes(contributions.nodes).length}
+            {contributions.pageInfo.hasNextPage ? "+" : ""}
+          </li>
+        ))}
+      </ol>
+
+      <h2>Repositories created</h2>
+      <ol>
+        {contributions.repositories.map(
+          (node) => (
+            <li key={`${node.occurredAt} ${node.repository.url}`}>
+              {node.occurredAt} {node.repository.url}
+            </li>
+          ),
+        )}
+      </ol>
     </>
   );
 }
