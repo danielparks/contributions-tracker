@@ -2,6 +2,7 @@ import { Octokit } from "@octokit/core";
 import type {
   CommitContributionsByRepository,
   ContributionCalendar,
+  CreatedIssueContribution,
   CreatedPullRequestContribution,
   CreatedRepositoryContribution,
   Maybe,
@@ -75,9 +76,10 @@ export class GitHub {
 
   async *queryBase(): AsyncGenerator<Contributions> {
     const query = `query (
-      $cursor1:String = null,
-      $cursor2:String = null,
-      $cursor3:String = null,
+      $commitCursor:String = null,
+      $issueCursor:String = null,
+      $prCursor:String = null,
+      $repoCursor:String = null,
     ) {
         viewer {
           login
@@ -99,7 +101,7 @@ export class GitHub {
                 isPrivate
                 url
               }
-              contributions(first: 50, after: $cursor1) {
+              contributions(first: 50, after: $commitCursor) {
                 nodes {
                   commitCount
                   isRestricted
@@ -111,7 +113,25 @@ export class GitHub {
                 }
               }
             }
-            pullRequestContributions(first: 50, after: $cursor2) {
+            issueContributions(first: 50, after: $issueCursor) {
+              nodes {
+                isRestricted
+                occurredAt
+                issue {
+                  repository {
+                    isFork
+                    isPrivate
+                    url
+                  }
+                  url
+                }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+            pullRequestContributions(first: 50, after: $prCursor) {
               nodes {
                 isRestricted
                 occurredAt
@@ -129,7 +149,7 @@ export class GitHub {
                 endCursor
               }
             }
-            repositoryContributions(first: 50, after: $cursor3) {
+            repositoryContributions(first: 50, after: $repoCursor) {
               nodes {
                 isRestricted
                 occurredAt
@@ -154,6 +174,7 @@ export class GitHub {
       name: viewer.name || "",
       calendar: collection.contributionCalendar,
       commits: collection.commitContributionsByRepository,
+      issues: cleanNodes(collection.issueContributions.nodes),
       prs: cleanNodes(collection.pullRequestContributions.nodes),
       repositories: cleanNodes(collection.repositoryContributions.nodes),
     };
@@ -161,23 +182,30 @@ export class GitHub {
     // Yield initial data
     yield contributions;
 
-    let pageInfo1 = collection.commitContributionsByRepository.find((
+    let commitPageInfo = collection.commitContributionsByRepository.find((
       { contributions },
     ) => contributions.pageInfo.hasNextPage)?.contributions.pageInfo;
-    let pageInfo2 = collection.pullRequestContributions.pageInfo;
-    let pageInfo3 = collection.repositoryContributions.pageInfo;
+    let issuePageInfo = collection.issueContributions.pageInfo;
+    let prPageInfo = collection.pullRequestContributions.pageInfo;
+    let repoPageInfo = collection.repositoryContributions.pageInfo;
     while (
-      pageInfo1?.hasNextPage || pageInfo2.hasNextPage || pageInfo3.hasNextPage
+      commitPageInfo?.hasNextPage || issuePageInfo.hasNextPage ||
+      prPageInfo.hasNextPage || repoPageInfo.hasNextPage
     ) {
       const results = await this.graphqlViewer(
         query,
-        { cursor1: pageInfo1?.endCursor, cursor2: pageInfo2.endCursor },
+        {
+          commitCursor: commitPageInfo?.endCursor,
+          issueCursor: issuePageInfo.endCursor,
+          prCursor: prPageInfo.endCursor,
+          repoCursor: repoPageInfo.endCursor,
+        },
       );
 
       const collection = results.contributionsCollection;
-      if (pageInfo1?.hasNextPage) {
+      if (commitPageInfo?.hasNextPage) {
         // Only load data if the last result wasn’t the last page.
-        pageInfo1 = collection
+        commitPageInfo = collection
           .commitContributionsByRepository.find(({ contributions }) =>
             contributions.pageInfo.hasNextPage
           )?.contributions.pageInfo;
@@ -186,18 +214,25 @@ export class GitHub {
         );
       }
 
-      if (pageInfo2.hasNextPage) {
+      if (issuePageInfo.hasNextPage) {
+        // Only load data if the last result wasn’t the last page.
+        const { nodes, pageInfo } = collection.issueContributions;
+        contributions.issues.push(...cleanNodes(nodes));
+        issuePageInfo = pageInfo;
+      }
+
+      if (prPageInfo.hasNextPage) {
         // Only load data if the last result wasn’t the last page.
         const { nodes, pageInfo } = collection.pullRequestContributions;
         contributions.prs.push(...cleanNodes(nodes));
-        pageInfo2 = pageInfo;
+        prPageInfo = pageInfo;
       }
 
-      if (pageInfo3.hasNextPage) {
+      if (repoPageInfo.hasNextPage) {
         // Only load data if the last result wasn’t the last page.
         const { nodes, pageInfo } = collection.repositoryContributions;
         contributions.repositories.push(...cleanNodes(nodes));
-        pageInfo3 = pageInfo;
+        repoPageInfo = pageInfo;
       }
 
       // Yield updated data after each page load
@@ -217,6 +252,7 @@ export interface Contributions {
   name: string;
   calendar: ContributionCalendar;
   commits: CommitContributionsByRepository[];
+  issues: CreatedIssueContribution[];
   prs: CreatedPullRequestContribution[];
   repositories: CreatedRepositoryContribution[];
 }

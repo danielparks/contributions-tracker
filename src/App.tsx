@@ -186,6 +186,27 @@ class Calendar {
       }
     }
 
+    for (const node of contributions.issues) {
+      const { url, isFork, isPrivate } = node.issue.repository;
+
+      // occurredAt seems to be a UTC datetime, e.g. "2025-11-06T21:41:51Z", so
+      // using `new Date()` to parse it works well.
+      const day = calendar.day(new Date(node.occurredAt));
+      if (!day) {
+        console.warn(`Date "${node.occurredAt}" not in calendar`);
+      } else {
+        const repoDay = day.repositories.get(url);
+        if (repoDay) {
+          repoDay.prs.push(node.issue.url);
+        } else {
+          const repository = new Repository(url, isFork, isPrivate);
+          const repoDay = new RepositoryDay(repository, 0, 0);
+          repoDay.issues.push(node.issue.url);
+          day.repositories.set(url, repoDay);
+        }
+      }
+    }
+
     for (const node of contributions.prs) {
       const { url, isFork, isPrivate } = node.pullRequest.repository;
 
@@ -200,10 +221,9 @@ class Calendar {
           repoDay.prs.push(node.pullRequest.url);
         } else {
           const repository = new Repository(url, isFork, isPrivate);
-          day.repositories.set(
-            url,
-            new RepositoryDay(repository, 0, 0, [node.pullRequest.url]),
-          );
+          const repoDay = new RepositoryDay(repository, 0, 0);
+          repoDay.prs.push(node.pullRequest.url);
+          day.repositories.set(url, repoDay);
         }
       }
     }
@@ -291,7 +311,8 @@ class Day {
   knownContributionCount() {
     return [...this.repositories.values()].reduce(
       (total, repoDay) =>
-        total + repoDay.created + repoDay.commitCount + repoDay.prs.length,
+        total + repoDay.created + repoDay.commitCount + repoDay.issues.length +
+        repoDay.prs.length,
       0,
     );
   }
@@ -302,6 +323,8 @@ class RepositoryDay {
   commitCount: number;
   // How many times the repo was created this day. (Typically 0, sometimes 1.)
   created = 0;
+  // Issue urls
+  issues: string[];
   // PR urls
   prs: string[];
 
@@ -309,12 +332,12 @@ class RepositoryDay {
     repository: Repository,
     commitCount = 0,
     created = 0,
-    prs: string[] = [],
   ) {
     this.repository = repository;
     this.commitCount = commitCount;
     this.created = created;
-    this.prs = prs;
+    this.issues = [];
+    this.prs = [];
   }
 }
 
@@ -383,6 +406,17 @@ function ContributionsGraph(
         ))}
       </ol>
 
+      <h2>Issues</h2>
+      <ol>
+        {contributions.issues.map(
+          (node) => (
+            <li key={`${node.occurredAt} ${node.issue.url}`}>
+              {node.occurredAt} {node.issue.url}
+            </li>
+          ),
+        )}
+      </ol>
+
       <h2>Pull requests</h2>
       <ol>
         {contributions.prs.map(
@@ -421,6 +455,9 @@ function DayInfo({ day }: { day: Day }) {
               <td className="pr-count">
                 {repoDay.prs.length}
               </td>
+              <td className="issue-count">
+                {repoDay.issues.length}
+              </td>
               <th>{repoDay.repository.url}</th>
               <td className="created">
                 {repoDay.created > 0 && <>(Created)</>}
@@ -430,7 +467,7 @@ function DayInfo({ day }: { day: Day }) {
         </tbody>
         <tfoot>
           <tr>
-            <td className="commit-count" colSpan={2}>
+            <td className="commit-count" colSpan={3}>
               {day.contributionCount}
             </td>
             <th></th>
