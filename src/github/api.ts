@@ -1,6 +1,4 @@
 import { Octokit } from "@octokit/core";
-import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
-import type { paginateGraphQLInterface } from "@octokit/plugin-paginate-graphql";
 import type {
   CommitContributionsByRepository,
   ContributionCalendar,
@@ -33,14 +31,11 @@ export async function getToken(code: string, backendUrl: string) {
   return data.access_token;
 }
 
-export type OctokitWithPagination = Octokit & paginateGraphQLInterface;
-
 export class GitHub {
-  readonly octokit: OctokitWithPagination;
+  readonly octokit: Octokit;
 
   constructor(token: string) {
-    const MyOctokit = Octokit.plugin(paginateGraphQL);
-    this.octokit = new MyOctokit({ auth: `token ${token}` });
+    this.octokit = new Octokit({ auth: `token ${token}` });
   }
 
   installRateLimitReport() {
