@@ -67,8 +67,14 @@ export default function App() {
       */
       const gh = new github.GitHub(accessToken);
       gh.installRateLimitReport();
-      setInfo(await gh.queryBase());
-      setLoading(false);
+      let isFirst = true;
+      for await (const partial of gh.queryBase()) {
+        setInfo(partial);
+        if (isFirst) {
+          setLoading(false);
+          isFirst = false;
+        }
+      }
     })().catch((error: unknown) => {
       console.error("Error getting contribution data", error);
       setError("Error getting contribution data");

@@ -72,7 +72,7 @@ export class GitHub {
     return viewer;
   }
 
-  async queryBase(): Promise<Contributions> {
+  async *queryBase(): AsyncGenerator<Contributions> {
     const query = `query ($cursor1:String = null, $cursor2:String = null) {
         viewer {
           login
@@ -134,6 +134,9 @@ export class GitHub {
       repositories: cleanNodes(collection.repositoryContributions.nodes),
     };
 
+    // Yield initial data
+    yield contributions;
+
     let pageInfo1 = collection.commitContributionsByRepository.find((
       { contributions },
     ) => contributions.pageInfo.hasNextPage)?.contributions.pageInfo;
@@ -162,9 +165,10 @@ export class GitHub {
         contributions.repositories.push(...cleanNodes(nodes));
         pageInfo2 = pageInfo;
       }
-    }
 
-    return contributions;
+      // Yield updated data after each page load
+      yield contributions;
+    }
   }
 }
 
