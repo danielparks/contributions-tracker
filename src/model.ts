@@ -1,4 +1,5 @@
 import * as github from "./github/api.ts";
+import * as gql from "./github/gql.ts";
 
 function parseDateTime(input: string) {
   const [year, month, ...rest] = input
@@ -13,6 +14,19 @@ function parseDateTime(input: string) {
 // for simpler date math (UTC has no daylight saving time).
 function toUtcDate(input: Date) {
   return Date.UTC(input.getFullYear(), input.getMonth(), input.getDate());
+}
+
+// Track repositories so we don’t create duplicates.
+const REPOSITORIES = new Map<string, Repository>();
+
+// Convert a GraphQL repository into a local, deduplicated repo.
+function cleanRepository({ url, isFork, isPrivate }: gql.Repository) {
+  let repository = REPOSITORIES.get(url);
+  if (!repository) {
+    repository = new Repository(url, isFork, isPrivate);
+    REPOSITORIES.set(url, repository);
+  }
+  return repository;
 }
 
 export class Calendar {
@@ -47,97 +61,50 @@ export class Calendar {
     // won’t work.
 
     for (const entry of contributions.commits) {
-      const {
-        repository: { url, isFork, isPrivate },
-        contributions: { nodes },
-      } = entry;
-      const repository = new Repository(url, isFork, isPrivate);
+      const { repository, contributions: { nodes } } = entry;
       for (const node of github.cleanNodes(nodes)) {
-        const { commitCount, occurredAt } = node;
-        // occurredAt seems to be a localtime date explicitly in UTC, e.g.
-        // "2025-10-02T07:00:00Z", so using `new Date()` to parse it works well.
-        const day = this.day(new Date(occurredAt));
-        if (!day) {
-          console.warn(`Date "${occurredAt}" not in calendar`);
-        } else {
-          const repoDay = day.repositories.get(url);
-          if (repoDay) {
-            repoDay.commitCount += commitCount; // FIXME correct?
-          } else {
-            day.repositories.set(
-              url,
-              new RepositoryDay(repository, commitCount),
-            );
-          }
-        }
+        this.repoDay(node.occurredAt, repository)?.addCommits(node.commitCount);
       }
     }
 
     for (const node of contributions.issues) {
-      const { url, isFork, isPrivate } = node.issue.repository;
-
-      // occurredAt seems to be a UTC datetime, e.g. "2025-11-06T21:41:51Z", so
-      // using `new Date()` to parse it works well.
-      const day = this.day(new Date(node.occurredAt));
-      if (!day) {
-        console.warn(`Date "${node.occurredAt}" not in calendar`);
-      } else {
-        const repoDay = day.repositories.get(url);
-        if (repoDay) {
-          repoDay.issues.push(node.issue.url);
-        } else {
-          const repository = new Repository(url, isFork, isPrivate);
-          const repoDay = new RepositoryDay(repository, 0, 0);
-          repoDay.issues.push(node.issue.url);
-          day.repositories.set(url, repoDay);
-        }
-      }
+      this.repoDay(node.occurredAt, node.issue.repository)?.issues.push(
+        node.issue.url,
+      );
     }
 
     for (const node of contributions.prs) {
-      const { url, isFork, isPrivate } = node.pullRequest.repository;
-
-      // occurredAt seems to be a UTC datetime, e.g. "2025-11-06T21:41:51Z", so
-      // using `new Date()` to parse it works well.
-      const day = this.day(new Date(node.occurredAt));
-      if (!day) {
-        console.warn(`Date "${node.occurredAt}" not in calendar`);
-      } else {
-        const repoDay = day.repositories.get(url);
-        if (repoDay) {
-          repoDay.prs.push(node.pullRequest.url);
-        } else {
-          const repository = new Repository(url, isFork, isPrivate);
-          const repoDay = new RepositoryDay(repository, 0, 0);
-          repoDay.prs.push(node.pullRequest.url);
-          day.repositories.set(url, repoDay);
-        }
-      }
+      this.repoDay(node.occurredAt, node.pullRequest.repository)?.prs.push(
+        node.pullRequest.url,
+      );
     }
 
     for (const node of contributions.repositories) {
-      const {
-        occurredAt,
-        repository: { url, isFork, isPrivate },
-      } = node;
-      const repository = new Repository(url, isFork, isPrivate);
-
-      // occurredAt seems to be a UTC datetime, e.g. "2025-11-06T21:41:51Z", so
-      // using `new Date()` to parse it works well.
-      const day = this.day(new Date(occurredAt));
-      if (!day) {
-        console.warn(`Date "${occurredAt}" not in calendar`);
-      } else {
-        const repoDay = day.repositories.get(url);
-        if (repoDay) {
-          repoDay.created++;
-        } else {
-          day.repositories.set(url, new RepositoryDay(repository, 0, 1));
-        }
-      }
+      this.repoDay(node.occurredAt, node.repository)?.addCreate();
     }
 
     return this;
+  }
+
+  repoDay(timestamp: string, repository: gql.Repository) {
+    // timestamps (occurredAt) as either dates or datetimes explicitly in UTC,
+    // e.g. "2025-10-02T07:00:00Z" or "2025-11-06T21:41:51Z", so parsing with
+    // `new Date(str)` should be fine.
+    const day = this.day(new Date(timestamp));
+    if (!day) {
+      console.warn(`Date "${timestamp}" not in calendar`);
+      return;
+    }
+
+    let repoDay = day.repositories.get(repository.url);
+    if (!repoDay) {
+      repoDay = new RepositoryDay(cleanRepository(repository));
+      day.repositories.set(
+        repository.url,
+        repoDay,
+      );
+    }
+    return repoDay;
   }
 
   // Expects localtime date.
@@ -223,6 +190,14 @@ export class RepositoryDay {
     this.created = created;
     this.issues = [];
     this.prs = [];
+  }
+
+  addCommits(count: number) {
+    this.commitCount += count;
+  }
+
+  addCreate(count = 1) {
+    this.created += count;
   }
 }
 
