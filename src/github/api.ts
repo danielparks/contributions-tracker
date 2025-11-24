@@ -4,6 +4,7 @@ import type {
   ContributionCalendar,
   CreatedIssueContribution,
   CreatedPullRequestContribution,
+  CreatedPullRequestReviewContribution,
   CreatedRepositoryContribution,
   Maybe,
   PageInfo,
@@ -76,6 +77,7 @@ export class GitHub {
       "issueCursor",
       "prCursor",
       "repoCursor",
+      "reviewCursor",
     ];
 
     const pageInfo = Object.fromEntries(
@@ -162,6 +164,24 @@ export class GitHub {
                   endCursor
                 }
               }
+              pullRequestReviewContributions(first: 100, after: $reviewCursor) {
+                nodes {
+                  isRestricted
+                  occurredAt
+                  pullRequestReview {
+                    repository {
+                      isFork
+                      isPrivate
+                      url
+                    }
+                    url
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
               repositoryContributions(first: 100, after: $repoCursor) {
                 nodes {
                   isRestricted
@@ -198,6 +218,7 @@ export class GitHub {
         issues: cleanNodes(collection.issueContributions.nodes),
         prs: cleanNodes(collection.pullRequestContributions.nodes),
         repositories: cleanNodes(collection.repositoryContributions.nodes),
+        reviews: cleanNodes(collection.pullRequestReviewContributions.nodes),
       };
 
       if (pageInfo.commitCursor.hasNextPage) {
@@ -229,6 +250,11 @@ export class GitHub {
       if (pageInfo.repoCursor.hasNextPage) {
         pageInfo.repoCursor = collection.repositoryContributions.pageInfo;
       }
+
+      if (pageInfo.reviewCursor.hasNextPage) {
+        pageInfo.reviewCursor =
+          collection.pullRequestReviewContributions.pageInfo;
+      }
     }
   }
 }
@@ -247,4 +273,5 @@ export interface Contributions {
   issues: CreatedIssueContribution[];
   prs: CreatedPullRequestContribution[];
   repositories: CreatedRepositoryContribution[];
+  reviews: CreatedPullRequestReviewContribution[];
 }

@@ -224,6 +224,9 @@ function DayInfo({ day }: { day: Day }) {
               <td className="issue-count">
                 {repoDay.issues.length}
               </td>
+              <td className="review-count">
+                {repoDay.reviews.length}
+              </td>
               <th>{repoDay.repository.url}</th>
               <td className="created">
                 {repoDay.created > 0 && <>(Created)</>}
@@ -233,7 +236,7 @@ function DayInfo({ day }: { day: Day }) {
           {day.addsUp() ||
             (
               <tr key="unknown">
-                <td className="commit-count" colSpan={3}>
+                <td className="commit-count" colSpan={4}>
                   {(day.contributionCount || 0) - day.knownContributionCount()}
                 </td>
                 <th>
@@ -245,7 +248,7 @@ function DayInfo({ day }: { day: Day }) {
         </tbody>
         <tfoot>
           <tr>
-            <td className="commit-count" colSpan={3}>
+            <td className="commit-count" colSpan={4}>
               {day.contributionCount}
             </td>
             <th></th>

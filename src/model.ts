@@ -83,6 +83,11 @@ export class Calendar {
       this.repoDay(node.occurredAt, node.repository)?.addCreate();
     }
 
+    for (const node of contributions.reviews) {
+      this.repoDay(node.occurredAt, node.pullRequestReview.repository)?.reviews
+        .push(node.pullRequestReview.url);
+    }
+
     return this;
   }
 
@@ -162,7 +167,7 @@ export class Day {
     return [...this.repositories.values()].reduce(
       (total, repoDay) =>
         total + repoDay.created + repoDay.commitCount + repoDay.issues.length +
-        repoDay.prs.length,
+        repoDay.prs.length + repoDay.reviews.length,
       0,
     );
   }
@@ -177,6 +182,8 @@ export class RepositoryDay {
   issues: string[] = [];
   // PR urls
   prs: string[] = [];
+  // PR review urls
+  reviews: string[] = [];
 
   constructor(repository: Repository) {
     this.repository = repository;
