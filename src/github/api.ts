@@ -181,8 +181,10 @@ export class GitHub {
           cursors.map((name) => [name, pageInfo[name].endCursor]),
         ),
       });
+
+      // Yield update
       const collection = viewer.contributionsCollection;
-      const contributions = {
+      yield {
         login: viewer.login,
         name: viewer.name || "",
         calendar: collection.contributionCalendar,
@@ -193,9 +195,6 @@ export class GitHub {
         prs: cleanNodes(collection.pullRequestContributions.nodes),
         repositories: cleanNodes(collection.repositoryContributions.nodes),
       };
-
-      // Yield update
-      yield contributions;
 
       if (pageInfo.commitCursor.hasNextPage) {
         const newPageInfo = collection
