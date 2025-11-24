@@ -102,7 +102,7 @@ export class GitHub {
                   }
                 }
               }
-              commitContributionsByRepository(maxRepositories: 50)
+              commitContributionsByRepository(maxRepositories: 100)
                 @include(if: $includeCommits)
               {
                 repository {
@@ -110,7 +110,7 @@ export class GitHub {
                   isPrivate
                   url
                 }
-                contributions(first: 50, after: $commitCursor) {
+                contributions(first: 100, after: $commitCursor) {
                   nodes {
                     commitCount
                     isRestricted
@@ -122,7 +122,7 @@ export class GitHub {
                   }
                 }
               }
-              issueContributions(first: 50, after: $issueCursor) {
+              issueContributions(first: 100, after: $issueCursor) {
                 nodes {
                   isRestricted
                   occurredAt
@@ -140,7 +140,7 @@ export class GitHub {
                   endCursor
                 }
               }
-              pullRequestContributions(first: 50, after: $prCursor) {
+              pullRequestContributions(first: 100, after: $prCursor) {
                 nodes {
                   isRestricted
                   occurredAt
@@ -158,7 +158,7 @@ export class GitHub {
                   endCursor
                 }
               }
-              repositoryContributions(first: 50, after: $repoCursor) {
+              repositoryContributions(first: 100, after: $repoCursor) {
                 nodes {
                   isRestricted
                   occurredAt
