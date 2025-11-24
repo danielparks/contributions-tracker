@@ -105,10 +105,13 @@ export default function App() {
       <h1>Contribution Graph{info && ` for ${info.name}`}</h1>
       <button type="button" onClick={logout}>Log out</button>
       {error && <h3 className="error">Error: {error}</h3>}
-      {loading
-        ? <h3 className="loading">Loading</h3>
-        : info
-        ? <ContributionsGraph calendar={info} />
+      {loading ? <h3 className="loading">Loading</h3> : info
+        ? (
+          <>
+            <ContributionsGraph calendar={info} />
+            <RepositoryList calendar={info} />
+          </>
+        )
         : <h3>No contributions data</h3>}
     </>
   );
@@ -197,5 +200,15 @@ function DayInfo({ day }: { day: Day }) {
         </tfoot>
       </table>
     </div>
+  );
+}
+
+function RepositoryList({ calendar }: { calendar: Calendar }) {
+  return (
+    <ol>
+      {[...calendar.repositories.values()].map((repo) => (
+        <li key={repo.url}>{repo.url}</li>
+      ))}
+    </ol>
   );
 }

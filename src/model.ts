@@ -16,24 +16,12 @@ function toUtcDate(input: Date) {
   return Date.UTC(input.getFullYear(), input.getMonth(), input.getDate());
 }
 
-// Track repositories so we don’t create duplicates.
-const REPOSITORIES = new Map<string, Repository>();
-
-// Convert a GraphQL repository into a local, deduplicated repo.
-function cleanRepository({ url, isFork, isPrivate }: gql.Repository) {
-  let repository = REPOSITORIES.get(url);
-  if (!repository) {
-    repository = new Repository(url, isFork, isPrivate);
-    REPOSITORIES.set(url, repository);
-  }
-  return repository;
-}
-
 export class Calendar {
   name: string; // User’s name.
   start: Date;
   start_ms: number; // UTC date encoded as ms since 1970.
   days: Day[];
+  repositories = new Map<string, Repository>();
 
   constructor(name: string, start: Date, days: Day[] = []) {
     this.name = name;
@@ -103,7 +91,7 @@ export class Calendar {
 
     let repoDay = day.repositories.get(repository.url);
     if (!repoDay) {
-      repoDay = new RepositoryDay(cleanRepository(repository));
+      repoDay = new RepositoryDay(this.cleanRepository(repository));
       day.repositories.set(
         repository.url,
         repoDay,
@@ -116,6 +104,16 @@ export class Calendar {
   day(date: Date): Day | undefined {
     // FIXME doens’t handle out-of-range dates well.
     return this.days[Math.round((toUtcDate(date) - this.start_ms) / 86400000)];
+  }
+
+  // Convert a GraphQL repository into a local, deduplicated repo.
+  cleanRepository({ url, isFork, isPrivate }: gql.Repository) {
+    let repository = this.repositories.get(url);
+    if (!repository) {
+      repository = new Repository(url, isFork, isPrivate);
+      this.repositories.set(url, repository);
+    }
+    return repository;
   }
 
   maxContributions() {
