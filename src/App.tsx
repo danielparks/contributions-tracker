@@ -148,66 +148,6 @@ function ContributionsGraph({ calendar }: { calendar: Calendar }) {
   );
 }
 
-// FIXME remove?
-export function ContributionsQueryReport(
-  { contributions }: { contributions: github.Contributions },
-) {
-  return (
-    <>
-      <h2>Repository commits</h2>
-      <ol>
-        {contributions.commits.map(({ repository, contributions }, i) => (
-          <li key={`commits for ${repository.url} ${i.toString()}`}>
-            <h3>
-              {repository.url}: {github.cleanNodes(contributions.nodes).length}
-              {contributions.pageInfo.hasNextPage &&
-                `+ (${contributions.pageInfo.endCursor || ""})`}
-            </h3>
-            <ol>
-              {github.cleanNodes(contributions.nodes).map((node) => (
-                <li key={node.occurredAt}>{JSON.stringify(node)}</li>
-              ))}
-            </ol>
-          </li>
-        ))}
-      </ol>
-
-      <h2>Issues</h2>
-      <ol>
-        {contributions.issues.map(
-          (node) => (
-            <li key={`${node.occurredAt} ${node.issue.url}`}>
-              {node.occurredAt} {node.issue.url}
-            </li>
-          ),
-        )}
-      </ol>
-
-      <h2>Pull requests</h2>
-      <ol>
-        {contributions.prs.map(
-          (node) => (
-            <li key={`${node.occurredAt} ${node.pullRequest.url}`}>
-              {node.occurredAt} {node.pullRequest.url}
-            </li>
-          ),
-        )}
-      </ol>
-
-      <h2>Repositories created</h2>
-      <ol>
-        {contributions.repositories.map(
-          (node) => (
-            <li key={`${node.occurredAt} ${node.repository.url}`}>
-              {node.occurredAt} {node.repository.url}
-            </li>
-          ),
-        )}
-      </ol>
-    </>
-  );
-}
-
 function DayInfo({ day }: { day: Day }) {
   return (
     <div className="day-info">
