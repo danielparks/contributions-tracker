@@ -6,7 +6,6 @@ import { createIDBPersister } from "./utils/persister.ts";
 import ErrorBoundary from "./ErrorBoundary.tsx";
 import App from "./App.tsx";
 
-// Create a client with appropriate cache times
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -22,18 +21,17 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create IndexedDB persister for cache persistence across page loads
-const persister = createIDBPersister();
+const persistOptions = {
+  persister: createIDBPersister(`${location.pathname} contributions`),
+  maxAge: 1000 * 60 * 60 * 24 * 7, // Keep cache for 7 days
+};
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
     <ErrorBoundary>
       <PersistQueryClientProvider
         client={queryClient}
-        persistOptions={{
-          persister,
-          maxAge: 1000 * 60 * 60 * 24 * 7, // Keep cache for 7 days
-        }}
+        persistOptions={persistOptions}
       >
         <App />
       </PersistQueryClientProvider>

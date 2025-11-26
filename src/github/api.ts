@@ -12,20 +12,6 @@ import type {
 } from "./gql.ts";
 
 /**
- * Simple hash function to generate a version string from the query.
- * This ensures the cache key changes automatically when the query is modified.
- */
-function simpleHash(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return Math.abs(hash).toString(36).slice(0, 8);
-}
-
-/**
  * GraphQL query template for fetching GitHub contributions.
  * FIXME: Consider adding joinedGitHubContribution
  * FIXME: Check contributionYears or hasActivityInThePast?
@@ -141,12 +127,6 @@ export const CONTRIBUTIONS_QUERY_TEMPLATE =
   }
 }`;
 
-/**
- * Cache version derived from the query template.
- * This value changes automatically when CONTRIBUTIONS_QUERY_TEMPLATE is modified.
- */
-export const QUERY_VERSION = simpleHash(CONTRIBUTIONS_QUERY_TEMPLATE);
-
 export function redirectToLogin(redirectUrl: string) {
   const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
   if (!clientId) {
@@ -223,10 +203,9 @@ export class GitHub {
     ) as Record<string, PageInfo>;
 
     while (!Object.values(pageInfo).every((info) => !info.hasNextPage)) {
-      const parameters = cursors.map((name) => `$${name}:String`).join(", ");
       const query = CONTRIBUTIONS_QUERY_TEMPLATE.replace(
         "{{CURSORS}}",
-        parameters,
+        cursors.map((name) => `$${name}:String`).join(", "),
       );
 
       const { viewer } = await this.octokit.graphql<{ viewer: User }>({

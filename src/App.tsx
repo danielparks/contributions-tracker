@@ -2,18 +2,11 @@ import "./App.css";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as github from "./github/api.ts";
-import { QUERY_VERSION } from "./github/api.ts";
+import { CONTRIBUTIONS_QUERY_TEMPLATE } from "./github/api.ts";
 import { Calendar, Day } from "./model.ts";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
-
-/**
- * Creates a query key for GitHub contributions.
- */
-function createContributionsQueryKey(accessToken: string | null) {
-  return ["github", "contributions", QUERY_VERSION, accessToken];
-}
 
 export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(
@@ -53,34 +46,32 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch contributions using TanStack Query with incremental loading
-  const queryKey = createContributionsQueryKey(accessToken);
+  const queryKey = ["contributions", CONTRIBUTIONS_QUERY_TEMPLATE, accessToken];
   const {
     data: contributions,
     isLoading,
     error: queryError,
   } = useQuery({
+    enabled: !!accessToken,
     queryKey,
     queryFn: async () => {
       if (!accessToken) {
+        // Redundant; enabled condition requires accessToken not to be null.
         throw new Error("Access token is required");
       }
 
       const gh = new github.GitHub(accessToken);
       gh.installRateLimitReport();
 
-      const allContributions: github.Contributions[] = [];
-
-      // Incrementally update cache as pages arrive
+      const contributions: github.Contributions[] = [];
       for await (const contribution of gh.queryBase()) {
-        allContributions.push(contribution);
-        // Update cache with current results - this triggers re-renders
-        queryClient.setQueryData(queryKey, [...allContributions]);
+        contributions.push(contribution);
+        // Incrementally update cache, triggering a re-render.
+        queryClient.setQueryData(queryKey, [...contributions]);
       }
 
-      return allContributions;
+      return contributions;
     },
-    enabled: !!accessToken,
   });
 
   // Transform contributions to Calendar model
@@ -89,17 +80,14 @@ export default function App() {
       return null;
     }
 
-    let cal: Calendar | null = null;
-    for (const contrib of contributions) {
-      if (cal) {
-        cal.updateFromContributions(contrib);
-      } else {
-        cal = Calendar.fromContributions(contrib);
-      }
+    const calendar = Calendar.fromContributions(contributions[0]);
+    for (const contrib of contributions.slice(1)) {
+      calendar.updateFromContributions(contrib);
     }
-    return cal;
+    return calendar;
   }, [contributions]);
 
+  // FIXME do we need to log queryError?
   const error = authError ||
     (queryError ? "Error getting contribution data" : null);
 
@@ -136,7 +124,6 @@ export default function App() {
           <>
             <ContributionsGraph calendar={calendar} />
             <RepositoryList calendar={calendar} />
-            {isLoading && <h3 className="loading">Loading more...</h3>}
           </>
         )
         : isLoading

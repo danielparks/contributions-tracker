@@ -8,7 +8,7 @@ import type {
  * Creates an IndexedDB-based persister for TanStack Query cache.
  * This allows the cache to survive page refreshes and browser restarts.
  */
-export function createIDBPersister(idbValidKey: IDBValidKey = "reactQuery") {
+export function createIDBPersister(idbValidKey: IDBValidKey) {
   return {
     persistClient: async (client: PersistedClient) => {
       await set(idbValidKey, client);
