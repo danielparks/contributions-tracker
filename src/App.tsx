@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as github from "./github/api.ts";
 import { QUERY_VERSION } from "./github/api.ts";
 import { Calendar, Day } from "./model.ts";
@@ -9,20 +9,10 @@ const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
 
 /**
- * Fetches all contribution data from GitHub API.
- * Collects all pages from the async generator into a single array.
+ * Creates a query key for GitHub contributions.
  */
-async function fetchAllContributions(
-  accessToken: string,
-): Promise<github.Contributions[]> {
-  const gh = new github.GitHub(accessToken);
-  gh.installRateLimitReport();
-
-  const allContributions: github.Contributions[] = [];
-  for await (const contributions of gh.queryBase()) {
-    allContributions.push(contributions);
-  }
-  return allContributions;
+function createContributionsQueryKey(accessToken: string | null) {
+  return ["github", "contributions", QUERY_VERSION, accessToken];
 }
 
 export default function App() {
@@ -30,6 +20,7 @@ export default function App() {
     localStorage.getItem("github_token"),
   );
   const [authError, setAuthError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Handle OAuth callback. Runs only on mount.
   useEffect(() => {
@@ -62,18 +53,32 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch contributions using TanStack Query
+  // Fetch contributions using TanStack Query with incremental loading
+  const queryKey = createContributionsQueryKey(accessToken);
   const {
     data: contributions,
     isLoading,
     error: queryError,
   } = useQuery({
-    queryKey: ["github", "contributions", QUERY_VERSION, accessToken],
-    queryFn: () => {
+    queryKey,
+    queryFn: async () => {
       if (!accessToken) {
         throw new Error("Access token is required");
       }
-      return fetchAllContributions(accessToken);
+
+      const gh = new github.GitHub(accessToken);
+      gh.installRateLimitReport();
+
+      const allContributions: github.Contributions[] = [];
+
+      // Incrementally update cache as pages arrive
+      for await (const contribution of gh.queryBase()) {
+        allContributions.push(contribution);
+        // Update cache with current results - this triggers re-renders
+        queryClient.setQueryData(queryKey, [...allContributions]);
+      }
+
+      return allContributions;
     },
     enabled: !!accessToken,
   });
@@ -126,13 +131,16 @@ export default function App() {
       <h1>Contribution Graph{calendar && ` for ${calendar.name}`}</h1>
       <button type="button" onClick={logout}>Log out</button>
       {error && <h3 className="error">Error: {error}</h3>}
-      {isLoading ? <h3 className="loading">Loading</h3> : calendar
+      {calendar
         ? (
           <>
             <ContributionsGraph calendar={calendar} />
             <RepositoryList calendar={calendar} />
+            {isLoading && <h3 className="loading">Loading more...</h3>}
           </>
         )
+        : isLoading
+        ? <h3 className="loading">Loading</h3>
         : <h3>No contributions data</h3>}
     </>
   );
