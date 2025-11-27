@@ -8,14 +8,14 @@ import type {
 } from "@tanstack/react-query-persist-client";
 
 export default function QueryCacheProvider({ children }: PropsWithChildren) {
+  // FIXME: does the cache maxAge need to be more than staleTime/gcTime?
+  const maxAge = 1000 * 60 * 60 * 24 * 7; // 7 days
   const idbKey: IDBValidKey = `${location.pathname} contributions`;
   const client = new QueryClient({
     defaultOptions: {
       queries: {
-        // Cache data for 6 hours
-        staleTime: 1000 * 60 * 60 * 6,
-        // Keep unused data in cache for 24 hours
-        gcTime: 1000 * 60 * 60 * 24,
+        staleTime: maxAge,
+        gcTime: maxAge,
         // Retry failed requests once
         retry: 1,
         // Don't refetch on window focus (contributions don't change that often)
@@ -36,7 +36,7 @@ export default function QueryCacheProvider({ children }: PropsWithChildren) {
         await del(idbKey);
       },
     } as Persister,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // Keep cache for 7 days
+    maxAge,
   };
 
   return (
