@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as github from "./github/api.ts";
 import { CONTRIBUTIONS_QUERY_TEMPLATE } from "./github/api.ts";
-import { Calendar, Day } from "./model.ts";
+import { Calendar, Day, Filter } from "./model.ts";
 
 const BASE_URL = "http://localhost:5173";
 const BACKEND_URL = "http://localhost:3000";
@@ -13,6 +13,7 @@ export default function App() {
     localStorage.getItem("github_token"),
   );
   const [authError, setAuthError] = useState<string | null>(null);
+  const [repoFilter, setRepoFilter] = useState<Filter>(() => new Filter());
   const queryClient = useQueryClient();
 
   // Handle OAuth callback. Runs only on mount.
@@ -87,6 +88,18 @@ export default function App() {
     return calendar;
   }, [contributions]);
 
+  useEffect(() => {
+    if (!calendar) {
+      return;
+    }
+
+    const newFilter = repoFilter.addReposIfMissing([...calendar.repoUrls()]);
+    if (newFilter) {
+      setRepoFilter(newFilter);
+    }
+    // FIXME? does repoFilter in the dependencies cause problems? Not needed.
+  }, [calendar, repoFilter]);
+
   // FIXME do we need to log queryError?
   const error = authError ||
     (queryError ? "Error getting contribution data" : null);
@@ -122,8 +135,12 @@ export default function App() {
       {calendar
         ? (
           <>
-            <ContributionsGraph calendar={calendar} />
-            <RepositoryList calendar={calendar} />
+            <ContributionsGraph calendar={calendar} filter={repoFilter} />
+            <RepositoryList
+              calendar={calendar}
+              filter={repoFilter}
+              setFilter={setRepoFilter}
+            />
           </>
         )
         : isLoading
@@ -133,7 +150,9 @@ export default function App() {
   );
 }
 
-function ContributionsGraph({ calendar }: { calendar: Calendar }) {
+function ContributionsGraph(
+  { calendar, filter }: { calendar: Calendar; filter: Filter },
+) {
   const dayMax = calendar.maxContributions();
 
   return (
@@ -142,7 +161,12 @@ function ContributionsGraph({ calendar }: { calendar: Calendar }) {
         {[...calendar.weeks()].map((week) => (
           <tr key={`week ${week[0].date.toString()}`} className="week">
             {week.map((day) => (
-              <GraphDay key={day.date.toString()} day={day} max={dayMax} />
+              <GraphDay
+                key={day.date.toString()}
+                day={day}
+                filter={filter}
+                max={dayMax}
+              />
             ))}
           </tr>
         ))}
@@ -151,10 +175,13 @@ function ContributionsGraph({ calendar }: { calendar: Calendar }) {
   );
 }
 
-function GraphDay({ day, max }: { day: Day; max: number }) {
+function GraphDay(
+  { day, filter, max }: { day: Day; filter: Filter; max: number },
+) {
   let value = 100;
-  if (day.contributionCount) {
-    value = 55 * (1 - day.contributionCount / max) + 40;
+  const count = day.filteredCount(filter);
+  if (count) {
+    value = 55 * (1 - count / max) + 40;
   }
   const style = {
     background: `hsl(270deg 40 ${value.toString()})`,
@@ -219,11 +246,33 @@ function DayInfo({ day }: { day: Day }) {
   );
 }
 
-function RepositoryList({ calendar }: { calendar: Calendar }) {
+function RepositoryList(
+  { calendar, filter, setFilter }: {
+    calendar: Calendar;
+    filter: Filter;
+    setFilter: React.Dispatch<React.SetStateAction<Filter>>;
+  },
+) {
+  function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const url = event.currentTarget.value;
+    const newFilter = filter.clone();
+    newFilter.switchRepo(url, event.currentTarget.checked);
+    setFilter(newFilter);
+  }
   return (
     <ol>
       {[...calendar.repositories.values()].map((repo) => (
-        <li key={repo.url}>{repo.url}</li>
+        <li key={repo.url}>
+          <label>
+            <input
+              type="checkbox"
+              checked={filter.isOn(repo.url)}
+              value={repo.url}
+              onChange={onChange}
+            />
+            {repo.url}
+          </label>
+        </li>
       ))}
     </ol>
   );

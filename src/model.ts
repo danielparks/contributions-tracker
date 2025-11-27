@@ -16,6 +16,46 @@ function toUtcDate(input: Date) {
   return Date.UTC(input.getFullYear(), input.getMonth(), input.getDate());
 }
 
+export class Filter {
+  defaultState: boolean = true;
+  states: Map<string, boolean> = new Map();
+
+  isOn(url: string) {
+    return this.states.get(url);
+  }
+
+  clone() {
+    const filter = new Filter();
+    filter.defaultState = this.defaultState;
+    filter.states = new Map(this.states);
+    return filter;
+  }
+
+  // Return a new Filter if the urls don’t exist in this one, otherwise null.
+  addReposIfMissing(urls: string[]): Filter | null {
+    let newFilter: Filter | null = null;
+    urls.forEach((url) => {
+      if (!this.states.has(url)) {
+        if (!newFilter) {
+          newFilter = this.clone();
+        }
+        newFilter.states.set(url, this.defaultState);
+      }
+    });
+    return newFilter;
+  }
+
+  switchRepo(url: string, enabled: boolean) {
+    this.states.set(url, enabled);
+  }
+
+  activeUrls() {
+    return [...this.states.entries()]
+      .filter(([_, value]) => value)
+      .map(([key, _]) => key);
+  }
+}
+
 export class Calendar {
   name: string; // User’s name.
   start: Date;
@@ -77,6 +117,10 @@ export class Calendar {
     }
 
     return this;
+  }
+
+  repoUrls() {
+    return this.repositories.keys();
   }
 
   repoDay(timestamp: string, repository: gql.Repository) {
@@ -163,9 +207,20 @@ export class Day {
   // Add up the contributions we know about specifically.
   knownContributionCount() {
     return [...this.repositories.values()].reduce(
-      (total, repoDay) =>
-        total + repoDay.created + repoDay.commitCount + repoDay.issues.length +
-        repoDay.prs.length + repoDay.reviews.length,
+      (total, repoDay) => total + repoDay.count(),
+      0,
+    );
+  }
+
+  filteredRepos(filter: Filter) {
+    return [...this.repositories.values()].filter((repoDay) =>
+      filter.isOn(repoDay.url())
+    );
+  }
+
+  filteredCount(filter: Filter) {
+    return this.filteredRepos(filter).reduce(
+      (total, repoDay) => total + repoDay.count(),
       0,
     );
   }
@@ -193,6 +248,15 @@ export class RepositoryDay {
 
   addCreate(count = 1) {
     this.created += count;
+  }
+
+  url() {
+    return this.repository.url;
+  }
+
+  count() {
+    return this.created + this.commitCount + this.issues.length +
+      this.prs.length + this.reviews.length;
   }
 }
 
