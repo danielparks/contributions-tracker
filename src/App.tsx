@@ -95,12 +95,10 @@ export default function App() {
       return;
     }
 
-    const newFilter = repoFilter.addReposIfMissing([...calendar.repoUrls()]);
-    if (newFilter) {
-      setRepoFilter(newFilter);
-    }
-    // FIXME? does repoFilter in the dependencies cause problems? Not needed.
-  }, [calendar, repoFilter]);
+    setRepoFilter((old) =>
+      old.addReposIfMissing([...calendar.repoUrls()]) || old
+    );
+  }, [calendar]);
 
   // FIXME do we need to log queryError?
   const error = authError ||
