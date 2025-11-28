@@ -232,6 +232,10 @@ export class Day {
       0,
     );
   }
+
+  hasRepo(url: string) {
+    return this.repositories.has(url);
+  }
 }
 
 export class RepositoryDay {

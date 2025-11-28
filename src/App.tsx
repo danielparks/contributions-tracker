@@ -14,6 +14,7 @@ export default function App() {
     localStorage.getItem("github_token"),
   );
   const [authError, setAuthError] = useState<string | null>(null);
+  const [highlight, setHighlight] = useState<string | null>(null);
   const [repoFilter, setRepoFilter] = useState<Filter>(() => new Filter());
   const queryClient = useQueryClient();
 
@@ -136,11 +137,16 @@ export default function App() {
       {calendar
         ? (
           <>
-            <ContributionsGraph calendar={calendar} filter={repoFilter} />
+            <ContributionsGraph
+              calendar={calendar}
+              filter={repoFilter}
+              highlight={highlight}
+            />
             <RepositoryList
               calendar={calendar}
               filter={repoFilter}
               setFilter={setRepoFilter}
+              setHighlight={setHighlight}
             />
           </>
         )
@@ -152,7 +158,11 @@ export default function App() {
 }
 
 function ContributionsGraph(
-  { calendar, filter }: { calendar: Calendar; filter: Filter },
+  { calendar, filter, highlight }: {
+    calendar: Calendar;
+    filter: Filter;
+    highlight: string | null;
+  },
 ) {
   const dayMax = calendar.maxContributions();
 
@@ -167,6 +177,7 @@ function ContributionsGraph(
                 day={day}
                 filter={filter}
                 max={dayMax}
+                highlight={highlight}
               />
             ))}
           </tr>
@@ -177,7 +188,12 @@ function ContributionsGraph(
 }
 
 function GraphDay(
-  { day, filter, max }: { day: Day; filter: Filter; max: number },
+  { day, filter, max, highlight }: {
+    day: Day;
+    filter: Filter;
+    max: number;
+    highlight: string | null;
+  },
 ) {
   let value = 100;
   const count = day.filteredCount(filter);
@@ -188,8 +204,16 @@ function GraphDay(
     background: `hsl(270deg 40 ${value.toString()})`,
   };
 
+  const className: string[] = [];
+  if (!day.addsUp()) {
+    className.push("unknown");
+  }
+  if (highlight && day.hasRepo(highlight)) {
+    className.push("highlight");
+  }
+
   return (
-    <td style={style} className={day.addsUp() ? "" : "unknown"}>
+    <td style={style} className={className.join(" ")}>
       <DayInfo day={day} />
     </td>
   );
@@ -248,10 +272,11 @@ function DayInfo({ day }: { day: Day }) {
 }
 
 function RepositoryList(
-  { calendar, filter, setFilter }: {
+  { calendar, filter, setFilter, setHighlight }: {
     calendar: Calendar;
     filter: Filter;
     setFilter: React.Dispatch<React.SetStateAction<Filter>>;
+    setHighlight: React.Dispatch<React.SetStateAction<string | null>>;
   },
 ) {
   function onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -264,7 +289,15 @@ function RepositoryList(
     <ol className="repository-list">
       {[...calendar.repositories.values()].map((repo) => (
         <li key={repo.url}>
-          <label>
+          <label
+            onMouseEnter={() => {
+              setHighlight(repo.url);
+            }}
+            onMouseLeave={() => {
+              // Only unset highlight if it was for this repo.
+              setHighlight((old) => old == repo.url ? null : old);
+            }}
+          >
             <input
               type="checkbox"
               checked={filter.isOn(repo.url)}

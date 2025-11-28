@@ -28,6 +28,10 @@ table.contributions > tbody > tr > td.unknown {
   border: 1px solid red;
 }
 
+table.contributions > tbody > tr > td.highlight {
+  border: 1px solid hsl(30deg 100 50);
+}
+
 .day-info {
   display: none;
   position: absolute;
