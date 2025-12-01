@@ -28,7 +28,8 @@ export class Filter {
     return filter;
   }
 
-  isOn(url: string) {
+  // Returns `undefined` if this filter doesn’t know about the repo.
+  isOn(url: string): boolean | undefined {
     return this.states.get(url);
   }
 

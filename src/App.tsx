@@ -396,7 +396,7 @@ function RepositoryList(
           >
             <input
               type="checkbox"
-              checked={filter.isOn(repo.url)}
+              checked={filter.isOn(repo.url) || false}
               value={repo.url}
               onChange={onChange}
             />
