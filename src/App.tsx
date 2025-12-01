@@ -224,7 +224,7 @@ function GraphDay(
 
   function countToLightness(count: number) {
     if (count) {
-      return 45 * (1 - count / max) + 50;
+      return 59 * (1 - count / max) + 40;
     } else {
       return 100;
     }
