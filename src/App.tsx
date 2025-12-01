@@ -119,6 +119,10 @@ export default function App() {
     localStorage.removeItem("github_token");
   }
 
+  function reload() {
+    queryClient.clear();
+  }
+
   if (accessToken === null) {
     return (
       <>
@@ -132,6 +136,7 @@ export default function App() {
     <>
       <h1>Contribution Graph{calendar && ` for ${calendar.name}`}</h1>
       <button type="button" onClick={logout}>Log out</button>
+      <button type="button" onClick={reload}>Reload</button>
       {error && <h3 className="error">Error: {error}</h3>}
       {calendar
         ? (

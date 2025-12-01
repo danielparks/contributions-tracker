@@ -15,4 +15,4 @@ Displays a graph of the logged in user’s GitHub contributions.
 - [ ] Allow changing the user the information is displayed about
 - [ ] Add backend so that I can display my contributions on my web site without
       requiring the viewer to be logged into GitHub
-- [ ] Add ability to reload contributions
+- [x] Add ability to reload contributions
