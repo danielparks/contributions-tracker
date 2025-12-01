@@ -222,6 +222,14 @@ function GraphDay(
     className.push("highlight");
   }
 
+  function countToLightness(count: number) {
+    if (count) {
+      return 45 * (1 - count / max) + 50;
+    } else {
+      return 100;
+    }
+  }
+
   interface Subdivision {
     key: string;
     style: React.CSSProperties;
@@ -229,27 +237,21 @@ function GraphDay(
   let subdivisions: Subdivision[] = [];
   let style = {};
   if (day.addsUp()) {
-    let lightness = 100;
-    const count = day.filteredCount(filter);
-    if (count) {
-      lightness = 45 * (1 - count / max) + 50;
-    }
     subdivisions = day.filteredRepos(filter).map((repoDay) => ({
       key: repoDay.url(),
       style: {
         flex: repoDay.count(),
-        background: repoDay.repository.color(lightness),
+        background: repoDay.repository.color(
+          countToLightness(day.filteredCount(filter)),
+          0.1,
+        ),
       },
     }));
   } else {
-    let lightness = 100;
-    const count = day.contributionCount;
-    if (count) {
-      lightness = 45 * (1 - count / max) + 50;
-    }
+    const lightness = countToLightness(day.contributionCount || 0);
     className.push("unknown");
     style = {
-      background: `hsl(270deg 40 ${lightness.toString()})`,
+      background: `hsl(270deg 40 ${lightness})`,
     };
   }
 

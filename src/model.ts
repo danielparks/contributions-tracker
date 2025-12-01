@@ -125,6 +125,7 @@ export class Calendar {
     }
 
     this.updateRepoCounts();
+    this.updateRepoColors();
     return this;
   }
 
@@ -138,6 +139,13 @@ export class Calendar {
         repoDay.repository.contributions += repoDay.count();
       });
     });
+  }
+
+  updateRepoColors() {
+    let i = 0;
+    for (const repo of this.mostUsedRepos()) {
+      repo.hue = (285 + 55 * i++) % 360;
+    }
   }
 
   // All repos sorted by decreasing contributions
@@ -292,28 +300,20 @@ export class RepositoryDay {
   }
 }
 
-// Rotate through the hues.
-let LAST_HUE = 270 - 55;
-function nextHue() {
-  LAST_HUE = (LAST_HUE + 55) % 360;
-  return LAST_HUE;
-}
-
 export class Repository {
   url: string;
   isFork: boolean;
   isPrivate: boolean;
-  hue = 270;
+  hue = 285;
   contributions = 0;
 
   constructor(url: string, isFork = false, isPrivate = false) {
     this.url = url;
     this.isFork = isFork;
     this.isPrivate = isPrivate;
-    this.hue = nextHue();
   }
 
-  color(lightness = 50) {
-    return `hsl(${this.hue.toString()}deg 70 ${lightness.toString()})`;
+  color(lightness = 55, chroma = 0.2) {
+    return `oklch(${lightness}% ${chroma} ${this.hue}deg)`;
   }
 }
