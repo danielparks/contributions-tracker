@@ -468,10 +468,7 @@ function SparklineElement({ days, repo, max }: {
   }
   return (
     <div>
-      <div
-        style={{ height: `${height}%`, background: repo.color() }}
-      >
-      </div>
+      <div style={{ height: `${height}%`, background: repo.color() }} />
     </div>
   );
 }
