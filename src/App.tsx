@@ -192,7 +192,7 @@ function ContributionsGraph(
     <table className="contributions">
       <tbody>
         {[...calendar.weeks()].map((week) => (
-          <tr key={`week ${week[0].date.toString()}`} className="week">
+          <tr key={`week ${week[0].date}`} className="week">
             {week.map((day) => (
               <GraphDay
                 key={day.date.toString()}
