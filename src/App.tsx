@@ -90,6 +90,7 @@ export default function App() {
     return calendar;
   }, [contributions]);
 
+  // Update repoFilter with newly loaded repositories.
   useEffect(() => {
     if (!calendar) {
       return;
@@ -198,23 +199,49 @@ function GraphDay(
   if (count) {
     value = 55 * (1 - count / max) + 40;
   }
-  const style = {
-    background: `hsl(270deg 40 ${value.toString()})`,
-  };
 
   const className: string[] = [];
-  if (!day.addsUp()) {
-    className.push("unknown");
-  }
   if (highlight && day.hasRepo(highlight)) {
     className.push("highlight");
+  }
+
+  let subdivisions = null;
+  let style = {};
+  if (day.addsUp()) {
+    subdivisions = day.filteredRepos(filter).map((repoDay) => ({
+      key: repoDay.url(),
+      style: {
+        width: pct(repoDay.count() / max),
+        background: repoColor(repoDay.url()),
+      },
+    }));
+    style = {
+      background: `hsl(270deg 40 99)`,
+    };
+  } else {
+    className.push("unknown");
+    style = {
+      background: `hsl(270deg 40 ${value.toString()})`,
+    };
   }
 
   return (
     <td style={style} className={className.join(" ")}>
       <DayInfo day={day} />
+      {subdivisions &&
+        (
+          <ol>
+            {subdivisions.map(({ key, style }) => (
+              <li key={key} style={style}></li>
+            ))}
+          </ol>
+        )}
     </td>
   );
+}
+
+function pct(fraction: number) {
+  return `${(fraction * 100).toString()}%`;
 }
 
 function DayInfo({ day }: { day: Day }) {
@@ -315,7 +342,7 @@ function RepositoryList(
 
 function RepositoryName({ url }: { url: string }) {
   return (
-    <a href={url}>
+    <a style={{ color: repoColor(url) }} href={url}>
       <img src={githubMarkUrl} alt="GitHub" />
       {url.replace("https://github.com/", "")}
     </a>
@@ -366,4 +393,27 @@ function WeekGraphElement({ days, repo, max }: {
       <div style={{ height: `${height.toString()}%` }}></div>
     </div>
   );
+}
+
+function repoColor(url: string) {
+  const hue = (simpleHash(url) % 360).toString();
+  return `hsl(${hue}deg 40 68)`;
+}
+
+// From https://gist.github.com/jlevy/c246006675becc446360a798e2b2d781 (slightly
+// modified for my needs).
+//
+// A simple, *insecure* 32-bit hash that's short, fast, and has no dependencies.
+// Output is always 7 characters.
+//
+// Loosely based on the Java version; see
+// https://stackoverflow.com/questions/6122571/simple-non-secure-hash-function-for-javascript
+function simpleHash(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+  }
+  // Convert to 32bit unsigned integer
+  return hash >>> 0;
 }

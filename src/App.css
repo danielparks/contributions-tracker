@@ -20,16 +20,32 @@ table.contributions > tbody > tr > td {
   position: relative;
   text-align: center;
   margin: 1px;
-  box-sizing: border-box;
+  padding: 1px;
   aspect-ratio: 1/1;
 }
 
 table.contributions > tbody > tr > td.unknown {
   border: 1px solid red;
+  padding: 0;
 }
 
 table.contributions > tbody > tr > td.highlight {
   border: 1px solid hsl(30deg 100 50);
+  padding: 0;
+}
+
+table.contributions > tbody > tr > td > ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+table.contributions > tbody > tr > td > ol > li {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  float: left;
 }
 
 .day-info {
