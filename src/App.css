@@ -241,6 +241,7 @@ ol.repository-list > li > label > input[type="checkbox"] {
 }
 
 ol.repository-list > li > label > h3 {
+  flex: 1;
   margin: 0;
   font-size: 14px;
   font-weight: 500;
@@ -257,31 +258,23 @@ ol.repository-list > li > label > h3 img {
   margin: 0 4px 0 0;
 }
 
-.week-graph {
+.sparkline {
+  width: 101px;
   display: flex;
   gap: 1px;
-  height: 24px;
-  flex-grow: 1;
-  align-items: flex-end;
-  padding: 0 4px;
+  height: 20px;
+  padding: 0;
+  border-bottom: 1px solid hsl(270deg 40 70);
 }
 
-.week-graph > div {
+.sparkline > div {
   position: relative;
   flex: 1;
-  min-width: 2px;
   height: 100%;
 }
 
-.week-graph > div > div {
+.sparkline > div > div {
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: hsl(270deg 40 70);
-  border-radius: 1px 1px 0 0;
-  transition: background 0.2s;
-}
-
-ol.repository-list > li:hover .week-graph > div > div {
-  background: hsl(270deg 40 60);
 }

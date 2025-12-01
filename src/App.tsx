@@ -403,7 +403,7 @@ function RepositoryList(
             <h3>
               <RepositoryName repo={repo} />
             </h3>
-            <WeekGraph repo={repo} calendar={calendar} />
+            <Sparkline repo={repo} calendar={calendar} />
           </label>
         </li>
       ))}
@@ -420,32 +420,39 @@ function RepositoryName({ repo }: { repo: Repository }) {
   );
 }
 
-function WeekGraph({ calendar, repo }: {
+function Sparkline({ calendar, repo }: {
   calendar: Calendar;
   repo: Repository;
 }) {
-  const weeks = [...calendar.weeks()];
-  const weekMax = Math.max(
-    ...weeks.map((days) =>
+  const segments: Day[][] = [];
+  const segmentLength = Math.ceil(calendar.days.length / 25);
+  for (let i = 0; i < calendar.days.length; i += segmentLength) {
+    segments.push(calendar.days.slice(i, i + segmentLength));
+  }
+  const segmentMax = Math.max(
+    ...segments.map((days) =>
       days.reduce((total, day) => total + (day.contributionCount || 0), 0)
     ),
   );
 
   return (
-    <div className="week-graph">
-      {weeks.map((days) => (
-        <WeekGraphElement
+    <div
+      className="sparkline"
+      style={{ borderBottomColor: repo.color(80, 0.05) }}
+    >
+      {segments.map((days) => (
+        <SparklineElement
           key={days[0].date.toString()}
           days={days}
           repo={repo}
-          max={weekMax}
+          max={segmentMax}
         />
       ))}
     </div>
   );
 }
 
-function WeekGraphElement({ days, repo, max }: {
+function SparklineElement({ days, repo, max }: {
   days: Day[];
   repo: Repository;
   max: number;
@@ -457,11 +464,14 @@ function WeekGraphElement({ days, repo, max }: {
   );
   let height = 0;
   if (count) {
-    height = 5 + 95 * count / max;
+    height = 2 + 98 * count / max;
   }
   return (
     <div>
-      <div style={{ height: `${height.toString()}%` }}></div>
+      <div
+        style={{ height: `${height}%`, background: repo.color() }}
+      >
+      </div>
     </div>
   );
 }
