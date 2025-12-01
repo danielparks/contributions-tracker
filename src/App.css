@@ -211,22 +211,13 @@ ol.repository-list {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 8px;
+  gap: 2px;
 }
 
 ol.repository-list > li {
   margin: 0;
-  padding: 6px 8px;
+  padding: 0;
   list-style: none;
-  border: 1px solid hsl(0deg 0 90);
-  border-radius: 4px;
-  background: hsl(0deg 0 98);
-  transition: background 0.2s, border-color 0.2s;
-}
-
-ol.repository-list > li:hover {
-  background: hsl(0deg 0 96);
-  border-color: hsl(0deg 0 80);
 }
 
 ol.repository-list > li > label {
@@ -234,6 +225,13 @@ ol.repository-list > li > label {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  padding: 7px 15px;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+ol.repository-list > li > label:hover {
+  background: hsl(0deg 0 96);
 }
 
 ol.repository-list > li > label > input[type="checkbox"] {
@@ -267,6 +265,7 @@ ol.repository-list > li > label > h3 img {
   display: flex;
   gap: 1px;
   height: 20px;
+  margin: -3px 0 3px 0; /* Move up a bit; graph is mostly a bottom */
   padding: 0;
   border-bottom: 1px solid hsl(270deg 40 70);
 }
