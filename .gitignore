@@ -1,6 +1,10 @@
 # Deno seems to require .env instead of .env.local
 /.env
 
+# Rust
+/rust-crate/target
+*.rs.bk
+
 # Logs
 logs
 *.log
