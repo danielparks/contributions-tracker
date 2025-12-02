@@ -1,28 +1,25 @@
-import { StrictMode, useState, useEffect } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import ErrorBoundary from "./ErrorBoundary.tsx";
 import QueryCacheProvider from "./QueryCache.tsx";
 import App from "./App.tsx";
 
 export function Router() {
-  const [username, setUsername] = useState<string | null>(() => {
-    // Extract username from pathname (e.g., /username)
-    const path = window.location.pathname;
-    const match = path.match(/^\/([^/]+)$/);
+  function getUsernameParameter() {
+    const match = location.pathname.match(/^\/([^/]+)$/);
     return match ? match[1] : null;
-  });
+  }
+  const [username, setUsername] = useState<string | null>(getUsernameParameter);
 
   useEffect(() => {
     // Listen for navigation events (back/forward buttons)
     const handlePopState = () => {
-      const path = window.location.pathname;
-      const match = path.match(/^\/([^/]+)$/);
-      setUsername(match ? match[1] : null);
+      setUsername(getUsernameParameter());
     };
 
-    window.addEventListener("popstate", handlePopState);
+    addEventListener("popstate", handlePopState);
     return () => {
-      window.removeEventListener("popstate", handlePopState);
+      removeEventListener("popstate", handlePopState);
     };
   }, []);
 

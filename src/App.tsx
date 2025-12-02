@@ -54,7 +54,12 @@ export default function App({ username }: { username: string | null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const queryKey = ["contributions", CONTRIBUTIONS_QUERY_TEMPLATE, accessToken, username];
+  const queryKey = [
+    "contributions",
+    CONTRIBUTIONS_QUERY_TEMPLATE,
+    accessToken,
+    username,
+  ];
   const {
     data: contributions,
     error: queryError,
