@@ -10,6 +10,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower_http::cors::{AllowOrigin, CorsLayer};
+use tower_http::trace::TraceLayer;
 
 /// Start web server for API.
 #[tokio::main]
@@ -24,12 +25,13 @@ where
     A: Into<AllowOrigin>,
 {
     let listener = tokio::net::TcpListener::bind(address).await?;
-    println!("Server running on http://{address}");
+    tracing::info!("Server running on http://{address}");
 
     let app = Router::new()
         .route("/api/oauth/callback", get(oauth_callback))
         .route("/api/health", get(health_check))
         .fallback(api_not_found)
+        .layer(TraceLayer::new_for_http())
         .layer(
             CorsLayer::new()
                 .allow_origin(allow_origin)
@@ -143,7 +145,7 @@ async fn oauth_callback(
         .send()
         .await
         .map_err(|e| {
-            eprintln!("OAuth error: {e}");
+            tracing::error!("OAuth error: {e}");
             api_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal server error",
@@ -152,7 +154,7 @@ async fn oauth_callback(
         .json::<GitHubTokenResponse>()
         .await
         .map_err(|e| {
-            eprintln!("Failed to parse token response: {e}");
+            tracing::error!("Failed to parse token response: {e}");
             api_error(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Internal server error",
@@ -160,7 +162,7 @@ async fn oauth_callback(
         })?;
 
     if let Some(error) = token_data.error {
-        eprintln!("Error in token response: {error}");
+        tracing::error!("Error in token response: {error}");
         return Err(api_error(
             StatusCode::BAD_REQUEST,
             token_data

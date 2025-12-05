@@ -27,7 +27,7 @@ pub struct Params {
     pub github_client_id: String,
 
     /// GitHub client secret for OAuth
-    #[arg(long, env, hide_env_values=true)]
+    #[arg(long, env, hide_env_values = true)]
     pub github_client_secret: String,
 }
 
