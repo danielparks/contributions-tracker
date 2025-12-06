@@ -22,6 +22,7 @@ export type GithubError = GraphqlResponseError<GraphQlQueryResponseData>;
 /**
  * GraphQL query template for fetching GitHub contributions.
  * FIXME: Consider adding joinedGitHubContribution
+ * FIXME: What about joining an organization (see ~danielparks on 2025-12-04)
  * FIXME: Check contributionYears or hasActivityInThePast?
  * FIXME: Does mostRecentCollectionWithActivity catch recent changes (e.g.
  *        deleting a repo) that affect the past?
