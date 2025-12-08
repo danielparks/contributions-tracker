@@ -27,7 +27,7 @@ pub struct Params {
 pub enum Command {
     /// Start the API server
     Serve(ServeParams),
-    /// Generate OpenAPI specification
+    /// Generate `OpenAPI` specification
     Openapi(OpenapiParams),
 }
 

@@ -106,12 +106,10 @@ pub struct AppState {
 }
 
 impl AppState {
-    /// Create a new AppState with the given credentials.
-    pub fn new(github_client_id: String, github_client_secret: String) -> Self {
-        Self {
-            github_client_id,
-            github_client_secret,
-        }
+    /// Create a new `AppState` with the given credentials.
+    #[must_use] 
+    pub const fn new(github_client_id: String, github_client_secret: String) -> Self {
+        Self { github_client_id, github_client_secret }
     }
 }
 
@@ -183,7 +181,7 @@ impl ApiBase for AppState {
     }
 }
 
-/// Implementation type for the ContributionsApi trait.
+/// Implementation type for the `ContributionsApi` trait.
 ///
 /// This is an empty enum that serves as the implementation marker.
 /// All the actual logic is in the default trait methods.
@@ -207,24 +205,27 @@ where
     let config_dropshot = ConfigDropshot {
         bind_address: address
             .parse()
-            .map_err(|e| anyhow::anyhow!("Invalid bind address: {}", e))?,
+            .map_err(|e| anyhow::anyhow!("Invalid bind address: {e}"))?,
         default_request_body_max_bytes: 1024,
         default_handler_task_mode: dropshot::HandlerTaskMode::Detached,
         log_headers: vec![],
     };
 
     let api = contributions_api_mod::api_description::<ContributionsApiImpl>()
-        .map_err(|e| anyhow::anyhow!("Failed to create API description: {}", e))?;
+        .map_err(|e| {
+            anyhow::anyhow!("Failed to create API description: {e}")
+        })?;
 
-    let state = AppState::new(github_client_id.into(), github_client_secret.into());
+    let state =
+        AppState::new(github_client_id.into(), github_client_secret.into());
 
     let server = HttpServerStarter::new(&config_dropshot, api, state, &log)
-        .map_err(|e| anyhow::anyhow!("Failed to create server: {}", e))?
+        .map_err(|e| anyhow::anyhow!("Failed to create server: {e}"))?
         .start();
 
     slog::info!(log, "Server running on http://{address}");
 
     server
         .await
-        .map_err(|e| anyhow::anyhow!("Server error: {}", e))
+        .map_err(|e| anyhow::anyhow!("Server error: {e}"))
 }

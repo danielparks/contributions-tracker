@@ -6,14 +6,15 @@
 //!
 //! Run with: `cargo run --example mock_server`
 
-use contributions_tracker::api::{contributions_api_mod, mock::*};
+use contributions_tracker::api::{contributions_api_mod, mock::{MockApiImpl, MockAppState}};
 use slog::Drain;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // Create a mock API description using the mock implementation
-    let api = contributions_api_mod::api_description::<MockApiImpl>()
-        .map_err(|e| anyhow::anyhow!("Failed to create API description: {}", e))?;
+    let api = contributions_api_mod::api_description::<MockApiImpl>().map_err(
+        |e| anyhow::anyhow!("Failed to create API description: {e}"),
+    )?;
 
     // Create mock state with predefined responses
     let mock_state = MockAppState::new();
@@ -33,17 +34,25 @@ async fn main() -> anyhow::Result<()> {
     let log = slog::Logger::root(drain, slog::o!());
 
     // Start the server with the mock implementation
-    let server = dropshot::HttpServerStarter::new(&config_dropshot, api, mock_state, &log)
-        .map_err(|e| anyhow::anyhow!("Failed to create server: {}", e))?
-        .start();
+    let server = dropshot::HttpServerStarter::new(
+        &config_dropshot,
+        api,
+        mock_state,
+        &log,
+    )
+    .map_err(|e| anyhow::anyhow!("Failed to create server: {e}"))?
+    .start();
 
     slog::info!(log, "Mock server running on http://127.0.0.1:3001");
     slog::info!(log, "Try: curl http://127.0.0.1:3001/api/health");
-    slog::info!(log, "Try: curl 'http://127.0.0.1:3001/api/oauth/callback?code=test'");
+    slog::info!(
+        log,
+        "Try: curl 'http://127.0.0.1:3001/api/oauth/callback?code=test'"
+    );
 
     server
         .await
-        .map_err(|e| anyhow::anyhow!("Server error: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Server error: {e}"))?;
 
     Ok(())
 }

@@ -53,22 +53,25 @@ fn cli(params: &Params) -> anyhow::Result<ExitCode> {
     }
 }
 
-/// Generate OpenAPI specification.
+/// Generate `OpenAPI` specification.
 ///
 /// Uses the trait-based API stub to generate the spec without requiring
 /// an implementation. This is much faster than compiling the full implementation.
 ///
 /// # Errors
 ///
-/// Returns an error if the OpenAPI spec cannot be generated or written.
+/// Returns an error if the `OpenAPI` spec cannot be generated or written.
 fn generate_openapi(params: &params::OpenapiParams) -> anyhow::Result<()> {
-    let api = api::contributions_api_mod::stub_api_description()
-        .map_err(|e| anyhow::anyhow!("Failed to create API description: {}", e))?;
+    let api =
+        api::contributions_api_mod::stub_api_description().map_err(|e| {
+            anyhow::anyhow!("Failed to create API description: {e}")
+        })?;
 
-    let spec = api.openapi(
-        "Contributions Tracker API",
-        semver::Version::new(0, 1, 0),
-    );
+    // Use version from Cargo.toml via CARGO_PKG_VERSION environment variable
+    let version = semver::Version::parse(env!("CARGO_PKG_VERSION"))
+        .expect("CARGO_PKG_VERSION should be valid semver");
+
+    let spec = api.openapi("Contributions Tracker API", version);
 
     let json_value = spec.json()?;
     let json_string = serde_json::to_string_pretty(&json_value)?;

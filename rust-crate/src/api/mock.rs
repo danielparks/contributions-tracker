@@ -15,6 +15,7 @@ pub struct MockAppState {
 
 impl MockAppState {
     /// Create a new mock state with successful defaults.
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             health_status: "ok".to_owned(),
@@ -24,6 +25,7 @@ impl MockAppState {
     }
 
     /// Create a mock state that simulates OAuth failure.
+    #[must_use] 
     pub fn with_oauth_error(error: String) -> Self {
         Self {
             health_status: "ok".to_owned(),
@@ -59,7 +61,7 @@ impl ApiBase for MockAppState {
     }
 }
 
-/// Mock implementation type for the ContributionsApi trait.
+/// Mock implementation type for the `ContributionsApi` trait.
 pub enum MockApiImpl {}
 
 impl ContributionsApi for MockApiImpl {
@@ -89,7 +91,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_mock_oauth_failure() {
-        let mock_state = MockAppState::with_oauth_error("Invalid code".to_owned());
+        let mock_state =
+            MockAppState::with_oauth_error("Invalid code".to_owned());
         let log = slog::Logger::root(slog::Discard, slog::o!());
         let result = mock_state
             .exchange_oauth_token("test_code".to_owned(), &log)
