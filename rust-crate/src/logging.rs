@@ -1,24 +1,27 @@
 //! Various logging functions.
 
 use anyhow::bail;
-use tracing_subscriber::filter::LevelFilter;
-use tracing_subscriber::prelude::*;
+use slog::{Drain, Level, Logger};
 
 /// Initialize logging for the executable.
-pub fn init(verbose: u8) -> anyhow::Result<()> {
-    let filter = match verbose {
+///
+/// Creates and returns a slog logger configured based on the verbosity level.
+pub fn init(verbose: u8) -> anyhow::Result<Logger> {
+    let level = match verbose {
         4.. => bail!("-v is only allowed up to 3 times."),
-        3 => LevelFilter::TRACE,
-        2 => LevelFilter::DEBUG,
-        1 => LevelFilter::INFO,
-        0 => LevelFilter::WARN,
+        3 => Level::Trace,
+        2 => Level::Debug,
+        1 => Level::Info,
+        0 => Level::Warning,
     };
 
-    let formatter = tracing_subscriber::fmt::layer()
-        .with_timer(tracing_subscriber::fmt::time::ChronoLocal::rfc_3339());
-    tracing::subscriber::set_global_default(
-        tracing_subscriber::registry().with(filter).with(formatter),
-    )?;
+    let decorator = slog_term::TermDecorator::new().build();
+    let drain = slog_term::FullFormat::new(decorator).build().fuse();
+    let drain = slog_async::Async::new(drain)
+        .chan_size(256)
+        .build()
+        .filter_level(level)
+        .fuse();
 
-    Ok(())
+    Ok(Logger::root(drain, slog::o!()))
 }

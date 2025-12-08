@@ -1,25 +1,39 @@
 //! Code to deal with executable parameters.
 #![allow(clippy::allow_attributes, reason = "framework code from a template")]
 
-use axum::http::HeaderValue;
 use std::io::{self, IsTerminal, Write};
 use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
-use tower_http::cors::AllowOrigin;
 
 pub use clap::Parser;
 
-/// Parameters to configure executable.
+/// GitHub contributions tracker
 #[derive(Debug, clap::Parser)]
 #[clap(version, about)]
 pub struct Params {
     /// Whether or not to output in color
-    #[clap(long, default_value = "auto", value_name = "WHEN")]
+    #[clap(long, default_value = "auto", value_name = "WHEN", global = true)]
     pub color: ColorChoice,
 
     /// Verbosity (may be repeated up to three times)
-    #[clap(short, long, action = clap::ArgAction::Count)]
+    #[clap(short, long, action = clap::ArgAction::Count, global = true)]
     pub verbose: u8,
 
+    #[command(subcommand)]
+    pub command: Command,
+}
+
+/// Available subcommands
+#[derive(Debug, clap::Subcommand)]
+pub enum Command {
+    /// Start the API server
+    Serve(ServeParams),
+    /// Generate OpenAPI specification
+    Openapi(OpenapiParams),
+}
+
+/// Parameters for the `serve` subcommand
+#[derive(Debug, clap::Args)]
+pub struct ServeParams {
     /// Address to bind to
     #[arg(long, default_value = "localhost:3000")]
     pub bind: String,
@@ -31,10 +45,14 @@ pub struct Params {
     /// GitHub client secret for OAuth
     #[arg(long, env, hide_env_values = true)]
     pub github_client_secret: String,
+}
 
-    /// Origins to allow for cross-site requests ("none" disables CORS)
-    #[arg(long, value_parser = parse_allow_origin, default_value = "none")]
-    pub allow_origin: OptionalAllowOrigin,
+/// Parameters for the `openapi` subcommand
+#[derive(Debug, clap::Args)]
+pub struct OpenapiParams {
+    /// Output file (defaults to stdout)
+    #[arg(short, long)]
+    pub output: Option<String>,
 }
 
 impl Params {
@@ -104,70 +122,4 @@ pub fn error_color() -> ColorSpec {
     color.set_fg(Some(Color::Red));
     color.set_intense(true);
     color
-}
-
-/// Stand in for `Option<AllowOrigin>`.
-///
-/// Necessary because Clap’s `value_parser` can’t return `Option<AllowOrigin>`.
-#[derive(Clone, Debug)]
-pub enum OptionalAllowOrigin {
-    /// CORS is disabled.
-    None,
-
-    /// CORS is enabled with the specified origins.
-    Some(AllowOrigin),
-}
-
-impl From<OptionalAllowOrigin> for Option<AllowOrigin> {
-    fn from(opt: OptionalAllowOrigin) -> Self {
-        match opt {
-            OptionalAllowOrigin::None => None,
-            OptionalAllowOrigin::Some(origins) => Some(origins),
-        }
-    }
-}
-
-/// Parse a string into an `OptionalAllowOrigin` for CORS configuration.
-///
-/// Accepts:
-///   - "none" to disable CORS
-///   - "*" for any origin
-///   - At least one origin, separated by commas, e.g. `"http://localhost:5173"`
-///     or `"http://localhost:5173,http://example.com"`
-fn parse_allow_origin(s: &str) -> Result<OptionalAllowOrigin, String> {
-    let s = s.trim();
-
-    if s == "*" {
-        return Ok(OptionalAllowOrigin::Some(AllowOrigin::any()));
-    } else if s == "none" {
-        return Ok(OptionalAllowOrigin::None);
-    }
-
-    let header_values: Vec<HeaderValue> = s
-        .split(',')
-        .map(str::trim)
-        .map(|origin| {
-            // FIXME validate that the origin is a URL?
-            if origin.is_empty() {
-                Err("Origin cannot be empty string".to_owned())
-            } else if origin == "*" {
-                Err("Cannot use wildcard origin with other origins".to_owned())
-            } else if origin == "none" {
-                Err("Cannot use 'none' with other origins".to_owned())
-            } else {
-                HeaderValue::from_str(origin)
-                    .map_err(|e| format!("Invalid origin '{origin}': {e}"))
-            }
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-
-    if header_values.is_empty() {
-        Err("Origin cannot be empty string".to_owned())
-    } else if header_values.len() == 1 {
-        Ok(OptionalAllowOrigin::Some(AllowOrigin::exact(
-            header_values.into_iter().next().unwrap(),
-        )))
-    } else {
-        Ok(OptionalAllowOrigin::Some(AllowOrigin::list(header_values)))
-    }
 }
