@@ -157,14 +157,14 @@ impl ApiBase for AppState {
             .send()
             .await
             .map_err(|e| {
-                slog::error!(log, "OAuth error: {}", e);
-                format!("OAuth request failed: {e}")
+                slog::error!(log, "OAuth request failed: {}", e);
+                "Service temporarily unavailable".to_owned()
             })?
             .json::<GitHubTokenResponse>()
             .await
             .map_err(|e| {
                 slog::error!(log, "Failed to parse token response: {}", e);
-                format!("Failed to parse token response: {e}")
+                "Internal server error".to_owned()
             })?;
 
         if let Some(error) = token_data.error {
@@ -177,7 +177,7 @@ impl ApiBase for AppState {
 
         token_data
             .access_token
-            .ok_or_else(|| "No access token in response".to_owned())
+            .ok_or_else(|| "Internal server error".to_owned())
     }
 }
 
