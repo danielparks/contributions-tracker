@@ -16,16 +16,17 @@ a binary:
 cargo binstall contributions-tracker
 ```
 
-Finally, you can download binaries directly from the [GitHub releases
-page][releases]. Just extract the archive and copy the file inside into your
-`$PATH`, e.g. `/usr/local/bin`. The most common ones are:
+Finally, you can download binaries directly from the
+[GitHub releases page][releases]. Just extract the archive and copy the file
+inside into your `$PATH`, e.g. `/usr/local/bin`. The most common ones are:
 
-  * Linux: [x86-64](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-x86_64-unknown-linux-gnu.tar.gz),
-    [ARM](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-aarch64-unknown-linux-musl.tar.gz)
-  * macOS: [Intel](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-x86_64-apple-darwin.tar.gz),
-    [Apple silicon](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-aarch64-apple-darwin.tar.gz)
-  * [Windows on x86-64](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-x86_64-pc-windows-msvc.zip)
-
+- Linux:
+  [x86-64](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-x86_64-unknown-linux-gnu.tar.gz),
+  [ARM](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-aarch64-unknown-linux-musl.tar.gz)
+- macOS:
+  [Intel](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-x86_64-apple-darwin.tar.gz),
+  [Apple silicon](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-aarch64-apple-darwin.tar.gz)
+- [Windows on x86-64](https://github.com/danielparks/contributions-tracker/releases/latest/download/contributions-tracker-x86_64-pc-windows-msvc.zip)
 
 ## Rust Crate
 
@@ -42,14 +43,14 @@ This is in active development. I am open to [suggestions][issues].
 Unless otherwise noted, this project is dual-licensed under the Apache 2 and MIT
 licenses. You may choose to use either.
 
-  * [Apache License, Version 2.0](LICENSE-APACHE)
-  * [MIT license](LICENSE-MIT)
+- [Apache License, Version 2.0](LICENSE-APACHE)
+- [MIT license](LICENSE-MIT)
 
 ### Contributions
 
-Unless you explicitly state otherwise, any contribution you submit as defined
-in the Apache 2.0 license shall be dual licensed as above, without any
-additional terms or conditions.
+Unless you explicitly state otherwise, any contribution you submit as defined in
+the Apache 2.0 license shall be dual licensed as above, without any additional
+terms or conditions.
 
 [docs.rs]: https://docs.rs/contributions-tracker/latest/contributions_tracker/
 [crates.io]: https://crates.io/crates/contributions-tracker

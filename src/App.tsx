@@ -29,26 +29,26 @@ export default function App({ username }: { username: string | null }) {
   // Handle OAuth callback. Runs only on mount.
   useEffect(() => {
     (async () => {
-      if (accessToken) {
-        return;
-      }
-
       const code = new URLSearchParams(document.location.search).get("code");
       if (!code) {
         return;
       }
 
-      setAuthError(null);
-
-      const token = await github.getToken(code, backendUrl);
-      if (token) {
-        setAccessToken(token);
-        // FIXME? This will be available to the entire origin.
-        localStorage.setItem("github_token", token);
-        history.replaceState({}, document.title, "/");
-      } else {
-        setAuthError("Failed to authenticate with GitHub");
+      if (!accessToken) {
+        const token = await github.getToken(code, backendUrl);
+        if (token) {
+          setAuthError(null);
+          setAccessToken(token);
+          // FIXME? This will be available to the entire origin.
+          localStorage.setItem("github_token", token);
+        } else {
+          setAuthError("Failed to authenticate with GitHub");
+        }
       }
+
+      // Remove code parameter.
+      // FIXME handle non root-paths
+      history.replaceState({}, document.title, "/");
     })().catch((error: unknown) => {
       setAuthError("Error during authentication");
       console.error(error);
