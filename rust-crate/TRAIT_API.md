@@ -1,13 +1,15 @@
 # Trait-Based API Architecture
 
-This API uses Dropshot's trait-based approach, which provides significant benefits for testing and development.
+This API uses Dropshot's trait-based approach, which provides significant
+benefits for testing and development.
 
 ## Architecture Overview
 
 The API is structured around three key components:
 
 1. **`ApiBase` trait** - Defines the business logic methods
-2. **`ContributionsApi` trait** - Defines HTTP endpoints with `#[endpoint]` attributes
+2. **`ContributionsApi` trait** - Defines HTTP endpoints with `#[endpoint]`
+   attributes
 3. **Implementation types** - Connect context types to the API trait
 
 ## Key Benefits
@@ -15,13 +17,15 @@ The API is structured around three key components:
 ### 1. Multiple Implementations
 
 You can create different implementations of the same API:
+
 - Production implementation using real GitHub OAuth
 - Mock implementation for testing
 - In-memory implementation for development
 
 ### 2. Faster OpenAPI Generation
 
-The trait-based approach uses `stub_api_description()` which generates OpenAPI specs without compiling implementations:
+The trait-based approach uses `stub_api_description()` which generates OpenAPI
+specs without compiling implementations:
 
 ```bash
 # Fast - only needs trait definitions
