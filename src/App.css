@@ -3,6 +3,7 @@ body {
 }
 
 button, a.button, .pressed-button {
+  display: inline-block;
   background: hsl(210deg 100 50);
   color: white;
   border: none;
@@ -47,23 +48,22 @@ button.logout-button:hover {
 }
 
 .login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 50vh;
+  max-width: 30em;
   text-align: center;
   padding: 20px;
-}
-
-.login-container h1 {
-  margin-bottom: 10px;
+  margin: 2rem auto 0 auto;
 }
 
 .login-container p {
   color: #666;
-  margin-bottom: 30px;
+  margin: 1rem 0;
   font-size: 18px;
+}
+
+.login-container p.access-description {
+  color: #666;
+  font-style: italic;
+  font-size: 14px;
 }
 
 .app-header {
