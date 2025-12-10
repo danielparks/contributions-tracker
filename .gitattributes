@@ -1,0 +1,5 @@
+# Mark generated files for GitHub language statistics
+src/api/Api.ts linguist-generated=true
+src/api/http-client.ts linguist-generated=true
+src/api/util.ts linguist-generated=true
+src/github/gql.ts linguist-generated=true

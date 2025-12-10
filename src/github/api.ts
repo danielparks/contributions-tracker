@@ -3,6 +3,7 @@ import type {
   GraphQlQueryResponseData,
   GraphqlResponseError,
 } from "@octokit/graphql";
+import { exchangeOAuthCode } from "../api/client.ts";
 import type {
   CommitContributionsByRepository,
   ContributionCalendar,
@@ -152,12 +153,9 @@ export function loginUrl(redirectUrl: string) {
   return url;
 }
 
-export async function getToken(code: string, backendUrl: string) {
-  const url = new URL("/api/oauth/callback", backendUrl);
-  url.searchParams.set("code", code);
-  const response = await fetch(url);
-  const data = await response.json() as { access_token?: string };
-  return data.access_token;
+export async function getToken(code: string, _backendUrl: string) {
+  // Use type-safe API client with proper error handling
+  return await exchangeOAuthCode(code);
 }
 
 export class GitHub {

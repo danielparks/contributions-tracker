@@ -4,10 +4,13 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "npm run generate:api:watch & vite",
+    "build": "npm run generate:api && tsc -b && vite build",
     "lint": "tsc -b --noemit && eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:api": "deno run -A npm:@oxide/openapi-gen-ts@0.9.0 openapi.json src/api && sed -i '1s/^/\\/* eslint-disable *\\/\\n/' src/api/http-client.ts src/api/util.ts && deno fmt src/api",
+    "generate:api:watch": "chokidar 'openapi.json' -c 'npm run generate:api' --initial --silent",
+    "codegen:api": "npm run generate:api"
   },
   "dependencies": {
     "@deno/vite-plugin": "^1.0.5",
@@ -29,6 +32,7 @@
     "@graphql-codegen/typescript": "^5.0.6",
     "@types/node": "^24.10.1",
     "@types/react-dom": "^19.2.3",
+    "chokidar-cli": "^3.0.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-dom": "^2.3.12",
     "eslint-plugin-react-hooks": "^7.0.1",
@@ -38,6 +42,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1",
     "vite": "^7.2.6",
-    "vite-plugin-checker": "^0.11.0"
+    "vite-plugin-checker": "^0.11.0",
+    "zod": "^3.24.1"
   }
 }

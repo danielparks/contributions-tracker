@@ -55,6 +55,13 @@ repos:
         types_or: [ts, tsx]
         pass_filenames: false
         language: system
+      - id: api-types-check
+        name: api types check
+        description: Ensure API types are up-to-date
+        entry: bash -c 'npm run generate:api --silent && git diff --exit-code src/api/ || (echo "Error - API types are out of date. Run npm run generate:api" && exit 1)'
+        language: system
+        files: openapi\.json$
+        pass_filenames: false
   - repo: https://github.com/nozaq/pre-commit-deno
     rev: 0.1.0
     hooks:
