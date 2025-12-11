@@ -1,8 +1,8 @@
 # Contributions graph
 
-Displays a graph of the logged in user’s GitHub contributions. [Demo.]
+Displays a graph of the logged in user’s GitHub contributions [(demo)][demo].
 
-[![](screenshot.png)][Demo.]
+[![](screenshot.png)][demo]
 
 If the request is made to the frontend base URL, it will show the contributions
 for the user currently logged into GitHub. If there is a username after the base
@@ -29,7 +29,6 @@ compile-time type checking of calls across the API boundary.
 - [ ] Add data source to backend so selected users’s contributions can be
       displayed to visitors without logging into GitHub.
   - Possibly use <https://github.com/graphql-rust/graphql-client>
-- [ ] Add demo to <https://demon.horse/portfolio/>.
 - [ ] Automated testing.
 - [ ] Load information about local repositories in backend.
 
@@ -55,7 +54,7 @@ Unless you explicitly state otherwise, any contribution you submit as defined in
 the Apache 2.0 license shall be dual licensed as above, without any additional
 terms or conditions.
 
-[Demo.]: https://demon.horse/portfolio/contributions-tracker/
+[demo]: https://demon.horse/portfolio/contributions-tracker/
 [.env.example]: .env.example
 [Dropshot]: https://docs.rs/dropshot/latest/dropshot/
 [systemd socket activation]: https://www.freedesktop.org/software/systemd/man/latest/sd_listen_fds.html
