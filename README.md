@@ -1,8 +1,8 @@
 # Contributions graph
 
-Displays a graph of the logged in user’s GitHub contributions.
+Displays a graph of the logged in user’s GitHub contributions. [Demo.]
 
-![](screenshot.png)
+[![](screenshot.png)][Demo.]
 
 If the request is made to the frontend base URL, it will show the contributions
 for the user currently logged into GitHub. If there is a username after the base
@@ -55,6 +55,7 @@ Unless you explicitly state otherwise, any contribution you submit as defined in
 the Apache 2.0 license shall be dual licensed as above, without any additional
 terms or conditions.
 
+[Demo.]: https://demon.horse/portfolio/contributions-tracker/
 [.env.example]: .env.example
 [Dropshot]: https://docs.rs/dropshot/latest/dropshot/
 [systemd socket activation]: https://www.freedesktop.org/software/systemd/man/latest/sd_listen_fds.html
