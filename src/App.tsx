@@ -10,10 +10,6 @@ import {
 } from "./github/api.ts";
 import { Calendar, Day, Filter, Repository } from "./model.ts";
 
-const FRONTEND_URL: string =
-  (import.meta.env.VITE_FRONTEND_URL as string | undefined) ||
-  "http://localhost:5173";
-
 function getAuthCode() {
   const code = new URLSearchParams(location.search).get("code");
   if (code) {
@@ -164,7 +160,11 @@ export default function App({ username }: { username: string | null }) {
     if (!authCode) {
       // No accessToken, no authCode: user is logged out.
       try {
-        loginUrl = github.loginUrl(FRONTEND_URL).href;
+        const frontEndUrl = import.meta.env.VITE_FRONTEND_URL;
+        if (!frontEndUrl) {
+          throw new Error("VITE_FRONTEND_URL not set");
+        }
+        loginUrl = github.loginUrl(frontEndUrl).href;
       } catch (error: unknown) {
         console.error("Error getting GitHub login URL:", error);
         errorMessage = "Configuration error. Could get GitHub login URL.";

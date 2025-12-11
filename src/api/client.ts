@@ -14,7 +14,8 @@ import Api from "./Api.ts";
  * proxy that forwards `/api` to the backend on port 3000.
  */
 export const api = new Api({
-  host: import.meta.env.VITE_BACKEND_URL || "",
+  host: import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_FRONTEND_URL ||
+    "",
 });
 
 /**
