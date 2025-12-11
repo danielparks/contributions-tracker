@@ -12,6 +12,8 @@ use std::future::Future;
 #[derive(Debug, Serialize, JsonSchema)]
 pub struct HealthResponse {
     /// Health status (always `"ok"`).
+    ///
+    /// This indicates that the API server is up and nothing more.
     pub status: String,
 }
 
@@ -35,7 +37,10 @@ pub struct CallbackSuccessResponse {
 /// the business logic for each endpoint. Implement this trait to provide
 /// custom behavior (e.g., for testing with mocks).
 pub trait ApiBase: Send + Sync {
-    /// Check the health status of the service.
+    /// Check that the API server is up.
+    ///
+    /// If the API server is up, this always returns `{"status":"ok"}`. It
+    /// intentionally does not check anything else.
     fn check_health(&self) -> impl Future<Output = String> + Send;
 
     /// Exchange a GitHub OAuth code for an access token.
