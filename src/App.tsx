@@ -308,7 +308,7 @@ function GraphDay(
     const lightness = countToLightness(day.contributionCount || 0);
     className.push("unknown");
     style = {
-      background: `hsl(270deg 40 ${lightness})`,
+      background: `hsl(270deg 40% ${lightness}%)`,
     };
 
     if (day.contributionCount === 0) {

@@ -4,7 +4,7 @@ body {
 
 button, a.button, .pressed-button {
   display: inline-block;
-  background: hsl(210deg 100 50);
+  background: hsl(210deg 100% 50%);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -18,15 +18,15 @@ button, a.button, .pressed-button {
 
 button, a.button {
   cursor: pointer;
-  background: hsl(210deg 100 50);
+  background: hsl(210deg 100% 50%);
 }
 
 .pressed-button {
-  background: hsl(210deg 30 70);
+  background: hsl(210deg 30% 70%);
 }
 
 button:hover, a.button:hover {
-  background: hsl(210deg 100 45);
+  background: hsl(210deg 100% 45%);
   transform: translateY(-1px);
 }
 
@@ -35,16 +35,16 @@ button:active, a.button:active {
 }
 
 button:focus, a.button:focus {
-  outline: 2px solid hsl(210deg 100 60);
+  outline: 2px solid hsl(210deg 100% 60%);
   outline-offset: 2px;
 }
 
 button.logout-button {
-  background: hsl(0deg 0 70);
+  background: hsl(0deg 0% 70%);
 }
 
 button.logout-button:hover {
-  background: hsl(0deg 0 60);
+  background: hsl(0deg 0% 60%);
 }
 
 .login-container {
@@ -85,20 +85,20 @@ button.logout-button:hover {
 }
 
 .error-message {
-  background: hsl(0deg 100 95);
-  color: hsl(0deg 70 40);
+  background: hsl(0deg 100% 95%);
+  color: hsl(0deg 70% 40%);
   padding: 15px;
   border-radius: 6px;
-  border-left: 4px solid hsl(0deg 70 50);
+  border-left: 4px solid hsl(0deg 70% 50%);
   margin: 10px 0;
 }
 
 .loading-message {
-  background: hsl(210deg 100 95);
-  color: hsl(210deg 70 40);
+  background: hsl(210deg 100% 95%);
+  color: hsl(210deg 70% 40%);
   padding: 15px;
   border-radius: 6px;
-  border-left: 4px solid hsl(210deg 70 50);
+  border-left: 4px solid hsl(210deg 70% 50%);
   margin: 10px 0;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -113,8 +113,8 @@ button.logout-button:hover {
 }
 
 .info-message {
-  background: hsl(200deg 20 95);
-  color: hsl(200deg 20 40);
+  background: hsl(200deg 20% 95%);
+  color: hsl(200deg 20% 40%);
   padding: 15px;
   border-radius: 6px;
   margin: 10px 0;
@@ -155,7 +155,7 @@ table.contributions > tbody > tr > td.empty > ol {
 }
 
 table.contributions > tbody > tr > td.highlight > ol {
-  border: 1px solid hsl(30deg 100 50);
+  border: 1px solid hsl(30deg 100% 50%);
 }
 
 table.contributions > tbody > tr > td > ol {
@@ -182,7 +182,7 @@ table.contributions > tbody > tr > td > ol > li {
   padding: 10px;
   z-index: 1;
   font-size: 80%;
-  box-shadow: 5px 5px 10px hsl(0 0 0 / 0.3);
+  box-shadow: 5px 5px 10px hsl(0deg 0% 0% / 0.3);
   border: 1px solid #ccc;
   border-radius: 5px;
   pointer-events: none;
@@ -252,7 +252,7 @@ ol.repository-list > li > label {
 }
 
 ol.repository-list > li > label:hover {
-  background: hsl(0deg 0 96);
+  background: hsl(0deg 0% 96%);
 }
 
 ol.repository-list > li > label > input[type="checkbox"] {
@@ -288,7 +288,7 @@ ol.repository-list > li > label > h3 img {
   height: 20px;
   margin: -3px 0 3px 0; /* Move up a bit; graph is mostly a bottom */
   padding: 0;
-  border-bottom: 1px solid hsl(270deg 40 70);
+  border-bottom: 1px solid hsl(270deg 40% 70%);
 }
 
 .sparkline > div {
