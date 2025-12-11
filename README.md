@@ -1,4 +1,4 @@
-# Contributions graph
+# Contributions Tracker
 
 Displays a graph of the logged in user’s GitHub contributions [(demo)][demo].
 
@@ -10,9 +10,30 @@ URL, it will show the contributions for that GitHub user.
 
 ## Configuration
 
-See [.env.example] for environment variables. You will need a GitHub client ID
-and secret from https://github.com/settings/developers. The frontend URL can be
-set with `$VITE_FRONTEND_URL`.
+Configuration of the frontend is via environment variables when running
+`deno run dev` or `deno run build`:
+
+- `VITE_GITHUB_CLIENT_ID`: The GitHub client ID for this app (from
+  [GitHub OAuth app settings]).
+- `VITE_FRONTEND_URL`: The app’s homepage (needs to match
+  [GitHub OAuth app settings]).
+- `VITE_BACKEND_URL`: Defaults to `$VITE_FRONTEND_URL`. This is the URL prefix
+  for API calls, e.g. `$VITE_BACKEND_URL/api/health`. Note that the default
+  backend (in `rust-crate/`) does not support
+  [Cross-Origin Resource Sharing][CORS], so usually this cannot reference a
+  different host than `$VITE_FRONTEND_URL`. It doesn’t have to have a scheme and
+  host specified, e.g. `/` is acceptable.
+
+For development, create a `.env` file (see [.env.example]) for convenience.
+
+The backend takes configuration as command line parameters or environment
+variables:
+
+- `--bind IP:PORT` or `BIND`: the address and port to bind to.
+- `--github-client-id STRING` or `GITHUB_CLIENT_ID`: The GitHub client ID for
+  this app (from [GitHub OAuth app settings]).
+- `--github-client-secret` or `GITHUB_CLIENT_SECRET`: The GitHub client secret
+  for this app (from [GitHub OAuth app settings]).
 
 The backend should be proxied through the frontend URL at `/api`, e.g. a request
 to `http://frontend/api/health` should be proxied to
@@ -55,6 +76,8 @@ the Apache 2.0 license shall be dual licensed as above, without any additional
 terms or conditions.
 
 [demo]: https://demon.horse/portfolio/contributions-tracker/
+[GitHub OAuth app settings]: https://github.com/settings/developers
+[CORS]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
 [.env.example]: .env.example
 [Dropshot]: https://docs.rs/dropshot/latest/dropshot/
 [systemd socket activation]: https://www.freedesktop.org/software/systemd/man/latest/sd_listen_fds.html
