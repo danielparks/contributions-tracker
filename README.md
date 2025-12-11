@@ -33,6 +33,14 @@ compile-time type checking of calls across the API boundary.
 - [ ] Automated testing.
 - [ ] Load information about local repositories in backend.
 
+### Likely incompatible
+
+- **Systemd socket activation.** Dropshot takes a `SocketAddr` as configuration
+  then binds a `TcpListener`. In order to use [systemd socket activation], e.g.
+  with [systemd_socket], we need to pass Dropshot an already bound
+  `TcpListener`, or some sort of generic that supports
+  `systemd_socket::SocketAddr`. This would require changes to Dropshot.
+
 ## License
 
 Unless otherwise noted, this project is dual-licensed under the Apache 2 and MIT
@@ -49,3 +57,5 @@ terms or conditions.
 
 [.env.example]: .env.example
 [Dropshot]: https://docs.rs/dropshot/latest/dropshot/
+[systemd socket activation]: https://www.freedesktop.org/software/systemd/man/latest/sd_listen_fds.html
+[systemd_socket]: https://docs.rs/systemd_socket/latest/systemd_socket/
