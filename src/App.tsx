@@ -167,7 +167,7 @@ export default function App({ username }: { username: string | null }) {
           {loginUrl && (
             <a href={loginUrl} className="button">Log in with GitHub</a>
           )}
-          {authCode && <div className="pressed-button">Logging in…</div>}
+          {authCode && <span className="pressed-button">Logging in…</span>}
         </p>
         <p className="access-description">
           This only requests read-only access to your public repositories. This
