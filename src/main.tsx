@@ -1,7 +1,7 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import ErrorBoundary from "./ErrorBoundary.tsx";
-import QueryCacheProvider from "./QueryCache.tsx";
+import ErrorBoundary from "./components/ErrorBoundary.tsx";
+import QueryCacheProvider from "./components/QueryCache.tsx";
 import App from "./App.tsx";
 
 export function Router() {
