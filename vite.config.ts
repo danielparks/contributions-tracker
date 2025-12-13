@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
 import react from "@vitejs/plugin-react";
+import { resolve } from "node:path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,6 +18,14 @@ export default defineConfig({
     }),
     react(),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        static: resolve(__dirname, "static.html"),
+      },
+    },
+  },
   server: {
     proxy: {
       "/api": {
