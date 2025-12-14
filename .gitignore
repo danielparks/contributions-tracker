@@ -1,6 +1,8 @@
 # Deno seems to require .env instead of .env.local
 /.env
 
+.github-token
+
 # Rust
 /rust-crate/target
 *.rs.bk
