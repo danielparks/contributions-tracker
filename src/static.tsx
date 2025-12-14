@@ -1,24 +1,37 @@
 import "./App.css";
-import { StrictMode, useMemo } from "react";
+import { StrictMode, useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
 import { ContributionsView } from "./components/ContributionsView.tsx";
 import { Calendar } from "./model.ts";
 import type { Contributions } from "./github/api.ts";
 
-declare global {
-  interface Window {
-    CALENDAR_DATA?: Contributions[];
-  }
-}
-
 export function StaticApp() {
+  const [contributions, setContributions] = useState<Contributions[] | null>(
+    null,
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("./assets/contributions.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((data: Contributions[]) => {
+        setContributions(data);
+      })
+      .catch((err: unknown) => {
+        setError(
+          err instanceof Error ? err.message : "Failed to load contributions",
+        );
+      });
+  }, []);
+
   const calendar = useMemo(() => {
-    const contributions = window.CALENDAR_DATA;
-    if (
-      !contributions || !Array.isArray(contributions) ||
-      contributions.length === 0
-    ) {
+    if (!contributions || contributions.length === 0) {
       return null;
     }
 
@@ -27,7 +40,25 @@ export function StaticApp() {
       calendar.updateFromContributions(contrib);
     }
     return calendar;
-  }, []);
+  }, [contributions]);
+
+  if (error) {
+    return (
+      <div className="login-container">
+        <h1>GitHub Contribution Graph</h1>
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
+
+  if (!contributions) {
+    return (
+      <div className="login-container">
+        <h1>GitHub Contribution Graph</h1>
+        <div className="loading-message">Loading contributions...</div>
+      </div>
+    );
+  }
 
   if (!calendar) {
     return (
