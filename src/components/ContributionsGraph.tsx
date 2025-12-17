@@ -18,7 +18,7 @@ export function ContributionsGraph(
 
   const handleClick = clickUrl
     ? () => {
-      globalThis.location.href = clickUrl;
+      location.href = clickUrl;
     }
     : undefined;
 
