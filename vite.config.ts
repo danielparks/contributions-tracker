@@ -13,6 +13,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         static: resolve(__dirname, "static.html"),
+        compact: resolve(__dirname, "compact.html"),
       },
     },
   },
