@@ -136,22 +136,6 @@ export const CONTRIBUTIONS_QUERY_TEMPLATE =
   }
 }`;
 
-export function loginUrl(redirectUrl: string) {
-  const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-  if (!clientId) {
-    throw new Error(
-      "GitHub Client ID not found; make sure VITE_GITHUB_CLIENT_ID is set in " +
-        " your .env file.",
-    );
-  }
-
-  const url = new URL("https://github.com/login/oauth/authorize");
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", redirectUrl);
-  url.searchParams.set("scope", "");
-  return url;
-}
-
 export class GitHub {
   readonly octokit: Octokit;
 
