@@ -14,6 +14,9 @@ It has two parts:
 Instead of using `npm install package`, use `deno add npm:package` (use `-D` to
 add a development dependency just like with `npm`).
 
+As much configuration as possible should be put in `package.json` rather than
+`deno.jsonc`.
+
 ## Branching
 
 When creating a branch, prefix it with "claude-".
