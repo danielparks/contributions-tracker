@@ -1,12 +1,29 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
+import fs from "node:fs";
 
 // https://vite.dev/config/
 export default defineConfig({
   base: "",
   plugins: [
     react(),
+    {
+      name: "serve-static-data",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url === "/assets/contributions.json") {
+            const path = resolve(__dirname, "dist/assets/contributions.json");
+            if (fs.existsSync(path)) {
+              res.setHeader("Content-Type", "application/json");
+              fs.createReadStream(path).pipe(res);
+              return;
+            }
+          }
+          next();
+        });
+      },
+    },
   ],
   build: {
     rollupOptions: {
