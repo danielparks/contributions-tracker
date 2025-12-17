@@ -10,12 +10,11 @@ export interface ContributionsGraphProps {
 }
 
 export function ContributionsGraph(
-  { calendar, filter, highlight, clickUrl, showTooltip = true }:
+  { calendar, filter, highlight = null, clickUrl, showTooltip = true }:
     ContributionsGraphProps,
 ) {
   const dayMax = calendar.maxContributions();
   const effectiveFilter = filter ?? new Filter();
-  const effectiveHighlight = highlight ?? null;
 
   const handleClick = clickUrl
     ? () => {
@@ -38,7 +37,7 @@ export function ContributionsGraph(
                 day={day}
                 filter={effectiveFilter}
                 max={dayMax}
-                highlight={effectiveHighlight}
+                highlight={highlight}
                 showTooltip={showTooltip}
               />
             ))}
