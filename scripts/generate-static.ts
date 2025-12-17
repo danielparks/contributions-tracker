@@ -10,6 +10,16 @@ interface Args {
   outputFile: string;
 }
 
+const USAGE = `Usage: generate-static.ts [options] <username>
+
+Options:
+  -t, --token-file <file>  Path to file containing GitHub token
+                           (default: .github-token)
+  -o, --output <file>      Path to JSON file to generate
+                           (default: dist/assets/contributions.json)
+  -v, --verbose            Enable verbose output
+  --help                   Show this output.`;
+
 function parseArgs(): Args {
   const args = Deno.args;
   let username = "";
@@ -19,7 +29,10 @@ function parseArgs(): Args {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === "--verbose" || arg === "-v") {
+    if (arg === "--help") {
+      console.log(USAGE);
+      Deno.exit(0);
+    } else if (arg === "--verbose" || arg === "-v") {
       verbose = true;
     } else if (arg === "--token-file" || arg === "-t") {
       i++;
@@ -44,16 +57,7 @@ function parseArgs(): Args {
   }
 
   if (!username) {
-    console.error(
-      `Usage: generate-static.ts [options] <username>
-
-Options:
-  -t, --token-file <file>  Path to file containing GitHub token
-                           (default: .github-token)
-  -o, --output <file>      Path to JSON file to generate
-                           (default: dist/assets/contributions.json)
-  -v, --verbose            Enable verbose output`,
-    );
+    console.error(USAGE);
     Deno.exit(1);
   }
 
