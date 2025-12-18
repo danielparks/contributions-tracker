@@ -79,16 +79,11 @@ export class Filter {
  */
 export class Calendar {
   name: string;
-  start: Date;
-  /** UTC date encoded as ms since 1970 */
-  start_ms: number;
   days: Day[];
   repositories = new Map<string, Repository>();
 
-  constructor(name: string, start: Date, days: Day[] = []) {
+  constructor(name: string, days: Day[] = []) {
     this.name = name;
-    this.start = start;
-    this.start_ms = toUtcDate(start);
     this.days = days;
   }
 
@@ -98,7 +93,6 @@ export class Calendar {
   static fromContributions(contributions: github.Contributions) {
     const calendar = new Calendar(
       contributions.name,
-      parseDateTime(contributions.calendar.weeks[0].contributionDays[0].date),
       contributions.calendar.weeks.map((week) =>
         week.contributionDays.map((day) =>
           new Day(parseDateTime(day.date), day.contributionCount)
@@ -219,10 +213,14 @@ export class Calendar {
   /**
    * Gets the Day for a given localtime date.
    *
-   * FIXME: doesn't handle out-of-range dates well.
+   * FIXME: should create a day if it doesn't exist. Rename method too?
    */
   day(date: Date): Day | undefined {
-    return this.days[Math.round((toUtcDate(date) - this.start_ms) / 86400000)];
+    if (this.days.length == 0) {
+      return undefined;
+    }
+    const ms_difference = toUtcDate(date) - toUtcDate(this.days[0].date);
+    return this.days[Math.round(ms_difference / 86400000)];
   }
 
   /**
@@ -254,17 +252,21 @@ export class Calendar {
    * Pads the first week if the start date isn't Sunday.
    */
   *weeks() {
-    // FIXME test this
-    const firstWeek: Day[] = [];
-    const date = new Date(this.start);
-    for (let i = 0; i < this.start.getDay(); i++) {
-      firstWeek.push(new Day(date));
-      date.setDate(date.getDate() + 1);
+    if (this.days.length == 0) {
+      return;
     }
-    firstWeek.push(...this.days.slice(0, 7 - this.start.getDay()));
+
+    const firstWeek: Day[] = [];
+    const firstDate = this.days[0].date;
+    for (let i = 0; i < firstDate.getDay(); i++) {
+      const date = new Date(firstDate);
+      date.setDate(date.getDate() + i - firstDate.getDay());
+      firstWeek.push(new Day(date));
+    }
+    firstWeek.push(...this.days.slice(0, 7 - firstDate.getDay()));
     yield firstWeek;
 
-    for (let i = 7 - this.start.getDay(); i < this.days.length; i += 7) {
+    for (let i = 7 - firstDate.getDay(); i < this.days.length; i += 7) {
       yield this.days.slice(i, i + 7);
     }
   }

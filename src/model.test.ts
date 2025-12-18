@@ -184,14 +184,39 @@ Deno.test("Calendar should get day by date", () => {
     new Day(new Date(2025, 0, 2), 3),
     new Day(new Date(2025, 0, 3), 2),
   ];
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1), days);
+  const calendar = new Calendar("testuser", days);
 
   const day = calendar.day(new Date(2025, 0, 2));
   assertEquals(day?.contributionCount, 3);
 });
 
+Deno.test("Calendar should start first week on Sunday", () => {
+  const days = [
+    new Day(new Date(2025, 0, 1), 5),
+    new Day(new Date(2025, 0, 2), 3),
+    new Day(new Date(2025, 0, 3), 2),
+  ];
+  assertEquals(days[0].date.getDay(), 3); // Wednesday
+
+  const calendar = new Calendar("testuser", days);
+
+  const weeks = [...calendar.weeks()];
+  assertEquals(weeks.length, 1);
+  assertEquals(weeks[0].length, 6);
+
+  const sunday = weeks[0][0];
+  assertEquals(sunday.date, new Date(2024, 11, 29), "first day date");
+  assertEquals(sunday.date.getDay(), 0, "first day should be Sunday");
+  assertEquals(sunday.contributionCount, null, "first day contributions");
+
+  const friday = weeks[0][weeks[0].length - 1];
+  assertEquals(friday.date, new Date(2025, 0, 3), "last day date");
+  assertEquals(friday.date.getDay(), 5, "last day should be Friday");
+  assertEquals(friday.contributionCount, 2, "last day contributions");
+});
+
 Deno.test("Calendar should return repository URLs", () => {
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1));
+  const calendar = new Calendar("testuser");
   calendar.repositories.set(
     "https://github.com/test/repo1",
     new Repository("https://github.com/test/repo1"),
@@ -215,12 +240,12 @@ Deno.test("Calendar should calculate max contributions", () => {
     new Day(new Date(2025, 0, 2), 10),
     new Day(new Date(2025, 0, 3), 3),
   ];
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1), days);
+  const calendar = new Calendar("testuser", days);
   assertEquals(calendar.maxContributions(), 10);
 });
 
 Deno.test("Calendar should sort repos by contribution count", () => {
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1));
+  const calendar = new Calendar("testuser");
 
   const repo1 = new Repository("https://github.com/test/repo1");
   repo1.contributions = 5;
@@ -243,7 +268,7 @@ Deno.test("Calendar should sort repos by contribution count", () => {
 });
 
 Deno.test("Calendar should assign distinct hues to repos by usage", () => {
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1));
+  const calendar = new Calendar("testuser");
 
   const repo1 = new Repository("https://github.com/test/repo1");
   repo1.contributions = 10;
@@ -265,7 +290,7 @@ Deno.test("Calendar should assign distinct hues to repos by usage", () => {
 });
 
 Deno.test("Calendar should wrap hues around 360 degrees", () => {
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1));
+  const calendar = new Calendar("testuser");
 
   for (let i = 0; i < 10; i++) {
     const repo = new Repository(`https://github.com/test/repo${i}`);
@@ -280,7 +305,7 @@ Deno.test("Calendar should wrap hues around 360 degrees", () => {
 });
 
 Deno.test("Calendar should deduplicate repositories", () => {
-  const calendar = new Calendar("testuser", new Date(2025, 0, 1));
+  const calendar = new Calendar("testuser");
   const repoData = {
     url: "https://github.com/test/repo",
     isFork: false,

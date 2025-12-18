@@ -7,18 +7,14 @@ import { Calendar, Day, Filter, Repository } from "../model.ts";
 
 describe("RepositoryList", () => {
   function createTestCalendar() {
-    const startDate = new Date(2025, 0, 1);
-    const days: Day[] = [];
-
-    for (let i = 0; i < 30; i++) {
-      const day = new Day(
-        new Date(2025, 0, 1 + i),
-        Math.floor(Math.random() * 10),
-      );
-      days.push(day);
-    }
-
-    const calendar = new Calendar("testuser", startDate, days);
+    const calendar = new Calendar(
+      "testuser",
+      Array.from({ length: 30 }, (_, i) =>
+        new Day(
+          new Date(2025, 0, 1 + i),
+          Math.floor(Math.random() * 10),
+        )),
+    );
 
     const repo1 = new Repository("https://github.com/test/repo1");
     repo1.contributions = 5;
