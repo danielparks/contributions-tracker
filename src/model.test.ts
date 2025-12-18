@@ -2,13 +2,13 @@ import { assert, assertEquals, assertStrictEquals } from "@std/assert";
 import { Calendar, Day, Filter, Repository, RepositoryDay } from "./model.ts";
 import * as gql from "./github/gql.ts";
 
-Deno.test("Filter should be on by default for any repo", async (t) => {
+Deno.test("Filter should be on by default for any repo", () => {
   const filter = new Filter();
   assert(filter.isOn("https://github.com/test/repo"));
   assert(filter.isOn("https://github.com/another/repo"));
 });
 
-Deno.test("Filter should create filter with only specified repos", async (t) => {
+Deno.test("Filter should create filter with only specified repos", () => {
   const filter = Filter.withOnlyRepos(
     "https://github.com/test/repo1",
     "https://github.com/test/repo2",
@@ -19,7 +19,7 @@ Deno.test("Filter should create filter with only specified repos", async (t) => 
   assert(!filter.isOn("https://github.com/other/repo"));
 });
 
-Deno.test("Filter should switch repo on/off", async (t) => {
+Deno.test("Filter should switch repo on/off", () => {
   const filter = new Filter();
   assert(filter.isOn("https://github.com/test/repo"));
 
@@ -30,7 +30,7 @@ Deno.test("Filter should switch repo on/off", async (t) => {
   assert(filter.isOn("https://github.com/test/repo"));
 });
 
-Deno.test("Filter should clone with same state", async (t) => {
+Deno.test("Filter should clone with same state", () => {
   const filter = new Filter();
   filter.defaultState = false;
   filter.switchRepo("https://github.com/test/repo", true);
@@ -41,7 +41,7 @@ Deno.test("Filter should clone with same state", async (t) => {
   assert(!cloned.isOn("https://github.com/other/repo"));
 });
 
-Deno.test("Filter should not affect original when cloning", async (t) => {
+Deno.test("Filter should not affect original when cloning", () => {
   const filter = new Filter();
   filter.switchRepo("https://github.com/test/repo", false);
 
@@ -56,7 +56,7 @@ function testRepoDay() {
   return new RepositoryDay(new Repository("https://github.com/test/repo"));
 }
 
-Deno.test("RepositoryDay should start with zero counts", async (t) => {
+Deno.test("RepositoryDay should start with zero counts", () => {
   const repoDay = testRepoDay();
   assertEquals(repoDay.commitCount, 0);
   assertEquals(repoDay.created, 0);
@@ -66,14 +66,14 @@ Deno.test("RepositoryDay should start with zero counts", async (t) => {
   assertEquals(repoDay.count(), 0);
 });
 
-Deno.test("RepositoryDay should add commits", async (t) => {
+Deno.test("RepositoryDay should add commits", () => {
   const repoDay = testRepoDay();
   repoDay.addCommits(5);
   assertEquals(repoDay.commitCount, 5);
   assertEquals(repoDay.count(), 5);
 });
 
-Deno.test("RepositoryDay should add multiple commits", async (t) => {
+Deno.test("RepositoryDay should add multiple commits", () => {
   const repoDay = testRepoDay();
   repoDay.addCommits(3);
   repoDay.addCommits(2);
@@ -81,14 +81,14 @@ Deno.test("RepositoryDay should add multiple commits", async (t) => {
   assertEquals(repoDay.count(), 5);
 });
 
-Deno.test("RepositoryDay should add repository creation", async (t) => {
+Deno.test("RepositoryDay should add repository creation", () => {
   const repoDay = testRepoDay();
   repoDay.addCreate();
   assertEquals(repoDay.created, 1);
   assertEquals(repoDay.count(), 1);
 });
 
-Deno.test("RepositoryDay should count all contribution types", async (t) => {
+Deno.test("RepositoryDay should count all contribution types", () => {
   const repoDay = testRepoDay();
   repoDay.addCommits(3);
   repoDay.addCreate();
@@ -102,7 +102,7 @@ Deno.test("RepositoryDay should count all contribution types", async (t) => {
   assertEquals(repoDay.count(), 8);
 });
 
-Deno.test("Day should calculate known contribution count", async (t) => {
+Deno.test("Day should calculate known contribution count", () => {
   const day = new Day(new Date(2025, 0, 15), 10);
   const repo1 = new Repository("https://github.com/test/repo1");
   const repo2 = new Repository("https://github.com/test/repo2");
@@ -119,7 +119,7 @@ Deno.test("Day should calculate known contribution count", async (t) => {
   assertEquals(day.knownContributionCount(), 6);
 });
 
-Deno.test("Day should check if contributions add up", async (t) => {
+Deno.test("Day should check if contributions add up", () => {
   const day = new Day(new Date(2025, 0, 15), 5);
   const repoDay = testRepoDay();
   repoDay.addCommits(5);
@@ -128,7 +128,7 @@ Deno.test("Day should check if contributions add up", async (t) => {
   assert(day.addsUp());
 });
 
-Deno.test("Day should return false when contributions don't add up", async (t) => {
+Deno.test("Day should return false when contributions don't add up", () => {
   const day = new Day(new Date(2025, 0, 15), 10);
   const repoDay = testRepoDay();
   repoDay.addCommits(5);
@@ -137,7 +137,7 @@ Deno.test("Day should return false when contributions don't add up", async (t) =
   assert(!day.addsUp());
 });
 
-Deno.test("Day should filter repositories by filter", async (t) => {
+Deno.test("Day should filter repositories by filter", () => {
   const day = new Day(new Date(2025, 0, 15));
   const repo1 = new Repository("https://github.com/test/repo1");
   const repo2 = new Repository("https://github.com/test/repo2");
@@ -152,7 +152,7 @@ Deno.test("Day should filter repositories by filter", async (t) => {
   assertEquals(filtered[0].url(), repo1.url);
 });
 
-Deno.test("Day should calculate filtered count", async (t) => {
+Deno.test("Day should calculate filtered count", () => {
   const day = new Day(new Date(2025, 0, 15));
   const repo1 = new Repository("https://github.com/test/repo1");
   const repo2 = new Repository("https://github.com/test/repo2");
@@ -169,7 +169,7 @@ Deno.test("Day should calculate filtered count", async (t) => {
   assertEquals(day.filteredCount(filter), 3);
 });
 
-Deno.test("Day should check if day has specific repo", async (t) => {
+Deno.test("Day should check if day has specific repo", () => {
   const day = new Day(new Date(2025, 0, 15));
   const repo = new Repository("https://github.com/test/repo");
   day.repositories.set(repo.url, new RepositoryDay(repo));
@@ -178,7 +178,7 @@ Deno.test("Day should check if day has specific repo", async (t) => {
   assert(!day.hasRepo("https://github.com/other/repo"));
 });
 
-Deno.test("Calendar should get day by date", async (t) => {
+Deno.test("Calendar should get day by date", () => {
   const days = [
     new Day(new Date(2025, 0, 1), 5),
     new Day(new Date(2025, 0, 2), 3),
@@ -190,7 +190,7 @@ Deno.test("Calendar should get day by date", async (t) => {
   assertEquals(day?.contributionCount, 3);
 });
 
-Deno.test("Calendar should return repository URLs", async (t) => {
+Deno.test("Calendar should return repository URLs", () => {
   const calendar = new Calendar("testuser", new Date(2025, 0, 1));
   calendar.repositories.set(
     "https://github.com/test/repo1",
@@ -209,7 +209,7 @@ Deno.test("Calendar should return repository URLs", async (t) => {
   ]);
 });
 
-Deno.test("Calendar should calculate max contributions", async (t) => {
+Deno.test("Calendar should calculate max contributions", () => {
   const days = [
     new Day(new Date(2025, 0, 1), 5),
     new Day(new Date(2025, 0, 2), 10),
@@ -219,7 +219,7 @@ Deno.test("Calendar should calculate max contributions", async (t) => {
   assertEquals(calendar.maxContributions(), 10);
 });
 
-Deno.test("Calendar should sort repos by contribution count", async (t) => {
+Deno.test("Calendar should sort repos by contribution count", () => {
   const calendar = new Calendar("testuser", new Date(2025, 0, 1));
 
   const repo1 = new Repository("https://github.com/test/repo1");
@@ -242,7 +242,7 @@ Deno.test("Calendar should sort repos by contribution count", async (t) => {
   ]);
 });
 
-Deno.test("Calendar should assign distinct hues to repos by usage", async (t) => {
+Deno.test("Calendar should assign distinct hues to repos by usage", () => {
   const calendar = new Calendar("testuser", new Date(2025, 0, 1));
 
   const repo1 = new Repository("https://github.com/test/repo1");
@@ -264,7 +264,7 @@ Deno.test("Calendar should assign distinct hues to repos by usage", async (t) =>
   assertEquals(repo3.hue, 35);
 });
 
-Deno.test("Calendar should wrap hues around 360 degrees", async (t) => {
+Deno.test("Calendar should wrap hues around 360 degrees", () => {
   const calendar = new Calendar("testuser", new Date(2025, 0, 1));
 
   for (let i = 0; i < 10; i++) {
@@ -279,7 +279,7 @@ Deno.test("Calendar should wrap hues around 360 degrees", async (t) => {
   assertEquals(repos[7].hue, (285 + 55 * 7) % 360);
 });
 
-Deno.test("Calendar should deduplicate repositories", async (t) => {
+Deno.test("Calendar should deduplicate repositories", () => {
   const calendar = new Calendar("testuser", new Date(2025, 0, 1));
   const repoData = {
     url: "https://github.com/test/repo",
