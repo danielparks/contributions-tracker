@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run generate:api:watch & vite",
-    "build": "npm run generate:api && tsc -b && vite build",
+    "build": "npm run generate:api && vite build",
     "preview": "vite preview",
     "generate:api": "scripts/generate-api.sh",
     "generate:api:watch": "chokidar 'openapi.json' -c 'npm run generate:api' --initial --silent",
