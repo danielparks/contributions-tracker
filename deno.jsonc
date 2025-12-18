@@ -4,6 +4,9 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
+  "exclude": [
+    "rust-crate"
+  ],
   "fmt": {
     "exclude": [
       "**/*.svg",
