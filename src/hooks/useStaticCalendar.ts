@@ -21,8 +21,7 @@ export function useStaticCalendar(): UseStaticCalendarResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const url =
-      (import.meta.env.VITE_CONTRIBUTIONS_URL as string | undefined) ||
+    const url = import.meta.env.VITE_CONTRIBUTIONS_URL ||
       "assets/contributions.json";
     fetch(url)
       .then((response) => {

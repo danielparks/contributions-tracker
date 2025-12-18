@@ -24,9 +24,7 @@ export const api = new Api({
  * @param code - The authorization code from GitHub OAuth callback
  * @returns The access token on success, or undefined on error
  */
-export async function exchangeOAuthCode(
-  code: string,
-): Promise<string | undefined> {
+export async function exchangeOAuthCode(code: string) {
   const result = await api.methods.oauthCallback({ query: { code } });
 
   if (result.type === "error") {

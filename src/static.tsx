@@ -45,7 +45,7 @@ export function StaticApp() {
   );
 }
 
-createRoot(document.getElementById("root") as HTMLElement).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
       <StaticApp />

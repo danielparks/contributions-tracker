@@ -8,7 +8,7 @@ import { useStaticCalendar } from "./hooks/useStaticCalendar.ts";
 
 export function CompactApp() {
   const { calendar, error, loading } = useStaticCalendar();
-  const clickUrl = import.meta.env.VITE_CLICK_URL as string | undefined;
+  const clickUrl = import.meta.env.VITE_CLICK_URL;
 
   if (error) {
     return <StatusMessage type="error" message={error} />;
@@ -29,7 +29,7 @@ export function CompactApp() {
   );
 }
 
-createRoot(document.getElementById("root") as HTMLElement).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
       <CompactApp />
