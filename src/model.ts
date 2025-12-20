@@ -258,38 +258,38 @@ export class Calendar {
   /**
    * Add `Day`s to `Calendar`, replacing any that already exist.
    */
-  replaceDays(days: Day[]) {
-    if (days.length === 0) {
+  replaceDays(newDays: Day[]) {
+    if (newDays.length === 0) {
       return;
     }
 
     const daysByEpochDay = new Map<number, Day>();
-    for (const day of days) {
+    for (const day of this.days) {
+      daysByEpochDay.set(toEpochDays(day.date), day);
+    }
+    for (const day of newDays) {
       daysByEpochDay.set(toEpochDays(day.date), day);
     }
 
-    const firstDate = days[0].date;
-    const lastDate = days[days.length - 1].date;
-    const lastEpochDay = toEpochDays(lastDate);
+    let firstEpochDay = Math.min(...daysByEpochDay.keys());
+    let lastEpochDay = Math.max(...daysByEpochDay.keys());
+    let firstDate = daysByEpochDay.get(firstEpochDay)!.date;
 
-    const sundayBeforeFirst = new Date(firstDate);
-    sundayBeforeFirst.setDate(firstDate.getDate() - firstDate.getDay());
-    const startEpochDay = toEpochDays(sundayBeforeFirst);
+    // Ensure first day is a Sunday.
+    firstEpochDay -= firstDate.getDay();
+    firstDate = plusDays(firstDate, -firstDate.getDay());
 
-    const endEpochDay = startEpochDay +
-      Math.ceil((lastEpochDay - startEpochDay + 1) / 7) * 7 - 1;
+    // Ensure last day is a Saturday by rounding up interval to multiple of 7.
+    const dayCount = Math.ceil((lastEpochDay - firstEpochDay + 1) / 7) * 7;
+    lastEpochDay = firstEpochDay + dayCount - 1;
 
     this.days = [];
-    for (let epochDay = startEpochDay; epochDay <= endEpochDay; epochDay++) {
-      const existingDay = daysByEpochDay.get(epochDay);
+    for (let i = firstEpochDay; i <= lastEpochDay; i++) {
+      const existingDay = daysByEpochDay.get(i);
       if (existingDay) {
         this.days.push(existingDay);
       } else {
-        this.days.push(
-          new Day(
-            plusDays(sundayBeforeFirst, epochDay - startEpochDay),
-          ),
-        );
+        this.days.push(new Day(plusDays(firstDate, i - firstEpochDay)));
       }
     }
   }
