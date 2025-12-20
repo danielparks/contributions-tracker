@@ -39,17 +39,10 @@ export function useStaticCalendar(): UseStaticCalendarResult {
       });
   }, []);
 
-  const calendar = useMemo(() => {
-    if (!contributions || contributions.length === 0) {
-      return null;
-    }
-
-    const calendar = Calendar.fromContributions(contributions[0]);
-    for (const contrib of contributions.slice(1)) {
-      calendar.updateFromContributions(contrib);
-    }
-    return calendar;
-  }, [contributions]);
+  const calendar = useMemo(
+    () => Calendar.fromContributions(...contributions || []),
+    [contributions],
+  );
 
   return {
     calendar,

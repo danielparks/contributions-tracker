@@ -89,9 +89,15 @@ export class Calendar {
   /**
    * Creates a Calendar from GitHub contributions data.
    */
-  static fromContributions(contributions: github.Contributions) {
-    const calendar = new Calendar(contributions.name);
-    return calendar.updateFromContributions(contributions);
+  static fromContributions(...contributions: github.Contributions[]) {
+    if (contributions.length == 0) {
+      return null;
+    }
+    const calendar = new Calendar(contributions[0].name);
+    for (const contrib of contributions) {
+      calendar.updateFromContributions(contrib);
+    }
+    return calendar;
   }
 
   /**
