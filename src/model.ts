@@ -211,55 +211,48 @@ export class Calendar {
    *
    * Maintains the invariant that `days[0]` is always a Sunday.
    */
-  day(date: Date): Day {
+  day(requestedDate: Date): Day {
     // FIXME assumes date is midnight local time.
-    const dateEpochDay = toEpochDays(date);
+    const requestedEpochDay = toEpochDays(requestedDate);
 
-    let firstEpochDay = null;
+    let firstEpochDay = requestedEpochDay;
     if (this.days.length != 0) {
       firstEpochDay = toEpochDays(this.days[0].date);
     }
 
-    if (firstEpochDay === null || dateEpochDay < firstEpochDay) {
-      // Either there are no existing days, or the requested date is before the
-      // first existing day. Make a prefix array to prepend.
-
-      // Pad prefix to start with Sunday (date - date.getDay())
-      const prefix = [];
-      for (let i = -date.getDay(); i < 0; i++) {
-        prefix.push(new Day(addDays(new Date(date), i)));
-      }
-      const returnDay = new Day(new Date(date));
-      prefix.push(returnDay);
-
-      // Fill gap between date and firstDate.
-      if (firstEpochDay !== null) {
-        const gap = firstEpochDay - dateEpochDay;
-        for (let i = 1; i < gap; i++) {
-          prefix.push(new Day(addDays(new Date(date), i)));
-        }
-      }
-
-      this.days.unshift(...prefix);
-      return returnDay;
-    }
-
-    const relativeDay = dateEpochDay - firstEpochDay;
+    // If this.days is empty the following block will handle it.
+    const relativeDay = requestedEpochDay - firstEpochDay;
     if (relativeDay >= this.days.length) {
-      const lastDay = this.days[this.days.length - 1];
-      const numDaysToAdd = relativeDay - this.days.length + 1;
-      for (let i = 1; i <= numDaysToAdd; i++) {
-        this.days.push(new Day(addDays(new Date(lastDay.date), i)));
-      }
-
-      const lastAddedDay = this.days[this.days.length - 1];
-      const daysUntilSaturday = 6 - lastAddedDay.date.getDay();
-      for (let i = 1; i <= daysUntilSaturday; i++) {
-        this.days.push(new Day(addDays(new Date(lastAddedDay.date), i)));
+      // endPadding makes sure this.days ends on a Saturday:
+      const endPadding = 6 - requestedDate.getDay();
+      for (let i = this.days.length - relativeDay; i <= endPadding; i++) {
+        this.days.push(new Day(plusDays(requestedDate, i)));
       }
     }
 
-    return this.days[relativeDay];
+    if (relativeDay >= 0) {
+      return this.days[relativeDay];
+    }
+
+    // There are existing days, and the requested date is before the first one.
+    // Make a prefix array to prepend.
+
+    // Pad prefix to start with Sunday (date - date.getDay())
+    const prefix = [];
+    for (let i = -requestedDate.getDay(); i < 0; i++) {
+      prefix.push(new Day(plusDays(requestedDate, i)));
+    }
+    const returnDay = new Day(new Date(requestedDate));
+    prefix.push(returnDay);
+
+    // Fill gap between date and firstDate.
+    const gap = firstEpochDay - requestedEpochDay;
+    for (let i = 1; i < gap; i++) {
+      prefix.push(new Day(plusDays(requestedDate, i)));
+    }
+
+    this.days.unshift(...prefix);
+    return returnDay;
   }
 
   /**
@@ -292,9 +285,11 @@ export class Calendar {
       if (existingDay) {
         this.days.push(existingDay);
       } else {
-        const date = new Date(sundayBeforeFirst);
-        date.setDate(date.getDate() + (epochDay - startEpochDay));
-        this.days.push(new Day(date));
+        this.days.push(
+          new Day(
+            plusDays(sundayBeforeFirst, epochDay - startEpochDay),
+          ),
+        );
       }
     }
   }
@@ -478,11 +473,10 @@ export class Repository {
 }
 
 /**
- * Adds `days` days to `date` and returns it.
- *
- * Modifies `date`. To make a copy, use `addDays(new Date(date), days)`.
+ * Return a new `Date` that is `days` days after `date`.
  */
-function addDays(date: Date, days: number) {
-  date.setDate(date.getDate() + days);
-  return date;
+function plusDays(date: Date, days: number) {
+  const newDate = new Date(date);
+  newDate.setDate(newDate.getDate() + days);
+  return newDate;
 }
