@@ -78,12 +78,11 @@ export class Filter {
  */
 export class Calendar {
   name: string;
-  days: Day[];
+  days: Day[] = [];
   repositories = new Map<string, Repository>();
 
   constructor(name: string, days: Day[] = []) {
     this.name = name;
-    this.days = [];
     this.replaceDays(days);
   }
 
@@ -91,24 +90,18 @@ export class Calendar {
    * Creates a Calendar from GitHub contributions data.
    */
   static fromContributions(contributions: github.Contributions) {
-    const calendar = new Calendar(
-      contributions.name,
-      contributions.calendar.weeks.map((week) =>
-        week.contributionDays.map((day) =>
-          new Day(parseDateTime(day.date), day.contributionCount)
-        )
-      ).flat(),
-    );
+    const calendar = new Calendar(contributions.name);
     return calendar.updateFromContributions(contributions);
   }
 
   /**
    * Merges additional contributions data into this calendar.
-   *
-   * FIXME: Ignores contributions.calendar; everything is loaded in first loop.
-   * If we want to add contributions from another date range this won't work.
    */
   updateFromContributions(contributions: github.Contributions) {
+    if (contributions.calendar) {
+      this.updateSummary(contributions.calendar);
+    }
+
     for (const entry of contributions.commits) {
       const { repository, contributions: { nodes } } = entry;
       for (const node of github.cleanNodes(nodes)) {
@@ -140,6 +133,21 @@ export class Calendar {
     this.updateRepoCounts();
     this.updateRepoColors();
     return this;
+  }
+
+  /**
+   * Update summary data.
+   *
+   * FIXME: this replaces the days involved, which removes the detail data.
+   */
+  updateSummary(summary: gql.ContributionCalendar) {
+    this.replaceDays(
+      summary.weeks.map((week) =>
+        week.contributionDays.map((day) =>
+          new Day(parseDateTime(day.date), day.contributionCount)
+        )
+      ).flat(),
+    );
   }
 
   /**

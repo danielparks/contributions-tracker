@@ -27,12 +27,13 @@ export type GithubError = GraphqlResponseError<GraphQlQueryResponseData>;
  * FIXME: Does mostRecentCollectionWithActivity catch recent changes (e.g.
  *        deleting a repo) that affect the past?
  */
-export const CONTRIBUTIONS_QUERY_TEMPLATE = `query ( {{PARAMETERS}} ) {
+export const CONTRIBUTIONS_QUERY_TEMPLATE =
+  `query ( $wantSummary:Boolean!, {{PARAMETERS}} ) {
   user: {{ROOT_FIELD}} {
     login
     name
     contributionsCollection {
-      contributionCalendar {
+      contributionCalendar @include(if: $wantSummary) {
         totalContributions
         weeks {
           contributionDays {
@@ -178,6 +179,7 @@ export class GitHub {
       "reviewCursor",
     ];
 
+    let wantSummary = true;
     const pageInfo = Object.fromEntries(
       cursors.map(
         (name) => [name, { endCursor: null, hasNextPage: true }],
@@ -201,6 +203,7 @@ export class GitHub {
         query: CONTRIBUTIONS_QUERY_TEMPLATE
           .replace("{{ROOT_FIELD}}", rootField)
           .replace("{{PARAMETERS}}", parameters.join(", ")),
+        wantSummary,
         ...parameterObject,
       });
 
@@ -218,6 +221,8 @@ export class GitHub {
       };
 
       // Try to request next pages
+      wantSummary = false;
+
       if (pageInfo.commitCursor.hasNextPage) {
         const commits = collection.commitContributionsByRepository;
         pageInfo.commitCursor = (
@@ -261,7 +266,7 @@ export function cleanNodes<NodeType>(
 export interface Contributions {
   login: string;
   name: string;
-  calendar: ContributionCalendar;
+  calendar?: ContributionCalendar;
   commits: CommitContributionsByRepository[];
   issues: CreatedIssueContribution[];
   prs: CreatedPullRequestContribution[];
