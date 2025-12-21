@@ -104,6 +104,11 @@ export class Calendar {
    * Merges additional contributions data into this calendar.
    */
   updateFromContributions(contributions: github.Contributions) {
+    // Timestamps (`occurredAt`) are UTC datetimes, e.g. "2025-10-02T07:00:00Z",
+    // so parsing with `new Date(str)` works correctly.
+    const findRepoDay = (timestamp: string, repository: gql.Repository) =>
+      this.repoDay(new Date(timestamp), repository);
+
     if (contributions.calendar) {
       this.updateSummary(
         contributions.calendar.weeks.map((week) =>
@@ -117,30 +122,32 @@ export class Calendar {
     for (const entry of contributions.commits) {
       const { repository, contributions: { nodes } } = entry;
       for (const node of github.cleanNodes(nodes)) {
-        this._repoDay(node.occurredAt, repository)
-          ?.setCommits(node.commitCount);
+        findRepoDay(node.occurredAt, repository)?.setCommits(node.commitCount);
       }
     }
 
     for (const node of contributions.issues) {
-      this._repoDay(node.occurredAt, node.issue.repository)?.issues.add(
+      findRepoDay(node.occurredAt, node.issue.repository)?.issues.add(
         node.issue.url,
       );
     }
 
     for (const node of contributions.prs) {
-      this._repoDay(node.occurredAt, node.pullRequest.repository)?.prs.add(
+      findRepoDay(node.occurredAt, node.pullRequest.repository)?.prs.add(
         node.pullRequest.url,
       );
     }
 
     for (const node of contributions.repositories) {
-      // FIXME this cannot handle a repo being created twice in a day.
-      this._repoDay(node.occurredAt, node.repository)?.setCreate(1);
+      // FIXME: If a repo is created twice in one day (I’m not sure that is
+      // possible) this code will only record one creation. This is because
+      // this code needs to be idempotent to handle progressive updates to
+      // the calendar.
+      findRepoDay(node.occurredAt, node.repository)?.setCreate(1);
     }
 
     for (const node of contributions.reviews) {
-      this._repoDay(node.occurredAt, node.pullRequestReview.repository)?.reviews
+      findRepoDay(node.occurredAt, node.pullRequestReview.repository)?.reviews
         .add(node.pullRequestReview.url);
     }
 
@@ -194,36 +201,16 @@ export class Calendar {
   }
 
   /**
-   * Gets the `RepositoryDay` for a given timestamp and repository.
-   *
-   * Used for GraphQL query results.
-   *
-   * Timestamps (`occurredAt`) are dates or datetimes in UTC (e.g.,
-   * "2025-10-02T07:00:00Z"), so parsing with `new Date(str)` works correctly.
+   * Gets the `RepositoryDay` for a given time and repository.
    */
-  _repoDay(timestamp: string, repository: gql.Repository) {
-    const day = this.day(new Date(timestamp));
+  repoDay(time: Date, repositorySource: RepositorySource) {
+    const day = this.day(time);
+    const repository = this.cleanRepository(repositorySource);
 
     let repoDay = day.repositories.get(repository.url);
     if (!repoDay) {
-      repoDay = new RepositoryDay(this.cleanRepository(repository));
+      repoDay = new RepositoryDay(repository);
       day.repositories.set(repository.url, repoDay);
-    }
-    return repoDay;
-  }
-
-  /**
-   * Gets the `RepositoryDay` for a given time and repository URL.
-   *
-   * Convenience for testing.
-   */
-  repoDay(time: Date, repository: string) {
-    const day = this.day(time);
-
-    let repoDay = day.repositories.get(repository);
-    if (!repoDay) {
-      repoDay = new RepositoryDay(new Repository(repository));
-      day.repositories.set(repository, repoDay);
     }
     return repoDay;
   }
@@ -328,12 +315,13 @@ export class Calendar {
   /**
    * Converts a GraphQL repository into a deduplicated local Repository object.
    */
-  cleanRepository({ url, isFork, isPrivate }: gql.Repository) {
-    let repository = this.repositories.get(url);
-    if (!repository) {
-      repository = new Repository(url, isFork, isPrivate);
-      this.repositories.set(url, repository);
+  cleanRepository(repositorySource: RepositorySource) {
+    const repository = Repository.from(repositorySource);
+    const existing = this.repositories.get(repository.url);
+    if (existing) {
+      return existing;
     }
+    this.repositories.set(repository.url, repository);
     return repository;
   }
 
@@ -491,6 +479,15 @@ export class RepositoryDay {
 }
 
 /**
+ * A URL or a `Repository`-shaped object.
+ */
+export type RepositorySource = string | {
+  url: string;
+  isFork?: boolean;
+  isPrivate?: boolean;
+};
+
+/**
  * Represents a GitHub repository with contribution tracking.
  */
 export class Repository {
@@ -506,6 +503,22 @@ export class Repository {
     this.url = url;
     this.isFork = isFork;
     this.isPrivate = isPrivate;
+  }
+
+  /**
+   * Convenience method to generate a `Repository` from a URL, or from a
+   * `Repository`-shaped object.
+   */
+  static from(source: RepositorySource) {
+    if (typeof source == "string") {
+      return new Repository(source);
+    } else {
+      return new Repository(
+        source.url,
+        source.isFork ?? false,
+        source.isPrivate ?? false,
+      );
+    }
   }
 
   /**
