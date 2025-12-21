@@ -57,7 +57,7 @@ pub trait ApiBase: Send + Sync {
 
 /// API trait with endpoint definitions.
 ///
-/// This trait defines the HTTP API surface using Dropshot's endpoint
+/// This trait defines the HTTP API surface using Dropshot’s endpoint
 /// attributes. The default implementations delegate to the `ApiBase` trait,
 /// allowing for multiple implementations (production, test, mock, etc.).
 #[dropshot::api_description]

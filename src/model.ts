@@ -72,7 +72,7 @@ export class Filter {
 }
 
 /**
- * Represents a user's contribution calendar over a date range.
+ * Represents a user’s contribution calendar over a date range.
  *
  * Contains all contributions organized by day and repository.
  */
@@ -449,9 +449,9 @@ export class RepositoryDay {
   /**
    * Returns the contribution count for this repository on this day.
    *
-   * This only includes "known" contributions for events that we track, like
+   * This only includes “known” contributions for events that we track, like
    * commits and PRs. The contribution count returned by the contribution
-   * calendar may include other contributions we don't check for.
+   * calendar may include other contributions we don’t check for.
    */
   count() {
     return this.created + this.commitCount + this.issues.length +

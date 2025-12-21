@@ -18,7 +18,7 @@ export default function QueryCacheProvider({ children }: PropsWithChildren) {
         gcTime: Infinity,
         // Retry failed requests once
         retry: 1,
-        // Don't refetch on window focus (contributions don't change that often)
+        // Don’t refetch on window focus (contributions don’t change that often)
         refetchOnWindowFocus: false,
         // Refetch when coming back online
         refetchOnReconnect: true,

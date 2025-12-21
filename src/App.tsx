@@ -72,7 +72,7 @@ export default function App({ username }: { username: string | null }) {
         if (token) {
           setAuthError(null);
           setAccessToken(token);
-          // This is available to the entire origin. Cookies aren't any better;
+          // This is available to the entire origin. Cookies aren’t any better;
           // see https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie#security
           localStorage.setItem("github_token", token);
         } else {
@@ -168,7 +168,7 @@ export default function App({ username }: { username: string | null }) {
         loginUrl = githubLoginUrl().href;
       } catch (error: unknown) {
         console.error("Error getting GitHub login URL:", error);
-        errorMessage = "Configuration error. Could get GitHub login URL.";
+        errorMessage = "Configuration error. Couldn’t get GitHub login URL.";
       }
     }
 
@@ -210,7 +210,7 @@ export default function App({ username }: { username: string | null }) {
       </header>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       {loading && !errorMessage && (
-        <div className="loading-message">Loading contributions...</div>
+        <div className="loading-message">Loading contributions…</div>
       )}
       {calendar
         ? <ContributionsView calendar={calendar} />
