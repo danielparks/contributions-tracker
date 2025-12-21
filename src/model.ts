@@ -214,7 +214,7 @@ export class Calendar {
    */
   repoDay(time: Date, repositorySource: RepositorySource) {
     const day = this.day(time);
-    const repository = this.cleanRepository(repositorySource);
+    const repository = this.internRepository(repositorySource);
 
     let repoDay = day.repositories.get(repository.url);
     if (!repoDay) {
@@ -324,7 +324,7 @@ export class Calendar {
   /**
    * Converts a GraphQL repository into a deduplicated local Repository object.
    */
-  cleanRepository(repositorySource: RepositorySource) {
+  internRepository(repositorySource: RepositorySource) {
     const repository = Repository.from(repositorySource);
     const existing = this.repositories.get(repository.url);
     if (existing) {

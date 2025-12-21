@@ -273,8 +273,8 @@ Deno.test("Calendar should deduplicate repositories", () => {
     isPrivate: false,
   } as gql.Repository;
 
-  const repo1 = calendar.cleanRepository(repoData);
-  const repo2 = calendar.cleanRepository(repoData);
+  const repo1 = calendar.internRepository(repoData);
+  const repo2 = calendar.internRepository(repoData);
 
   assertStrictEquals(repo1, repo2);
   assertEquals(calendar.repositories.size, 1);
