@@ -11,25 +11,40 @@ repos:
     hooks:
       - id: check-added-large-files
         args: ["--maxkb=1024"]
+        priority: 0
       - id: check-case-conflict
+        priority: 0
       - id: check-executables-have-shebangs
+        priority: 0
       - id: check-json
+        priority: 0
       - id: check-merge-conflict
+        priority: 0
       - id: check-shebang-scripts-are-executable
+        priority: 0
       - id: check-symlinks
+        priority: 0
       - id: check-toml
+        priority: 0
       - id: check-vcs-permalinks
+        priority: 0
       - id: check-xml
+        priority: 0
       - id: check-yaml
+        priority: 0
       - id: detect-private-key
+        priority: 0
       - id: mixed-line-ending
         args: ["--fix=no"]
+        priority: 0
       - id: no-commit-to-branch
+        priority: 0
   - repo: https://github.com/crate-ci/typos
     rev: v1.40.0
     hooks:
       - id: typos
         args: []
+        priority: 0
   - repo: local
     hooks:
       - id: cargo clippy
@@ -39,6 +54,7 @@ repos:
         args: []
         files: (\.rs|Cargo\.toml)$
         pass_filenames: false
+        priority: 0
       - id: cargo doc
         name: cargo doc
         language: system
@@ -46,6 +62,7 @@ repos:
         args: []
         files: \.rs$
         pass_filenames: false
+        priority: 0
       - id: cargo fmt
         name: cargo fmt
         language: system
@@ -53,6 +70,7 @@ repos:
         args: []
         files: (\.rs|rustfmt\.toml)$
         pass_filenames: false
+        priority: 0
       - id: deno-check
         name: deno check
         description: Check all TypeScript source code files.
@@ -60,6 +78,7 @@ repos:
         types_or: [ts, tsx]
         pass_filenames: false
         language: system
+        priority: 0
       - id: deno run vitest:run
         name: vitest
         description: Run vitest
@@ -67,6 +86,7 @@ repos:
         types_or: [ts, tsx]
         pass_filenames: false
         language: system
+        priority: 0
       - id: api-types-check
         name: api types check
         description: Ensure API types are up-to-date
@@ -74,9 +94,13 @@ repos:
         language: system
         files: openapi\.json$
         pass_filenames: false
+        priority: 100
   - repo: https://github.com/nozaq/pre-commit-deno
     rev: 0.1.0
     hooks:
       - id: deno-fmt-check
+        priority: 0
       - id: deno-lint
+        priority: 0
       - id: deno-test
+        priority: 0
