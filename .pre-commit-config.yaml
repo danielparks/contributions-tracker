@@ -51,7 +51,7 @@ repos:
         name: deno check
         description: Check all TypeScript source code files.
         entry: deno check
-        types_or: [ts, tsx]
+        exclude: ^rust-crate/
         pass_filenames: false
         language: system
         priority: 0
@@ -59,16 +59,16 @@ repos:
         name: vitest
         description: Run vitest
         entry: deno run vitest:run
-        types_or: [ts, tsx]
+        exclude: ^rust-crate/
         pass_filenames: false
         language: system
         priority: 0
       - id: api-types-check
         name: api types check
         description: Ensure API types are up-to-date
-        entry: bash -c 'npm run generate:api --silent && git diff --exit-code src/api/ || (echo "Error - API types are out of date. Run npm run generate:api" && exit 1)'
+        entry: sh -c 'deno run generate:api --silent && git diff --exit-code src/api/ || (echo "Error - API types are out of date. Run deno run generate:api" && exit 1)'
         language: system
-        files: openapi\.json$
+        exclude: ^rust-crate/
         pass_filenames: false
         priority: 100
   - repo: https://github.com/nozaq/pre-commit-deno
