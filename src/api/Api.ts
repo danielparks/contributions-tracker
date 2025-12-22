@@ -19,8 +19,18 @@ export type CallbackSuccessResponse =
  */
 export type HealthResponse =
 {
-/** Health status (always `"ok"`). */
+/** Health status (always `"ok"`).
+
+This indicates that the API server is up and nothing more. */
 "status": string,};
+
+/**
+* Response from `/api/version`
+ */
+export type VersionResponse =
+{
+/** Version string from git describe. */
+"version": string,};
 
 export interface OauthCallbackQueryParams {
   code: string,
@@ -45,7 +55,7 @@ export interface ApiConfig {
        * Pulled from info.version in the OpenAPI schema. Sent in the
        * `api-version` header on all requests.
        */
-      apiVersion = "0.1.0";
+      apiVersion = "0.5.1";
 
       constructor({ host = "", baseParams = {}, token }: ApiConfig = {}) {
         this.host = host;
@@ -99,6 +109,17 @@ params: FetchParams = {}) => {
            path: `/api/oauth/callback`,
            method: "GET",
   query,
+  ...params,
+         })
+      },
+/**
+* Handle `/api/version`
+ */
+version: (_: EmptyObj,
+params: FetchParams = {}) => {
+         return this.request<VersionResponse>({
+           path: `/api/version`,
+           method: "GET",
   ...params,
          })
       },

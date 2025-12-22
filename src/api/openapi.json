@@ -49,7 +49,7 @@
         "description": "Response from `/api/health`",
         "properties": {
           "status": {
-            "description": "Health status (always `\"ok\"`).",
+            "description": "Health status (always `\"ok\"`).\n\nThis indicates that the API server is up and nothing more.",
             "type": "string"
           }
         },
@@ -57,12 +57,25 @@
           "status"
         ],
         "type": "object"
+      },
+      "VersionResponse": {
+        "description": "Response from `/api/version`",
+        "properties": {
+          "version": {
+            "description": "Version string from git describe.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "type": "object"
       }
     }
   },
   "info": {
     "title": "Contributions Tracker API",
-    "version": "0.1.0"
+    "version": "0.5.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -123,6 +136,30 @@
           }
         },
         "summary": "Handle `/api/oauth/callback`"
+      }
+    },
+    "/api/version": {
+      "get": {
+        "operationId": "version",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            },
+            "description": "successful operation"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/Error"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "summary": "Handle `/api/version`"
       }
     }
   }
