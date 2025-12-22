@@ -2,9 +2,11 @@ import "./App.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
+import { Footer } from "./components/Footer.tsx";
 import { ContributionsView } from "./components/ContributionsView.tsx";
 import { StatusMessage } from "./components/StatusMessage.tsx";
 import { useStaticCalendar } from "./hooks/useStaticCalendar.ts";
+import { getAppVersion } from "./version.ts";
 
 export function StaticApp() {
   const { calendar, error, loading } = useStaticCalendar();
@@ -41,6 +43,7 @@ export function StaticApp() {
         <h1>Contribution Graph for {calendar.name}</h1>
       </header>
       <ContributionsView calendar={calendar} />
+      <Footer version={getAppVersion()} />
     </>
   );
 }
