@@ -59,11 +59,15 @@ When creating a branch, prefix it with "claude-".
 
 This project has pre-commit hooks that check formatting and linting.
 
-For the frontend, you will want to run something like
-`deno check && deno lint --fix && deno fmt` before committing.
+Before committing frontend changes, you will want to run something like:
 
-For the backend, you will want to run something like `cargo clippy` to check
-lints and `cargo fmt` to format the code before committing.
+    deno check --quiet && deno lint --fix && deno fmt
+
+Before committing frontend changes, you will want to `cd rust-crate` and run
+something like:
+
+    cargo clippy --quiet --all-features --all-targets --fix --allow-dirty
+    cargo fmt
 
 ## Code comments
 
