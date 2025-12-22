@@ -1,7 +1,18 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-net --allow-env
 
-import { GitHub } from "../src/github/api.ts";
+import {
+  getQueryHash,
+  GitHub,
+  STATIC_DATA_SCHEMA_VERSION,
+} from "../src/github/api.ts";
 import type { Contributions } from "../src/github/api.ts";
+
+interface StaticDataFile {
+  schemaVersion: number;
+  queryHash: string;
+  generatedAt: string;
+  contributions: Contributions[];
+}
 
 interface Args {
   username: string;
@@ -138,10 +149,17 @@ async function main() {
     }
     const token = await readToken(tokenFile);
 
-    await atomicWrite(
-      outputFile,
-      JSON.stringify(await fetchContributions(token, username, verbose)),
-    );
+    const contributions = await fetchContributions(token, username, verbose);
+    const queryHash = await getQueryHash();
+
+    const staticData: StaticDataFile = {
+      schemaVersion: STATIC_DATA_SCHEMA_VERSION,
+      queryHash,
+      generatedAt: new Date().toISOString(),
+      contributions,
+    };
+
+    await atomicWrite(outputFile, JSON.stringify(staticData));
 
     if (verbose) {
       console.log(`Generated ${outputFile}`);
