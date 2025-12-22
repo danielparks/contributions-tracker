@@ -1,6 +1,6 @@
 [package]
 name = "contributions-tracker"
-version = "0.1.0"
+version = "0.5.0"
 authors = ["Daniel Parks <oss-contributions-tracker@demonhorse.org>"]
 description = ""
 homepage = "https://github.com/danielparks/contributions-tracker"
