@@ -2,10 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { Calendar } from "../model.ts";
 import type { Contributions } from "../github/api.ts";
 
+interface StaticDataFile {
+  schemaVersion: number;
+  queryHash: string;
+  generatedAt: string;
+  contributions: Contributions[];
+}
+
 export interface UseStaticCalendarResult {
   calendar: Calendar | null;
   error: string | null;
   loading: boolean;
+  fetchedAt: string | null;
 }
 
 /**
@@ -18,6 +26,7 @@ export function useStaticCalendar(): UseStaticCalendarResult {
   const [contributions, setContributions] = useState<Contributions[] | null>(
     null,
   );
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,8 +39,15 @@ export function useStaticCalendar(): UseStaticCalendarResult {
         }
         return response.json();
       })
-      .then((data: Contributions[]) => {
-        setContributions(data);
+      .then((data: StaticDataFile | Contributions[]) => {
+        // Support both old (array) and new (object with metadata) formats
+        if (Array.isArray(data)) {
+          setContributions(data);
+          setFetchedAt(null);
+        } else {
+          setContributions(data.contributions);
+          setFetchedAt(data.generatedAt);
+        }
       })
       .catch((error: unknown) => {
         console.error(`Error loading ${url}`, error);
@@ -48,5 +64,6 @@ export function useStaticCalendar(): UseStaticCalendarResult {
     calendar,
     error,
     loading: !contributions && !error,
+    fetchedAt,
   };
 }
