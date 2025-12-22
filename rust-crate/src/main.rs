@@ -46,13 +46,15 @@ fn cli(params: &Params) -> anyhow::Result<ExitCode> {
                 &serve_params.github_client_secret,
                 &log,
             )?;
-            Ok(ExitCode::SUCCESS)
         }
         Command::Openapi(openapi_params) => {
             generate_openapi(openapi_params)?;
-            Ok(ExitCode::SUCCESS)
+        }
+        Command::Version => {
+            println!("{}", env!("GIT_VERSION"));
         }
     }
+    Ok(ExitCode::SUCCESS)
 }
 
 /// Generate `OpenAPI` specification.

@@ -49,7 +49,8 @@ pub async fn serve(
         .map_err(|error| anyhow!("Failed to create server: {error}"))?
         .start();
 
-    slog::info!(log, "Server running on http://{address}");
+    let version = env!("GIT_VERSION");
+    slog::info!(log, "Server {version} running on http://{address}");
 
     server
         .await

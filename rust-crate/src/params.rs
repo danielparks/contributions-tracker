@@ -30,6 +30,8 @@ pub enum Command {
     Serve(ServeParams),
     /// Generate `OpenAPI` specification
     Openapi(OpenapiParams),
+    /// Display build version
+    Version,
 }
 
 /// Parameters for the `serve` subcommand
