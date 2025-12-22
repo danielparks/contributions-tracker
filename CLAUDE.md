@@ -9,6 +9,40 @@ It has two parts:
 1. A React/TypeScript app in the root directory. This is run with `deno`.
 2. A Rust API server in `rust-crate/`.
 
+## Codebase structure
+
+### Entry points
+
+The app has three modes, each with its own HTML file and TypeScript entry point:
+
+1. **Dynamic mode** (`index.html` → `src/main.tsx`): Interactive mode that
+   fetches data from GitHub via OAuth
+2. **Static mode** (`static.html` → `src/static.tsx`): Displays pre-generated
+   contribution data from `dist/assets/contributions.json`
+3. **Compact mode** (`compact.html` → `src/compact.tsx`): Minimal static view
+   without UI chrome
+
+### Frontend structure (`src/`)
+
+- **`model/`** - Core domain classes: `Calendar`, `Day`, `Repository`, `Filter`
+- **`components/`** - React components
+- **`hooks/`** - React hooks
+- **`github/`** - GitHub GraphQL API client and types
+- **`api/`** - Backend API client (generated from OpenAPI spec)
+- **`__fixtures__`** - Test data
+
+### Backend structure (`rust-crate/`)
+
+Rust API server that handles OAuth token exchange with GitHub.
+
+### Key concepts
+
+- **Calendar**: Represents a user's contribution history, organized by days and
+  repositories
+- **Filter**: Controls which repositories are visible in the graph
+- Each day can have contributions to multiple repositories, visualized with
+  multiple colors per grid cell
+
 ## Working with `deno` instead of `npm`
 
 Instead of using `npm install package`, use `deno add npm:package` (use `-D` to
