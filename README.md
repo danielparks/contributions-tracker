@@ -3,7 +3,7 @@
 Displays a graph of the logged in user’s GitHub contributions ([demo],
 [static demo]).
 
-[![](screenshot.png)][demo]
+[![](docs/screenshot.png)][demo]
 
 If the request is made to the frontend base URL, it will show the contributions
 for the user currently logged into GitHub. If there is a username after the base
