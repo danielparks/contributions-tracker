@@ -7,10 +7,6 @@ on:
       - main
   pull_request:
 
-defaults:
-  run:
-    working-directory: rust-crate
-
 jobs:
   clippy:
     name: cargo clippy
@@ -36,7 +32,7 @@ jobs:
       - uses: EmbarkStudios/cargo-deny-action@v2
         with:
           rust-version: "1.85.0"
-          manifest-path: rust-crate/Cargo.toml
+          manifest-path: backend/Cargo.toml
 
   fmt:
     name: cargo fmt
@@ -48,8 +44,6 @@ jobs:
         with:
           components: rustfmt
       - uses: actions-rust-lang/rustfmt@v1
-        with:
-          manifest-path: rust-crate/Cargo.toml
 
   msrv:
     name: cargo msrv
@@ -62,6 +56,7 @@ jobs:
         with:
           tool: cargo-msrv
       - run: cargo msrv verify
+        working-directory: backend
 
   test:
     name: cargo test

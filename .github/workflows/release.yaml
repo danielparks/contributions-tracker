@@ -28,7 +28,7 @@ jobs:
       - uses: danielparks/github-actions/create-release@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: rust-crate
+          working-directory: backend
 
   upload-assets:
     name: ${{ matrix.target }}
@@ -68,4 +68,4 @@ jobs:
         with:
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: rust-crate
+          working-directory: backend

@@ -1,6 +1,6 @@
 exclude: |
   (?x)(
-    ^rust-crate/target/|
+    ^target/|
     ^src/github/gql[.]ts$|
     ^src/github/schema[.]graphql$
   )
@@ -51,7 +51,7 @@ repos:
         name: deno check
         description: Check all TypeScript source code files.
         entry: deno check
-        exclude: ^rust-crate/
+        exclude: ^backend/
         pass_filenames: false
         language: system
         priority: 0
@@ -59,7 +59,7 @@ repos:
         name: vitest
         description: Run vitest
         entry: deno run vitest:run
-        exclude: ^rust-crate/
+        exclude: ^backend/
         pass_filenames: false
         language: system
         priority: 0
@@ -68,7 +68,7 @@ repos:
         description: Ensure API types are up-to-date
         entry: sh -c 'deno run generate:api --silent && git diff --exit-code src/api/ || (echo "Error - API types are out of date. Run deno run generate:api" && exit 1)'
         language: system
-        exclude: ^rust-crate/
+        exclude: ^backend/
         pass_filenames: false
         priority: 100
   - repo: https://github.com/nozaq/pre-commit-deno

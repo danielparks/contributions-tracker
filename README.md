@@ -32,7 +32,7 @@ Configuration of the frontend is via environment variables when running
   [GitHub OAuth app settings]).
 - `VITE_BACKEND_URL`: Defaults to `$VITE_FRONTEND_URL`. This is the URL prefix
   for API calls, e.g. `$VITE_BACKEND_URL/api/health`. Note that the default
-  backend (in `rust-crate/`) does not support
+  backend (in [`backend/`]) does not support
   [Cross-Origin Resource Sharing][CORS], so usually this cannot reference a
   different host than `$VITE_FRONTEND_URL`. It doesn’t have to have a scheme and
   host specified, e.g. `/` is acceptable.
@@ -96,6 +96,7 @@ terms or conditions.
 [`compact.html`]: compact.html
 [compact demo]: https://demon.horse/portfolio/contributions-tracker/compact.html
 [GitHub OAuth app settings]: https://github.com/settings/developers
+[`backend/`]: backend
 [CORS]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
 [.env.example]: .env.example
 [Dropshot]: https://docs.rs/dropshot/latest/dropshot/

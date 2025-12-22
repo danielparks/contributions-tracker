@@ -1,6 +1,6 @@
 [files]
 extend-exclude = [
-  "/rust-crate/target",
+  "/target",
   "/src/github/gql.ts", # Generated
   "/src/github/schema.graphql" # Third-party
 ]

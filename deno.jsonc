@@ -5,7 +5,7 @@
     "jsxImportSource": "react"
   },
   "exclude": [
-    "rust-crate"
+    "backend"
   ],
   "fmt": {
     "exclude": [

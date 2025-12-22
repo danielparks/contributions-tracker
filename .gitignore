@@ -4,7 +4,7 @@
 .github-token
 
 # Rust
-/rust-crate/target
+/target
 *.rs.bk
 
 # Logs

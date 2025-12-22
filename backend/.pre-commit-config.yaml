@@ -6,7 +6,7 @@ repos:
       - id: cargo clippy
         name: cargo clippy
         language: system
-        entry: cargo clippy --all-targets --all-features -- -D warnings
+        entry: cargo clippy --quiet --all-targets --all-features -- -D warnings
         files: (\.rs|Cargo\.toml)$
         pass_filenames: false
         priority: 0
@@ -27,7 +27,7 @@ repos:
       - id: cargo run openapi
         name: cargo run openapi
         language: system
-        entry: sh -c 'cargo run --quiet -- openapi -o target/openapi.json && diff -u --color=always ../src/api/openapi.json target/openapi.json'
+        entry: sh -c 'cargo run --quiet -- openapi -o ../target/openapi.json && diff -u --color=always ../src/api/openapi.json ../target/openapi.json'
         files: (\.rs|Cargo\.(lock|toml))$
         pass_filenames: false
         priority: 0

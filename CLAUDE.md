@@ -7,7 +7,7 @@ which repositories were contributed to.
 It has two parts:
 
 1. A React/TypeScript app in the root directory. This is run with `deno`.
-2. A Rust API server in `rust-crate/`.
+2. A Rust API server in `backend/`.
 
 ## Codebase structure
 
@@ -31,7 +31,7 @@ The app has three modes, each with its own HTML file and TypeScript entry point:
 - **`api/`** - Backend API client (generated from OpenAPI spec)
 - **`__fixtures__`** - Test data
 
-### Backend structure (`rust-crate/`)
+### Backend structure (`backend/`)
 
 Rust API server that handles OAuth token exchange with GitHub.
 
@@ -63,7 +63,7 @@ Before committing frontend changes, you will want to run something like:
 
     deno check --quiet && deno lint --fix && deno fmt
 
-Before committing frontend changes, you will want to `cd rust-crate` and run
+Before committing frontend changes, you will want to `cd backend` and run
 something like:
 
     cargo clippy --quiet --all-features --all-targets --fix --allow-dirty
