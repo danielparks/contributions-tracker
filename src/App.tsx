@@ -7,7 +7,7 @@ import {
   CONTRIBUTIONS_QUERY_TEMPLATE,
   type GithubError,
 } from "./github/api.ts";
-import { Calendar } from "./model.ts";
+import { Calendar } from "./model/index.ts";
 import { ContributionsView } from "./components/ContributionsView.tsx";
 import { Footer } from "./components/Footer.tsx";
 import { getAppVersion } from "./version.ts";

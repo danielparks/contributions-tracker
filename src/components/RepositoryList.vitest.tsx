@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { RepositoryList } from "./RepositoryList.tsx";
-import { Calendar, Day, Filter, Repository } from "../model.ts";
+import { Calendar, Day, Filter, Repository } from "../model/index.ts";
 
 describe("RepositoryList", () => {
   function createTestCalendar() {

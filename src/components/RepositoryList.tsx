@@ -1,4 +1,4 @@
-import { Calendar, Day, Filter, Repository } from "../model.ts";
+import { Calendar, Day, Filter, Repository } from "../model/index.ts";
 import { GitHubMark } from "../github/GitHubMark.tsx";
 
 /**

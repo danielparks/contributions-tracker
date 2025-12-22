@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Filter } from "../model.ts";
+import { Calendar, Filter } from "../model/index.ts";
 import { ContributionsGraph } from "./ContributionsGraph.tsx";
 import { RepositoryList } from "./RepositoryList.tsx";
 

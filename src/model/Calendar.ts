@@ -1,75 +1,7 @@
-import * as github from "./github/api.ts";
-import * as gql from "./github/gql.ts";
-
-/**
- * Parses an ISO date string, e.g. `"2025-01-15T01:23:45Z"`, into a Date object.
- */
-function parseDateTime(input: string) {
-  const [year, month, ...rest] = input
-    .split(/\D+/)
-    .map((n) => Number.parseInt(n, 10));
-  return new Date(year, month - 1, ...rest);
-}
-
-/**
- * Converts a local time `Date` to days since the epoch.
- */
-function toEpochDays(input: Date) {
-  return Math.round(
-    Date.UTC(input.getFullYear(), input.getMonth(), input.getDate()) / 86400000,
-  );
-}
-
-/**
- * Manages which repositories are visible in the contribution graph.
- *
- * Maintains a default state (all on/off) and per-repository overrides.
- */
-export class Filter {
-  defaultState: boolean = true;
-  states: Map<string, boolean> = new Map();
-
-  /**
-   * Creates a filter that only shows the specified repositories.
-   */
-  static withOnlyRepos(...urls: string[]) {
-    const filter = new Filter();
-    filter.defaultState = false;
-    urls.forEach((url) => {
-      filter.states.set(url, true);
-    });
-    return filter;
-  }
-
-  /**
-   * Checks whether a repository should be visible.
-   */
-  isOn(url: string): boolean {
-    const value = this.states.get(url);
-    if (value === undefined) {
-      return this.defaultState;
-    } else {
-      return value;
-    }
-  }
-
-  /**
-   * Clone this object.
-   */
-  clone() {
-    const filter = new Filter();
-    filter.defaultState = this.defaultState;
-    filter.states = new Map(this.states);
-    return filter;
-  }
-
-  /**
-   * Enable or disable a repo by its URL.
-   */
-  switchRepo(url: string, enabled: boolean) {
-    this.states.set(url, enabled);
-  }
-}
+import * as github from "../github/api.ts";
+import * as gql from "../github/gql.ts";
+import { Repository, RepositorySource } from "./Repository.ts";
+import { Day, RepositoryDay } from "./Day.ts";
 
 /**
  * Represents a user’s contribution calendar over a date range.
@@ -355,187 +287,22 @@ export class Calendar {
 }
 
 /**
- * Represents a single day in the contribution calendar.
- *
- * Tracks total contributions and per-repository activity.
+ * Parses an ISO date string, e.g. `"2025-01-15T01:23:45Z"`, into a Date object.
  */
-export class Day {
-  /** Local time date */
-  date: Date;
-  contributionCount: number | null = null;
-  repositories: Map<string, RepositoryDay> = new Map();
-
-  constructor(
-    date: Date,
-    contributionCount: number | null = null,
-  ) {
-    // FIXME? ensure it's midnight local time?
-    this.date = date;
-    this.contributionCount = contributionCount;
-  }
-
-  /**
-   * Checks if known contributions match the total contribution count.
-   */
-  addsUp() {
-    return this.contributionCount == this.knownContributionCount();
-  }
-
-  /**
-   * Sums up the contributions we know about from specific repositories.
-   */
-  knownContributionCount() {
-    return [...this.repositories.values()].reduce(
-      (total, repoDay) => total + repoDay.count(),
-      0,
-    );
-  }
-
-  /**
-   * Get `RepositoryDay`s that are enabled by `filter`.
-   */
-  filteredRepos(filter: Filter) {
-    return [...this.repositories.values()].filter((repoDay) =>
-      filter.isOn(repoDay.url())
-    );
-  }
-
-  /**
-   * Calculate the known contribution count including just the repositories
-   * enabled in `filter`.
-   */
-  filteredCount(filter: Filter) {
-    return this.filteredRepos(filter).reduce(
-      (total, repoDay) => total + repoDay.count(),
-      0,
-    );
-  }
-
-  /**
-   * Was there a contribution to the passed repo on this day?
-   */
-  hasRepo(url: string) {
-    return this.repositories.has(url);
-  }
+function parseDateTime(input: string) {
+  const [year, month, ...rest] = input
+    .split(/\D+/)
+    .map((n) => Number.parseInt(n, 10));
+  return new Date(year, month - 1, ...rest);
 }
 
 /**
- * Represents activity for a single repository on a single day.
+ * Converts a local time `Date` to days since the epoch.
  */
-export class RepositoryDay {
-  readonly repository: Repository;
-  commitCount = 0;
-  /** How many times the repo was created this day (typically 0, sometimes 1) */
-  created = 0;
-  /** Issue URLs */
-  issues: Set<string> = new Set();
-  /** PR URLs */
-  prs: Set<string> = new Set();
-  /** PR review URLs */
-  reviews: Set<string> = new Set();
-
-  constructor(repository: Repository) {
-    this.repository = repository;
-  }
-
-  /**
-   * Record commits for this day.
-   */
-  addCommits(count: number) {
-    this.commitCount += count;
-  }
-
-  /**
-   * Record commit counts for this day.
-   */
-  setCommits(count: number) {
-    this.commitCount = count;
-  }
-
-  /**
-   * Record repository creation for this day.
-   */
-  addCreate(count = 1) {
-    this.created += count;
-  }
-
-  /**
-   * Record repository creation count for this day.
-   */
-  setCreate(count: number) {
-    this.created = count;
-  }
-
-  /**
-   * Returns the repository URL.
-   */
-  url() {
-    return this.repository.url;
-  }
-
-  /**
-   * Returns the contribution count for this repository on this day.
-   *
-   * This only includes “known” contributions for events that we track, like
-   * commits and PRs. The contribution count returned by the contribution
-   * calendar may include other contributions we don’t check for.
-   */
-  count() {
-    return this.created + this.commitCount + this.issues.size + this.prs.size +
-      this.reviews.size;
-  }
-}
-
-/**
- * A URL or a `Repository`-shaped object.
- */
-export type RepositorySource = string | {
-  url: string;
-  isFork?: boolean;
-  isPrivate?: boolean;
-};
-
-/**
- * Represents a GitHub repository with contribution tracking.
- */
-export class Repository {
-  url: string;
-  isFork: boolean;
-  isPrivate: boolean;
-  /** Hue assigned for visualization (as degrees) */
-  hue = 285;
-  /** Total contribution count across all days */
-  contributions = 0;
-
-  constructor(url: string, isFork = false, isPrivate = false) {
-    this.url = url;
-    this.isFork = isFork;
-    this.isPrivate = isPrivate;
-  }
-
-  /**
-   * Convenience method to generate a `Repository` from a URL, or from a
-   * `Repository`-shaped object.
-   */
-  static from(source: RepositorySource) {
-    if (typeof source == "string") {
-      return new Repository(source);
-    } else {
-      return new Repository(
-        source.url,
-        source.isFork ?? false,
-        source.isPrivate ?? false,
-      );
-    }
-  }
-
-  /**
-   * Returns an [OKLCH](https://en.wikipedia.org/wiki/Oklab_color_space) color
-   * string for this repository.
-   */
-  color(lightness = 55, chroma = 0.2) {
-    return `oklch(${lightness}% ${chroma} ${this.hue}deg)`;
-  }
+function toEpochDays(input: Date) {
+  return Math.round(
+    Date.UTC(input.getFullYear(), input.getMonth(), input.getDate()) / 86400000,
+  );
 }
 
 /**

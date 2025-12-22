@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Calendar, Day, Filter } from "../model.ts";
+import { Calendar, Day, Filter } from "../model/index.ts";
 
 export interface ContributionsGraphProps {
   calendar: Calendar;

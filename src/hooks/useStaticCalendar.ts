@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calendar } from "../model.ts";
+import { Calendar } from "../model/index.ts";
 import type { Contributions } from "../github/api.ts";
 import type { StaticDataFile } from "../staticData.ts";
 
