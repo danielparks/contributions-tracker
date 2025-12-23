@@ -66,22 +66,32 @@ Deno.test("Day should calculate known contribution count", () => {
   assertEquals(day.knownContributionCount(), 6);
 });
 
-Deno.test("Day should check if contributions add up", () => {
+Deno.test("Day.unknownCount() is correct when 0", () => {
   const day = new Day(new Date(2025, 0, 15), 5);
   const repoDay = testRepoDay();
   repoDay.addCommits(5);
   day.repositories.set(repoDay.url(), repoDay);
 
-  assert(day.addsUp());
+  assertEquals(day.unknownCount(), 0);
 });
 
-Deno.test("Day should return false when contributions don't add up", () => {
+Deno.test("Day.unknownCount() is correct when less than 0", () => {
+  // Sometimes there is no summary data, but there is specific data.
+  const day = new Day(new Date(2025, 0, 15), null);
+  const repoDay = testRepoDay();
+  repoDay.addCommits(5);
+  day.repositories.set(repoDay.url(), repoDay);
+
+  assertEquals(day.unknownCount(), -5);
+});
+
+Deno.test("Day.unknownCount() is correct when greater than 0", () => {
   const day = new Day(new Date(2025, 0, 15), 10);
   const repoDay = testRepoDay();
   repoDay.addCommits(5);
   day.repositories.set(repoDay.url(), repoDay);
 
-  assert(!day.addsUp());
+  assertEquals(day.unknownCount(), 5);
 });
 
 Deno.test("Day should filter repositories by filter", () => {

@@ -22,13 +22,6 @@ export class Day {
   }
 
   /**
-   * Checks if known contributions match the total contribution count.
-   */
-  addsUp() {
-    return this.contributionCount == this.knownContributionCount();
-  }
-
-  /**
    * Sums up the contributions we know about from specific repositories.
    */
   knownContributionCount() {
@@ -36,6 +29,13 @@ export class Day {
       (total, repoDay) => total + repoDay.count(),
       0,
     );
+  }
+
+  /**
+   * Get number of contributions that we don’t specifically know about.
+   */
+  unknownCount() {
+    return (this.contributionCount || 0) - this.knownContributionCount();
   }
 
   /**

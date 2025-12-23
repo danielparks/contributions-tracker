@@ -136,10 +136,9 @@ function DaySummary({ day }: { day: Day }) {
           </ol>
         </>
       )}
-      {!day.addsUp() && (
+      {day.unknownCount() > 0 && (
         <p className="unknown-contributions">
-          Note: Some contributions ({(day.contributionCount || 0) -
-            day.knownContributionCount()}) are from unknown sources.
+          {countNoun(day.unknownCount(), "contribution")} from unknown sources
         </p>
       )}
     </div>

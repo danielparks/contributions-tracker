@@ -108,7 +108,12 @@ export function GraphDay(
   }
   let subdivisions: Subdivision[] = [];
   let style = {};
-  if (day.addsUp()) {
+  if (day.unknownCount() <= 0) {
+    if (day.contributionCount === null) {
+      // null means the day wasn't returned in the summary data.
+      return <div></div>;
+    }
+
     subdivisions = day.filteredRepos(filter).map((repoDay) => ({
       key: repoDay.url(),
       style: {
@@ -124,7 +129,8 @@ export function GraphDay(
       className.push("empty");
     }
   } else {
-    const lightness = countToLightness(day.contributionCount || 0);
+    // day.contributionCount cannot be null, because then unknownCount() >= 0.
+    const lightness = countToLightness(day.contributionCount!);
     className.push("unknown");
     style = {
       background: `hsl(270deg 40% ${lightness}%)`,
