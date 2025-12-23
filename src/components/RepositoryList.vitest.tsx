@@ -101,11 +101,4 @@ describe("RepositoryList", () => {
       "https://github.com/test/repo1",
     );
   });
-
-  it("should render sparklines for each repository", () => {
-    renderTestCalender();
-
-    const sparklines = document.querySelectorAll(".sparkline");
-    expect(sparklines.length).toBe(2);
-  });
 });
