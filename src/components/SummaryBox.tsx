@@ -82,7 +82,9 @@ function DaySummary({ day }: { day: Day }) {
       </div>
       {day.repositories.size > 0 && (
         <>
-          <h3>Repositories</h3>
+          <h3>
+            {countNoun(day.repositories.size, "Repository")}
+          </h3>
           <ol className="day-repos">
             {[...day.repositories.values()].map((repoDay) => (
               <li key={repoDay.repository.url}>
@@ -95,55 +97,24 @@ function DaySummary({ day }: { day: Day }) {
                 <div className="repo-details">
                   {repoDay.commitCount > 0 && (
                     <span className="detail-item">
-                      {repoDay.commitCount} commit
-                      {repoDay.commitCount !== 1 ? "s" : ""}
+                      {countNoun(repoDay.commitCount, "commit")}
                     </span>
                   )}
-                  {repoDay.prs.size > 0 && (
-                    <span className="detail-item">
-                      {repoDay.prs.size} PR{repoDay.prs.size !== 1 ? "s" : ""}:
-                      {" "}
-                      {[...repoDay.prs].map((url, i) => (
-                        <Fragment key={url}>
-                          {i > 0 && ", "}
-                          <a key={url} href={url}>
-                            #{url.split("/").pop()}
-                          </a>
-                        </Fragment>
-                      ))}
-                    </span>
-                  )}
-                  {repoDay.issues.size > 0 && (
-                    <span className="detail-item">
-                      {repoDay.issues.size} issue
-                      {repoDay.issues.size !== 1 ? "s" : ""}:{" "}
-                      {[...repoDay.issues].map((url, i) => (
-                        <Fragment key={url}>
-                          {i > 0 && ", "}
-                          <a key={url} href={url}>
-                            #{url.split("/").pop()}
-                          </a>
-                        </Fragment>
-                      ))}
-                    </span>
-                  )}
-                  {repoDay.reviews.size > 0 && (
-                    <span className="detail-item">
-                      {repoDay.reviews.size} review
-                      {repoDay.reviews.size !== 1 ? "s" : ""}:{" "}
-                      {[...repoDay.reviews].map((url, i) => (
-                        <Fragment key={url}>
-                          {i > 0 && ", "}
-                          <a key={url} href={url}>
-                            #{url.split("/").pop()?.replace(
-                              "#pullrequestreview-",
-                              "",
-                            )}
-                          </a>
-                        </Fragment>
-                      ))}
-                    </span>
-                  )}
+                  <RepoDayDetail
+                    noun="PR"
+                    links={makeLinks(repoDay.prs, (url) =>
+                      `#${url.split("/").pop()}`)}
+                  />
+                  <RepoDayDetail
+                    noun="issue"
+                    links={makeLinks(repoDay.issues, (url) =>
+                      `#${url.split("/").pop()}`)}
+                  />
+                  <RepoDayDetail
+                    noun="review"
+                    links={makeLinks(repoDay.reviews, (url) =>
+                      `#${url.split("/").pop()?.replace(/#.*/, "")}`)}
+                  />
                 </div>
               </li>
             ))}
@@ -158,6 +129,67 @@ function DaySummary({ day }: { day: Day }) {
       )}
     </div>
   );
+}
+
+/**
+ * A detail in a day’s summary of a repo.
+ *
+ * `links` is `[url, text][]`.
+ */
+function RepoDayDetail(
+  { noun, plural = pluralize(noun), links }: {
+    noun: string;
+    plural?: string;
+    links: [string, string][];
+  },
+) {
+  if (links.length == 0) {
+    return null;
+  }
+
+  return (
+    <span className="detail-item">
+      {links.length} {links.length == 1 ? noun : plural}:{" "}
+      {links.map(([url, text], i) => (
+        <Fragment key={url}>
+          {i > 0 && ", "}
+          <a key={url} href={url}>{text}</a>
+        </Fragment>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * Convert an array-like of URL strings to `[url, text][]`.
+ */
+function makeLinks(
+  arrayLike: Iterable<string> | ArrayLike<string>,
+  converter: (url: string) => string,
+): [string, string][] {
+  return Array.from(arrayLike).map((url) => [url, converter(url)]);
+}
+
+/**
+ * Return “count noun(s)”.
+ */
+function countNoun(count: number, noun: string) {
+  if (count == 1) {
+    return `${count} ${noun}`;
+  } else {
+    return `${count} ${pluralize(noun)}`;
+  }
+}
+
+/**
+ * Make a noun plural (very incomplete).
+ */
+function pluralize(singular: string) {
+  if (singular.endsWith("y")) {
+    return singular.slice(0, -1) + "ies";
+  } else {
+    return singular + "s";
+  }
 }
 
 /**
