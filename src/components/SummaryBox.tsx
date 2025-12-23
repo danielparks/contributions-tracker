@@ -1,5 +1,6 @@
 import { Calendar, Day, Filter, Repository } from "../model/index.ts";
 import { RepositoryName } from "./RepositoryList.tsx";
+import { Fragment } from "react";
 
 export interface SummaryBoxProps {
   calendar: Calendar;
@@ -108,12 +109,12 @@ function DaySummary({ day }: { day: Day }) {
                       {repoDay.prs.size} PR{repoDay.prs.size !== 1 ? "s" : ""}:
                       {" "}
                       {[...repoDay.prs].map((url, i) => (
-                        <>
+                        <Fragment key={url}>
                           {i > 0 && ", "}
                           <a key={url} href={url}>
                             #{url.split("/").pop()}
                           </a>
-                        </>
+                        </Fragment>
                       ))}
                     </span>
                   )}
@@ -122,12 +123,12 @@ function DaySummary({ day }: { day: Day }) {
                       {repoDay.issues.size} issue
                       {repoDay.issues.size !== 1 ? "s" : ""}:{" "}
                       {[...repoDay.issues].map((url, i) => (
-                        <>
+                        <Fragment key={url}>
                           {i > 0 && ", "}
                           <a key={url} href={url}>
                             #{url.split("/").pop()}
                           </a>
-                        </>
+                        </Fragment>
                       ))}
                     </span>
                   )}
@@ -136,7 +137,7 @@ function DaySummary({ day }: { day: Day }) {
                       {repoDay.reviews.size} review
                       {repoDay.reviews.size !== 1 ? "s" : ""}:{" "}
                       {[...repoDay.reviews].map((url, i) => (
-                        <>
+                        <Fragment key={url}>
                           {i > 0 && ", "}
                           <a key={url} href={url}>
                             #{url.split("/").pop()?.replace(
@@ -144,7 +145,7 @@ function DaySummary({ day }: { day: Day }) {
                               "",
                             )}
                           </a>
-                        </>
+                        </Fragment>
                       ))}
                     </span>
                   )}
