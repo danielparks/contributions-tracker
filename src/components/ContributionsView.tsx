@@ -19,7 +19,7 @@ export function ContributionsView({
   calendar,
 }: ContributionsViewProps) {
   const [highlight, setHighlight] = useState<string | null>(null);
-  const [repoFilter, setRepoFilter] = useState<Filter>(() => new Filter());
+  const [filter, setFilter] = useState<Filter>(() => new Filter());
   const [selectedDay, setSelectedDay] = useState<Day | null>(null);
 
   function handleDayClick(day: Day) {
@@ -30,7 +30,7 @@ export function ContributionsView({
     <>
       <ContributionsGraph
         calendar={calendar}
-        filter={repoFilter}
+        filter={filter}
         highlight={highlight}
         selectedDay={selectedDay}
         onDayClick={handleDayClick}
@@ -39,8 +39,8 @@ export function ContributionsView({
         <SummaryBox calendar={calendar} selectedDay={selectedDay} />
         <RepositoryList
           calendar={calendar}
-          filter={repoFilter}
-          setFilter={setRepoFilter}
+          filter={filter}
+          setFilter={setFilter}
           setHighlight={setHighlight}
         />
       </div>
