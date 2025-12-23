@@ -81,6 +81,17 @@ export interface GraphDayProps {
 export function GraphDay(
   { day, filter, max, highlight, selected = false, onClick }: GraphDayProps,
 ) {
+  interface Subdivision {
+    key: string;
+    style: React.CSSProperties;
+  }
+
+  const unknownCount = day.unknownCount(); // Not filtered.
+  if (unknownCount <= 0 && day.contributionCount === null) {
+    // No data. This day wasn’t returned from the query.
+    return <div></div>;
+  }
+
   const className: string[] = [];
   if (highlight && day.hasRepo(highlight)) {
     className.push("highlight");
@@ -89,56 +100,32 @@ export function GraphDay(
     className.push("selected");
   }
 
-  /**
-   * Converts a contribution count to an OKLCH lightness value (40-100%).
-   *
-   * Higher contribution counts result in darker colors.
-   */
-  function countToLightness(count: number) {
-    if (count) {
-      return 59 * (1 - count / max) + 40;
-    } else {
-      return 100;
-    }
+  const count = day.filteredCount(filter);
+  let lightness = 100;
+  if (count) {
+    lightness = 59 * (1 - count / max) + 40;
   }
 
-  interface Subdivision {
-    key: string;
-    style: React.CSSProperties;
-  }
-  let subdivisions: Subdivision[] = [];
-  let style = {};
-  if (day.unknownCount() <= 0) {
-    if (day.contributionCount === null) {
-      // null means the day wasn't returned in the summary data.
-      return <div></div>;
-    }
+  const subdivisions = day.filteredRepos(filter).map((repoDay) => ({
+    key: repoDay.url(),
+    style: {
+      flex: repoDay.count(),
+      background: repoDay.repository.color(lightness, 0.1),
+    },
+  }));
 
-    subdivisions = day.filteredRepos(filter).map((repoDay) => ({
-      key: repoDay.url(),
-      style: {
-        flex: repoDay.count(),
-        background: repoDay.repository.color(
-          countToLightness(day.filteredCount(filter)),
-          0.1,
-        ),
-      },
-    }));
-
-    if (subdivisions.length == 0) {
-      className.push("empty");
-    }
-  } else {
-    // day.contributionCount cannot be null, because then unknownCount() >= 0.
-    const lightness = countToLightness(day.contributionCount!);
+  if (unknownCount > 0) {
     className.push("unknown");
-    style = {
-      background: `hsl(270deg 40% ${lightness}%)`,
-    };
 
-    if (day.contributionCount === 0) {
-      className.push("empty");
-    }
+    subdivisions.push({
+      key: "unknown",
+      style: {
+        flex: unknownCount,
+        background: `hsl(0deg 0% ${lightness}%)`,
+      },
+    });
+  } else if (subdivisions.length == 0) {
+    className.push("empty");
   }
 
   function handleClick(event: React.MouseEvent) {
@@ -150,7 +137,6 @@ export function GraphDay(
 
   return (
     <div
-      style={style}
       className={className.join(" ")}
       onClick={handleClick}
       role={onClick ? "button" : undefined}
