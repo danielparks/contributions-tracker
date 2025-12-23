@@ -72,10 +72,100 @@ function YearSummary({ calendar }: { calendar: Calendar }) {
  * Shows details for a specific day.
  */
 function DaySummary({ day }: { day: Day }) {
+  const totalContributions = day.contributionCount || 0;
+
   return (
     <div className="summary-box">
       <h2>{day.date.toLocaleDateString()}</h2>
-      <p>Day summary - to be implemented</p>
+      <div className="summary-stats">
+        <div className="stat">
+          <span className="stat-value">{totalContributions}</span>
+          <span className="stat-label">
+            {totalContributions === 1 ? "Contribution" : "Contributions"}
+          </span>
+        </div>
+      </div>
+      {day.repositories.size > 0 && (
+        <>
+          <h3>Repositories</h3>
+          <ol className="day-repos">
+            {[...day.repositories.values()].map((repoDay) => (
+              <li key={repoDay.repository.url}>
+                <div className="repo-header">
+                  <a
+                    style={{ color: repoDay.repository.color() }}
+                    href={repoDay.repository.url}
+                  >
+                    {repoDay.repository.url.replace("https://github.com/", "")}
+                  </a>
+                  {repoDay.created > 0 && (
+                    <span className="repo-badge">Created</span>
+                  )}
+                </div>
+                <div className="repo-details">
+                  {repoDay.commitCount > 0 && (
+                    <span className="detail-item">
+                      {repoDay.commitCount} commit
+                      {repoDay.commitCount !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                  {repoDay.prs.size > 0 && (
+                    <span className="detail-item">
+                      {repoDay.prs.size} PR{repoDay.prs.size !== 1 ? "s" : ""}:
+                      {" "}
+                      {[...repoDay.prs].map((url, i) => (
+                        <>
+                          {i > 0 && ", "}
+                          <a key={url} href={url}>
+                            #{url.split("/").pop()}
+                          </a>
+                        </>
+                      ))}
+                    </span>
+                  )}
+                  {repoDay.issues.size > 0 && (
+                    <span className="detail-item">
+                      {repoDay.issues.size} issue
+                      {repoDay.issues.size !== 1 ? "s" : ""}:{" "}
+                      {[...repoDay.issues].map((url, i) => (
+                        <>
+                          {i > 0 && ", "}
+                          <a key={url} href={url}>
+                            #{url.split("/").pop()}
+                          </a>
+                        </>
+                      ))}
+                    </span>
+                  )}
+                  {repoDay.reviews.size > 0 && (
+                    <span className="detail-item">
+                      {repoDay.reviews.size} review
+                      {repoDay.reviews.size !== 1 ? "s" : ""}:{" "}
+                      {[...repoDay.reviews].map((url, i) => (
+                        <>
+                          {i > 0 && ", "}
+                          <a key={url} href={url}>
+                            #{url.split("/").pop()?.replace(
+                              "#pullrequestreview-",
+                              "",
+                            )}
+                          </a>
+                        </>
+                      ))}
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+      {!day.addsUp() && (
+        <p className="unknown-contributions">
+          Note: Some contributions ({(day.contributionCount || 0) -
+            day.knownContributionCount()}) are from unknown sources.
+        </p>
+      )}
     </div>
   );
 }

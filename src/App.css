@@ -326,6 +326,72 @@ ol.repository-list > li > label > .contribution-count {
   font-size: 14px;
 }
 
+.day-repos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.day-repos > li {
+  margin-bottom: 15px;
+}
+
+.day-repos .repo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.day-repos .repo-header a {
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.day-repos .repo-header a:hover {
+  text-decoration: underline;
+}
+
+.day-repos .repo-badge {
+  background: hsl(120deg 60% 90%);
+  color: hsl(120deg 60% 30%);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.day-repos .repo-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+.day-repos .detail-item {
+  display: block;
+}
+
+.day-repos .detail-item a {
+  color: hsl(210deg 100% 45%);
+  text-decoration: none;
+}
+
+.day-repos .detail-item a:hover {
+  text-decoration: underline;
+}
+
+.unknown-contributions {
+  margin-top: 15px;
+  padding: 10px;
+  background: hsl(30deg 100% 95%);
+  color: hsl(30deg 100% 30%);
+  border-left: 3px solid hsl(30deg 100% 50%);
+  font-size: 14px;
+  border-radius: 3px;
+}
+
 .sparkline {
   width: 100%;
   display: flex;
