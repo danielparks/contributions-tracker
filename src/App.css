@@ -169,6 +169,15 @@ button.logout-button:hover {
   border: 1px solid hsl(30deg 100% 50%);
 }
 
+.contributions-graph > .weeks > .week > div.selected > ol {
+  border: 2px solid hsl(210deg 100% 50%);
+  box-shadow: 0 0 5px hsl(210deg 100% 50% / 0.5);
+}
+
+.contributions-graph > .weeks > .week > div[role="button"] {
+  cursor: pointer;
+}
+
 .contributions-graph > .weeks > .week > div > ol {
   display: flex;
   list-style: none;

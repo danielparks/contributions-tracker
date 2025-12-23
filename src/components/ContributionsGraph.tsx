@@ -5,13 +5,15 @@ export interface ContributionsGraphProps {
   filter?: Filter;
   highlight?: string | null;
   clickUrl?: string;
+  selectedDay?: Day | null;
+  onDayClick?: (day: Day) => void;
 }
 
 /**
  * Renders the contribution calendar as a grid of colored cells.
  *
- * Supports optional filtering, highlighting, and click navigation.
- * Can be used in both interactive (with filter/highlight) and static modes.
+ * Supports optional filtering, highlighting, day selection, and click navigation.
+ * Can be used in both interactive (with filter/highlight/selection) and static modes.
  */
 export function ContributionsGraph(
   {
@@ -19,6 +21,8 @@ export function ContributionsGraph(
     filter = new Filter(),
     highlight = null,
     clickUrl,
+    selectedDay = null,
+    onDayClick,
   }: ContributionsGraphProps,
 ) {
   const dayMax = calendar.maxContributions();
@@ -45,6 +49,8 @@ export function ContributionsGraph(
                 filter={filter}
                 max={dayMax}
                 highlight={highlight}
+                selected={selectedDay === day}
+                onClick={onDayClick}
               />
             ))}
           </div>
@@ -59,20 +65,25 @@ export interface GraphDayProps {
   filter: Filter;
   max: number;
   highlight?: string | null;
+  selected?: boolean;
+  onClick?: (day: Day) => void;
 }
 
 /**
  * Renders a single day cell in the contribution graph.
  *
  * The cell is subdivided by repository contributions, with colors indicating
- * intensity.
+ * intensity. Can be selected via click.
  */
 export function GraphDay(
-  { day, filter, max, highlight }: GraphDayProps,
+  { day, filter, max, highlight, selected = false, onClick }: GraphDayProps,
 ) {
   const className: string[] = [];
   if (highlight && day.hasRepo(highlight)) {
     className.push("highlight");
+  }
+  if (selected) {
+    className.push("selected");
   }
 
   /**
@@ -121,8 +132,21 @@ export function GraphDay(
     }
   }
 
+  function handleClick(event: React.MouseEvent) {
+    if (onClick) {
+      event.stopPropagation();
+      onClick(day);
+    }
+  }
+
   return (
-    <div style={style} className={className.join(" ")}>
+    <div
+      style={style}
+      className={className.join(" ")}
+      onClick={handleClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <ol>
         {subdivisions.map(({ key, style }) => <li key={key} style={style} />)}
       </ol>

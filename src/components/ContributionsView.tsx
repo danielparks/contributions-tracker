@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Filter } from "../model/index.ts";
+import { Calendar, Day, Filter } from "../model/index.ts";
 import { ContributionsGraph } from "./ContributionsGraph.tsx";
 import { RepositoryList } from "./RepositoryList.tsx";
 import { SummaryBox } from "./SummaryBox.tsx";
@@ -11,15 +11,20 @@ export interface ContributionsViewProps {
 /**
  * Displays a contribution graph and repository list with interactive filtering.
  *
- * This component manages the interactive state (highlight and filter) and can be
- * rendered either client-side (with data from React Query) or server-side (with
- * pre-loaded data for static generation).
+ * This component manages the interactive state (highlight, filter, and selected
+ * day) and can be rendered either client-side (with data from React Query) or
+ * server-side (with pre-loaded data for static generation).
  */
 export function ContributionsView({
   calendar,
 }: ContributionsViewProps) {
   const [highlight, setHighlight] = useState<string | null>(null);
   const [repoFilter, setRepoFilter] = useState<Filter>(() => new Filter());
+  const [selectedDay, setSelectedDay] = useState<Day | null>(null);
+
+  function handleDayClick(day: Day) {
+    setSelectedDay((current) => current === day ? null : day);
+  }
 
   return (
     <>
@@ -27,8 +32,10 @@ export function ContributionsView({
         calendar={calendar}
         filter={repoFilter}
         highlight={highlight}
+        selectedDay={selectedDay}
+        onDayClick={handleDayClick}
       />
-      <SummaryBox calendar={calendar} selectedDay={null} />
+      <SummaryBox calendar={calendar} selectedDay={selectedDay} />
       <RepositoryList
         calendar={calendar}
         filter={repoFilter}
