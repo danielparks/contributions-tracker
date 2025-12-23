@@ -2,6 +2,12 @@ body {
   font-family: sans-serif;
 }
 
+ul, ol, li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 footer {
   margin: 2rem 0;
   text-align: center;
@@ -21,7 +27,7 @@ button, a.button, .pressed-button {
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 6px;
-  font-weight: 500;
+  font-weight: normal;
   text-decoration: none;
   transition: background 0.2s, transform 0.1s;
   margin: 5px;
@@ -180,16 +186,11 @@ button.logout-button:hover {
 
 .contributions-graph > .weeks > .week > div > ol {
   display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
   height: 100%;
   box-sizing: border-box;
 }
 
 .contributions-graph > .weeks > .week > div > ol > li {
-  margin: 0;
-  padding: 0;
   height: 100%;
 }
 
@@ -200,9 +201,6 @@ ol.repository-list {
   column-gap: 10px;
   row-gap: 5px;
   align-items: start;
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
 ol.repository-list > li {
@@ -237,7 +235,7 @@ ol.repository-list > li > label > h3 {
   flex: 1;
   margin: 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: normal;
   min-width: 0;
   flex-shrink: 1;
   white-space: nowrap;
@@ -266,56 +264,60 @@ ol.repository-list > li > label > .contribution-count {
   border-radius: 8px;
 }
 
-.summary-box h2 {
+.summary-box > h2 {
   margin: 0 0 20px 0;
   font-size: 20px;
 }
 
-.summary-box h3 {
+.summary-box > h3 {
   margin: 30px 0 15px 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
 }
 
-.summary-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+table.stats {
+  display: block;
+}
+
+table.stats > tbody {
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 10px;
+  justify-content: space-between;
 }
 
-.summary-stats .stat {
+table.stats > tbody > tr {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-direction: column-reverse;
 }
 
-.summary-stats .stat-value {
+table.stats > tbody > tr > td {
+  display: block;
   font-size: 28px;
-  font-weight: 600;
+  font-weight: bold;
   color: hsl(210deg 100% 45%);
 }
 
-.summary-stats .stat-label {
+table.stats > tbody > tr > th {
+  display: block;
   font-size: 14px;
+  font-weight: normal;
+  text-align: left;
   color: #666;
-}
-
-.top-repos {
-  list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
 .top-repos > li {
   margin-bottom: 15px;
 }
 
-.top-repos .repo-label {
+.top-repos > li > h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 5px 0 5px 0;
+  font-size: 16px;
+  font-weight: normal;
 }
 
 .top-repos .contribution-count {
@@ -323,60 +325,41 @@ ol.repository-list > li > label > .contribution-count {
   font-size: 14px;
 }
 
-.day-repos {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
 .day-repos > li {
   margin-bottom: 15px;
+  clear: both;
 }
 
-.day-repos .repo-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.day-repos > li > h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.day-repos > li > h3 > a {
+  display: inline-block;
   margin-bottom: 5px;
 }
 
 .day-repos .repo-badge {
+  display: inline-block;
+  float: right;
   background: hsl(120deg 60% 90%);
   color: hsl(120deg 60% 30%);
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: normal;
 }
 
-.day-repos .repo-details {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.day-repos > li > ul > li {
+  margin: 0 0 5px 0;
   font-size: 14px;
   color: #666;
 }
 
-.day-repos .detail-item {
-  display: block;
-}
-
-.day-repos .detail-item a {
+.day-repos > li > ul > li a {
   color: hsl(210deg 100% 45%);
-  text-decoration: none;
-}
-
-.day-repos .detail-item a:hover {
-  text-decoration: underline;
-}
-
-.repo-label a {
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.repo-label a:hover {
-  text-decoration: underline;
 }
 
 .unknown-contributions {

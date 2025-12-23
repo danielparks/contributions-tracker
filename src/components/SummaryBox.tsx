@@ -23,16 +23,11 @@ export function SummaryBox({ calendar, selectedDay }: SummaryBoxProps) {
 
 /**
  * Shows year-level statistics and top repositories.
+ *
+ * FIXME: filter
  */
 function YearSummary({ calendar }: { calendar: Calendar }) {
   const topRepos = calendar.mostUsedRepos().slice(0, 5);
-  const totalContributions = sum(
-    calendar.days,
-    (day) => day.contributionCount || 0,
-  );
-  const totalIssues = sum(calendar.days, (day) => day.issueCount());
-  const totalPrs = sum(calendar.days, (day) => day.prCount());
-  const totalReviews = sum(calendar.days, (day) => day.reviewCount());
 
   // Get the date range
   const firstDay = calendar.days[0]?.date;
@@ -44,33 +39,24 @@ function YearSummary({ calendar }: { calendar: Calendar }) {
   return (
     <div className="summary-box">
       <h2>{dateRange}</h2>
-      <div className="summary-stats">
-        <div className="stat">
-          <span className="stat-value">{totalContributions}</span>
-          <span className="stat-label">Contributions</span>
-        </div>
-        <div className="stat">
-          <span className="stat-value">{totalIssues}</span>
-          <span className="stat-label">Issues</span>
-        </div>
-        <div className="stat">
-          <span className="stat-value">{totalPrs}</span>
-          <span className="stat-label">PRs</span>
-        </div>
-        <div className="stat">
-          <span className="stat-value">{totalReviews}</span>
-          <span className="stat-label">PR reviews</span>
-        </div>
-      </div>
+      <SummaryStats
+        contributions={sum(
+          calendar.days,
+          (day) => day.contributionCount || 0,
+        )}
+        issues={sum(calendar.days, (day) => day.issueCount())}
+        prs={sum(calendar.days, (day) => day.prCount())}
+        reviews={sum(calendar.days, (day) => day.reviewCount())}
+      />
       <h3>Top Repositories</h3>
       <ol className="top-repos">
         {topRepos.map((repo) => (
           <li key={repo.url}>
             <Sparkline repo={repo} calendar={calendar} />
-            <div className="repo-label">
+            <h3>
               <RepositoryName repo={repo} />
               <span className="contribution-count">{repo.contributions}</span>
-            </div>
+            </h3>
           </li>
         ))}
       </ol>
@@ -82,38 +68,30 @@ function YearSummary({ calendar }: { calendar: Calendar }) {
  * Shows details for a specific day.
  */
 function DaySummary({ day }: { day: Day }) {
-  const totalContributions = day.contributionCount || 0;
-
   return (
     <div className="summary-box">
       <h2>{day.date.toLocaleDateString()}</h2>
-      <div className="summary-stats">
-        <div className="stat">
-          <span className="stat-value">{totalContributions}</span>
-          <span className="stat-label">
-            {totalContributions === 1 ? "Contribution" : "Contributions"}
-          </span>
-        </div>
-      </div>
+      <SummaryStats
+        contributions={day.contributionCount || 0}
+        issues={day.issueCount()}
+        prs={day.prCount()}
+        reviews={day.reviewCount()}
+      />
       {day.repositories.size > 0 && (
         <>
-          <h3>
-            {countNoun(day.repositories.size, "Repository")}
-          </h3>
+          <h3>{countNoun(day.repositories.size, "Repository")}</h3>
           <ol className="day-repos">
             {[...day.repositories.values()].map((repoDay) => (
               <li key={repoDay.repository.url}>
-                <div className="repo-label">
+                <h3>
                   <RepositoryName repo={repoDay.repository} />
                   {repoDay.created > 0 && (
                     <span className="repo-badge">Created</span>
                   )}
-                </div>
-                <div className="repo-details">
+                </h3>
+                <ul>
                   {repoDay.commitCount > 0 && (
-                    <span className="detail-item">
-                      {countNoun(repoDay.commitCount, "commit")}
-                    </span>
+                    <li>{countNoun(repoDay.commitCount, "commit")}</li>
                   )}
                   <RepoDayDetail
                     noun="PR"
@@ -130,7 +108,7 @@ function DaySummary({ day }: { day: Day }) {
                     links={makeLinks(repoDay.reviews, (url) =>
                       `#${url.split("/").pop()?.replace(/#.*/, "")}`)}
                   />
-                </div>
+                </ul>
               </li>
             ))}
           </ol>
@@ -142,6 +120,41 @@ function DaySummary({ day }: { day: Day }) {
         </p>
       )}
     </div>
+  );
+}
+
+/**
+ * Summary statistics — number of contributions, issues, etc.
+ */
+function SummaryStats(
+  { contributions, issues, prs, reviews }: {
+    contributions: number;
+    issues: number;
+    prs: number;
+    reviews: number;
+  },
+) {
+  return (
+    <table className="stats">
+      <tbody>
+        <tr>
+          <th scope="row">{pluralize("Contribution", contributions)}</th>
+          <td>{contributions}</td>
+        </tr>
+        <tr>
+          <th scope="row">{pluralize("Issue", issues)}</th>
+          <td>{issues}</td>
+        </tr>
+        <tr>
+          <th scope="row">{pluralize("PR", prs)}</th>
+          <td>{prs}</td>
+        </tr>
+        <tr>
+          <th scope="row">{pluralize("Review", reviews)}</th>
+          <td>{reviews}</td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -162,7 +175,7 @@ function RepoDayDetail(
   }
 
   return (
-    <span className="detail-item">
+    <li>
       {links.length} {links.length == 1 ? noun : plural}:{" "}
       {links.map(([url, text], i) => (
         <Fragment key={url}>
@@ -170,7 +183,7 @@ function RepoDayDetail(
           <a key={url} href={url}>{text}</a>
         </Fragment>
       ))}
-    </span>
+    </li>
   );
 }
 
@@ -198,18 +211,18 @@ function makeLinks(
  * Return “count noun(s)”.
  */
 function countNoun(count: number, noun: string) {
-  if (count == 1) {
-    return `${count} ${noun}`;
-  } else {
-    return `${count} ${pluralize(noun)}`;
-  }
+  return `${count} ${pluralize(noun, count)}`;
 }
 
 /**
  * Make a noun plural (very incomplete).
+ *
+ * If `count == 1`, then this will just return the singular.
  */
-function pluralize(singular: string) {
-  if (singular.endsWith("y")) {
+function pluralize(singular: string, count = 2) {
+  if (count == 1) {
+    return singular;
+  } else if (singular.endsWith("y")) {
     return singular.slice(0, -1) + "ies";
   } else {
     return singular + "s";
