@@ -1,8 +1,8 @@
-# ![](src/components/icon.svg) RepoYear — Heat map of GitHub contributions
+# ![](images/icon.svg) RepoYear — Heat map of GitHub contributions
 
 Displays a calendar heat map of GitHub contributions ([demo], [static demo]).
 
-[![](docs/screenshot.png)][demo]
+[![](images/screenshot.png)][demo]
 
 If the request is made to the frontend base URL, it will show the contributions
 for the user currently logged into GitHub. If there is a username after the base
