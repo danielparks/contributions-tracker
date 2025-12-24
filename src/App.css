@@ -396,13 +396,12 @@ table.stats > tbody > tr > th {
 /* Icons */
 a > svg, h1 > svg {
   height: 1em;
-  vertical-align: text-top;
-  margin: 0 5px 0 0;
+  vertical-align: -0.15em;
+  margin: 0;
 }
 
-h1 > svg {
-  vertical-align: -0.11em;
-  margin: 0;
+a > svg {
+  margin-right: 0.5ch;
 }
 
 /* Collapse to 1 column */
