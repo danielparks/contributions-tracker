@@ -64,6 +64,7 @@ export default function App({ username }: { username: string | null }) {
   const [authCode, setAuthCode] = useState<string | null>(getAuthCode);
   const authCodeHandled = useRef<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const startedFetch = useRef<boolean>(false);
   const [shiftPressed, setShiftPressed] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
@@ -115,16 +116,12 @@ export default function App({ username }: { username: string | null }) {
   }, [authCode, accessToken]);
 
   const queryKey = [
-    "contributions",
+    "contributions.2",
     CONTRIBUTIONS_QUERY_TEMPLATE,
     accessToken,
     username,
   ];
-  const {
-    data: contributions,
-    dataUpdatedAt,
-    error: queryError,
-  } = useQuery({
+  const query = useQuery({
     enabled: !!accessToken,
     queryKey,
     queryFn: async () => {
@@ -132,6 +129,7 @@ export default function App({ username }: { username: string | null }) {
         // Redundant; enabled condition requires accessToken not to be null.
         throw new Error("Access token is required");
       }
+      startedFetch.current = true;
       setLoading(true);
       setAuthError(null); // The ability to query implies we’re authenticated.
 
@@ -142,13 +140,27 @@ export default function App({ username }: { username: string | null }) {
       for await (const contribution of gh.queryBase(username || undefined)) {
         contributions.push(contribution);
         // Incrementally update cache, triggering a re-render.
-        queryClient.setQueryData(queryKey, [...contributions]);
+        queryClient.setQueryData(queryKey, {
+          complete: false,
+          contributions: [...contributions],
+        });
       }
 
       setLoading(false);
-      return contributions;
+      return { complete: true, contributions };
     },
   });
+
+  // Use startedFetch because query.isFetchedAfterMount seems to be true even
+  // when no fetch has been done.
+  if (!startedFetch.current && query.data && !query.data.complete) {
+    // Incomplete data cached from a previous session.
+    query.refetch().catch((error: unknown) => {
+      console.error("Error refetching query:", error);
+    });
+  }
+
+  const contributions = query.data?.contributions;
 
   // Progressively transform contributions into `Calendar`.
   const calendarRef = useRef<Calendar | null>(null);
@@ -166,11 +178,11 @@ export default function App({ username }: { username: string | null }) {
   }, [contributions]);
 
   let errorMessage = authError;
-  if (queryError) {
-    console.error("Error querying GitHub:", queryError);
+  if (query.error) {
+    console.error("Error querying GitHub:", query.error);
     if (!errorMessage) {
       // errorMessage should always be null if we managed to make a query.
-      const errors = (queryError as GithubError).errors || [];
+      const errors = (query.error as GithubError).errors || [];
       if (
         username && errors[0]?.type == "NOT_FOUND" &&
         errors[0].path.join("/") == "user"
@@ -192,7 +204,7 @@ export default function App({ username }: { username: string | null }) {
       calendarRef.current = null;
     }
     setLoading(true);
-    queryClient.refetchQueries({ queryKey }).catch((error: unknown) => {
+    query.refetch().catch((error: unknown) => {
       console.error("Error refetching query:", error);
     });
   }
@@ -255,7 +267,7 @@ export default function App({ username }: { username: string | null }) {
         : <div className="info-message">No contributions data</div>}
       <Footer
         version={getAppVersion()}
-        lastFetched={dataUpdatedAt}
+        lastFetched={query.dataUpdatedAt}
       />
     </>
   );
