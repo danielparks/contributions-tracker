@@ -1,8 +1,9 @@
-# Contributions Tracker development guide
+# RepoYear development guide
 
-This is a web application that shows GitHub contributions in a calendar grid,
-much like the one GitHub has. Each grid cell may have multiple colors indicating
-which repositories were contributed to.
+This is a web application that shows GitHub contributions as a calendar heat
+map, much like the one GitHub has. It displays a 53 by 7 grid with each cell
+representing a day. Cells may contain multiple color segments indicating which
+repositories were contributed to.
 
 It has two parts:
 

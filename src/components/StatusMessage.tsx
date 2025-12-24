@@ -1,7 +1,9 @@
+import { Icon } from "./Icon.tsx";
+
 export interface StatusMessageProps {
   type: "error" | "loading";
   message: string;
-  title?: string;
+  title?: boolean;
 }
 
 /**
@@ -12,7 +14,11 @@ export interface StatusMessageProps {
 export function StatusMessage({ type, message, title }: StatusMessageProps) {
   return (
     <div className="login-container">
-      {title && <h1>{title}</h1>}
+      {title && (
+        <h1>
+          <Icon /> RepoYear
+        </h1>
+      )}
       <div className={`${type}-message`}>{message}</div>
     </div>
   );

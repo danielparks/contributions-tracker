@@ -6,18 +6,19 @@
 //!
 //! Run with: `cargo run --example mock_server`
 
-use contributions_tracker::api::{
-    contributions_api_mod,
+use repoyear_backend::api::{
     mock::{MockApiImpl, MockAppState},
+    repo_year_api_mod,
 };
 use slog::Drain;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // Create a mock API description using the mock implementation
-    let api = contributions_api_mod::api_description::<MockApiImpl>().map_err(
-        |e| anyhow::anyhow!("Failed to create API description: {e}"),
-    )?;
+    let api =
+        repo_year_api_mod::api_description::<MockApiImpl>().map_err(|e| {
+            anyhow::anyhow!("Failed to create API description: {e}")
+        })?;
 
     // Create mock state with predefined responses
     let mock_state = MockAppState::new();

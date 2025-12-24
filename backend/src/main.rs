@@ -1,7 +1,7 @@
-//! contributions-tracker executable.
+//! repoyear-backend executable.
 
 use anyhow::anyhow;
-use contributions_tracker::api;
+use repoyear_backend::api;
 use std::process::ExitCode;
 
 mod logging;
@@ -66,15 +66,16 @@ fn cli(params: &Params) -> anyhow::Result<ExitCode> {
 ///
 /// Returns an error if the `OpenAPI` spec cannot be generated or written.
 fn generate_openapi(params: &params::OpenapiParams) -> anyhow::Result<()> {
-    let api = api::contributions_api_mod::stub_api_description().map_err(
-        |error| anyhow!("Failed to create API description: {error}"),
-    )?;
+    let api =
+        api::repo_year_api_mod::stub_api_description().map_err(|error| {
+            anyhow!("Failed to create API description: {error}")
+        })?;
 
     // Use version from Cargo.toml via CARGO_PKG_VERSION environment variable
     let version = semver::Version::parse(env!("CARGO_PKG_VERSION"))
         .expect("CARGO_PKG_VERSION should be valid semver");
 
-    let spec = api.openapi("Contributions Tracker API", version);
+    let spec = api.openapi("RepoYear API", version);
 
     let json_value = spec.json()?;
     let json_string = serde_json::to_string_pretty(&json_value)?;

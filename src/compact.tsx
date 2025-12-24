@@ -2,7 +2,7 @@ import "./App.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
-import { ContributionsGraph } from "./components/ContributionsGraph.tsx";
+import { CalendarHeatMap } from "./components/CalendarHeatMap.tsx";
 import { StatusMessage } from "./components/StatusMessage.tsx";
 import { useStaticCalendar } from "./hooks/useStaticCalendar.ts";
 
@@ -21,7 +21,7 @@ export function CompactApp() {
   }
 
   return (
-    <ContributionsGraph
+    <CalendarHeatMap
       calendar={calendar}
       clickUrl={clickUrl}
     />

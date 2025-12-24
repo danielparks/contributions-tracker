@@ -3,7 +3,7 @@
 //! This module contains the concrete implementation of the API traits,
 //! including the GitHub OAuth integration.
 
-use super::definition::{ApiBase, ContributionsApi};
+use super::definition::{ApiBase, RepoYearApi};
 use serde::{Deserialize, Serialize};
 
 /// State data for the API (GitHub credentials and HTTP client).
@@ -87,12 +87,12 @@ impl ApiBase for AppState {
     }
 }
 
-/// Implementation type for the `ContributionsApi` trait.
+/// Implementation type for the `RepoYearApi` trait.
 ///
 /// This is an empty enum that serves as the implementation marker.
 /// All the actual logic is in the default trait methods.
-pub enum ContributionsApiImpl {}
+pub enum RepoYearApiImpl {}
 
-impl ContributionsApi for ContributionsApiImpl {
+impl RepoYearApi for RepoYearApiImpl {
     type Context = AppState;
 }

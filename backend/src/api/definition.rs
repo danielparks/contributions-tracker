@@ -71,7 +71,7 @@ pub trait ApiBase: Send + Sync {
 /// attributes. The default implementations delegate to the `ApiBase` trait,
 /// allowing for multiple implementations (production, test, mock, etc.).
 #[dropshot::api_description]
-pub trait ContributionsApi {
+pub trait RepoYearApi {
     /// The context type must implement `ApiBase`.
     type Context: ApiBase;
 

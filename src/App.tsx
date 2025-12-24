@@ -8,8 +8,9 @@ import {
   type GithubError,
 } from "./github/api.ts";
 import { Calendar } from "./model/index.ts";
-import { ContributionsView } from "./components/ContributionsView.tsx";
+import { RepoYearView } from "./components/RepoYearView.tsx";
 import { Footer } from "./components/Footer.tsx";
+import { Icon } from "./components/Icon.tsx";
 import { getAppVersion } from "./version.ts";
 
 function getAuthCode() {
@@ -224,8 +225,10 @@ export default function App({ username }: { username: string | null }) {
 
     return (
       <div className="login-container">
-        <h1>GitHub Contribution Graph</h1>
-        <p>View and analyze your GitHub contributions over time.</p>
+        <h1>
+          <Icon /> RepoYear
+        </h1>
+        <p>Visualize your GitHub contributions over time.</p>
         {errorMessage && <div className="error-message">{errorMessage}</div>}
         <p>
           {loginUrl && (
@@ -241,13 +244,13 @@ export default function App({ username }: { username: string | null }) {
     );
   }
 
+  const name = calendar?.name ?? username;
   return (
     <>
       <header className="app-header">
         <h1>
-          Contribution Graph
-          {calendar && ` for ${calendar.name}`}
-          {username && !calendar && ` for ${username}`}
+          <Icon /> RepoYear
+          {name && `: ${name}`}
         </h1>
         <div className="button-group">
           <button type="button" onClick={reload}>
@@ -263,7 +266,7 @@ export default function App({ username }: { username: string | null }) {
         <div className="loading-message">Loading contributions…</div>
       )}
       {calendar
-        ? <ContributionsView calendar={calendar} />
+        ? <RepoYearView calendar={calendar} />
         : <div className="info-message">No contributions data</div>}
       <Footer
         version={getAppVersion()}

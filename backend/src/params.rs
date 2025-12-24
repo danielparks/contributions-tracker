@@ -6,7 +6,10 @@ use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
 
 pub use clap::Parser;
 
-/// GitHub contributions tracker
+#[expect(clippy::doc_markdown, reason = "app name")]
+/// RepoYear backend
+///
+/// The RepoYear frontend displays a heat map of GitHub contributions.
 #[derive(Debug, clap::Parser)]
 #[clap(version, about)]
 pub struct Params {

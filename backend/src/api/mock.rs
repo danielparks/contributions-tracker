@@ -1,6 +1,6 @@
 //! Mock implementation of the API for testing.
 
-use super::definition::{ApiBase, ContributionsApi};
+use super::definition::{ApiBase, RepoYearApi};
 
 /// Mock state for testing that returns predefined responses.
 #[derive(Clone, Debug)]
@@ -65,10 +65,10 @@ impl ApiBase for MockAppState {
     }
 }
 
-/// Mock implementation type for the `ContributionsApi` trait.
+/// Mock implementation type for the `RepoYearApi` trait.
 pub enum MockApiImpl {}
 
-impl ContributionsApi for MockApiImpl {
+impl RepoYearApi for MockApiImpl {
     type Context = MockAppState;
 }
 

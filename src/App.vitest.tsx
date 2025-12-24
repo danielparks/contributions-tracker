@@ -75,10 +75,9 @@ describe("App smoke test", () => {
     localStorage.setItem("github_token", "error");
     renderApp();
 
-    expect(screen.queryByText(/Contribution Graph/i)).toBeInTheDocument();
+    expect(screen.queryAllByText(/RepoYear/i)).not.toHaveLength(0);
 
     await waitFor(() => {
-      expect(screen.queryByText(/Contribution Graph/i)).toBeInTheDocument();
       expect(screen.queryByText(/Error getting contribution data/i))
         .toBeInTheDocument();
     }, { timeout: 500 });
@@ -94,10 +93,10 @@ describe("App smoke test", () => {
     await waitFor(() => {
       const { name } = fixtureData[0] as Contributions;
       expect(
-        screen.getByText(`Contribution Graph for ${name}`),
+        screen.getByText(`RepoYear: ${name}`),
       ).toBeInTheDocument();
 
-      expect(document.querySelector(".contributions-graph"))
+      expect(document.querySelector(".calendar-heat-map"))
         .toBeInTheDocument();
     }, { timeout: 500 });
 

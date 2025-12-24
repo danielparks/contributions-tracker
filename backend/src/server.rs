@@ -1,10 +1,8 @@
 //! Server startup and configuration.
 
 use anyhow::anyhow;
-use contributions_tracker::api::{
-    AppState, ContributionsApiImpl, contributions_api_mod,
-};
 use dropshot::{ConfigDropshot, HttpServerStarter};
+use repoyear_backend::api::{AppState, RepoYearApiImpl, repo_year_api_mod};
 
 /// Start web server for API.
 ///
@@ -35,10 +33,9 @@ pub async fn serve(
         log_headers: vec![],
     };
 
-    let api = contributions_api_mod::api_description::<ContributionsApiImpl>()
-        .map_err(|error| {
-            anyhow!("Failed to create API description: {error}")
-        })?;
+    let api = repo_year_api_mod::api_description::<RepoYearApiImpl>().map_err(
+        |error| anyhow!("Failed to create API description: {error}"),
+    )?;
 
     let state = AppState {
         github_client_id: github_client_id.to_owned(),

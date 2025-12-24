@@ -8,7 +8,7 @@ benefits for testing and development.
 The API is structured around three key components:
 
 1. **`ApiBase` trait** - Defines the business logic methods
-2. **`ContributionsApi` trait** - Defines HTTP endpoints with `#[endpoint]`
+2. **`RepoYearApi` trait** - Defines HTTP endpoints with `#[endpoint]`
    attributes
 3. **Implementation types** - Connect context types to the API trait
 
@@ -40,11 +40,11 @@ The same endpoint definitions work across all implementations:
 
 ```rust
 // Production
-let api = contributions_api_mod::api_description::<ContributionsApiImpl>()?;
+let api = repo_year_api_mod::api_description::<RepoYearApiImpl>()?;
 let state = AppState::new(client_id, client_secret);
 
 // Mock for testing
-let api = contributions_api_mod::api_description::<MockApiImpl>()?;
+let api = repo_year_api_mod::api_description::<MockApiImpl>()?;
 let state = MockAppState::new();
 ```
 
@@ -109,7 +109,7 @@ impl ApiBase for MyCustomState {
 ```rust
 pub enum MyApiImpl {}
 
-impl ContributionsApi for MyApiImpl {
+impl RepoYearApi for MyApiImpl {
     type Context = MyCustomState;
 }
 ```
@@ -117,7 +117,7 @@ impl ContributionsApi for MyApiImpl {
 3. Use it with Dropshot:
 
 ```rust
-let api = contributions_api_mod::api_description::<MyApiImpl>()?;
+let api = repo_year_api_mod::api_description::<MyApiImpl>()?;
 let state = MyCustomState::new();
 let server = HttpServerStarter::new(&config, api, state, &log)?.start();
 ```

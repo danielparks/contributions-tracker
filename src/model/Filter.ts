@@ -1,5 +1,5 @@
 /**
- * Manages which repositories are visible in the contribution graph.
+ * Manages which repositories are visible.
  *
  * Maintains a default state (all on/off) and per-repository overrides.
  */

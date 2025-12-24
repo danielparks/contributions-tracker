@@ -11,12 +11,12 @@ pub mod mock;
 
 // Re-export commonly used items from definition
 pub use definition::{
-    ApiBase, CallbackParams, CallbackSuccessResponse, ContributionsApi,
-    HealthResponse,
+    ApiBase, CallbackParams, CallbackSuccessResponse, HealthResponse,
+    RepoYearApi,
 };
 
 // Re-export the generated module containing API description functions
-pub use definition::contributions_api_mod;
+pub use definition::repo_year_api_mod;
 
 // Re-export commonly used items from implementation
-pub use implementation::{AppState, ContributionsApiImpl};
+pub use implementation::{AppState, RepoYearApiImpl};

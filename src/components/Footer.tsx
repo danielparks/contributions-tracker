@@ -7,8 +7,8 @@ export function Footer(
 ) {
   return (
     <footer>
-      <a href="https://github.com/danielparks/contributions-tracker">
-        github.com/danielparks/contributions-tracker
+      <a href="https://github.com/danielparks/repoyear">
+        github.com/danielparks/repoyear
       </a>{" "}
       • {version}
       {lastFetched && ` • Last updated ${formatTimestamp(lastFetched)}`}

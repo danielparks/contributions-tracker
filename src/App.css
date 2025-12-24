@@ -137,20 +137,20 @@ button.logout-button:hover {
   margin: 10px 0;
 }
 
-.contributions-graph {
+.calendar-heat-map {
   display: block;
 }
 
-.contributions-graph > .weeks {
+.calendar-heat-map > .weeks {
   display: flex;
 }
 
-.contributions-graph > .weeks > .week {
+.calendar-heat-map > .weeks > .week {
   display: block;
   flex: 1;
 }
 
-.contributions-graph > .weeks > .week > div {
+.calendar-heat-map > .weeks > .week > div {
   display: block;
   position: relative;
   text-align: center;
@@ -159,38 +159,38 @@ button.logout-button:hover {
   aspect-ratio: 1/1;
 }
 
-.contributions-graph > .weeks > .week > div.unknown > ol {
+.calendar-heat-map > .weeks > .week > div.unknown > ol {
   filter: blur(1px);
 }
 
-.contributions-graph > .weeks > .week > div.unknown > ol {
+.calendar-heat-map > .weeks > .week > div.unknown > ol {
   border: 1px solid #fff;
 }
 
-.contributions-graph > .weeks > .week > div.empty > ol {
+.calendar-heat-map > .weeks > .week > div.empty > ol {
   border: 1px solid #eee;
 }
 
-.contributions-graph > .weeks > .week > div.highlight > ol {
+.calendar-heat-map > .weeks > .week > div.highlight > ol {
   border: 1px solid hsl(30deg 100% 50%);
 }
 
-.contributions-graph > .weeks > .week > div.selected > ol {
+.calendar-heat-map > .weeks > .week > div.selected > ol {
   border: 2px solid hsl(210deg 100% 50%);
   box-shadow: 0 0 5px hsl(210deg 100% 50% / 0.5);
 }
 
-.contributions-graph > .weeks > .week > div[role="button"] {
+.calendar-heat-map > .weeks > .week > div[role="button"] {
   cursor: pointer;
 }
 
-.contributions-graph > .weeks > .week > div > ol {
+.calendar-heat-map > .weeks > .week > div > ol {
   display: flex;
   height: 100%;
   box-sizing: border-box;
 }
 
-.contributions-graph > .weeks > .week > div > ol > li {
+.calendar-heat-map > .weeks > .week > div > ol > li {
   height: 100%;
 }
 
@@ -393,11 +393,16 @@ table.stats > tbody > tr > th {
   width: 100%;
 }
 
-/* Repo icon */
-a > svg {
+/* Icons */
+a > svg, h1 > svg {
   height: 1em;
   vertical-align: text-top;
   margin: 0 5px 0 0;
+}
+
+h1 > svg {
+  vertical-align: -0.11em;
+  margin: 0;
 }
 
 /* Collapse to 1 column */

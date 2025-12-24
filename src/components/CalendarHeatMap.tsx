@@ -1,6 +1,6 @@
 import { Calendar, Day, Filter } from "../model/index.ts";
 
-export interface ContributionsGraphProps {
+export interface CalendarHeatMapProps {
   calendar: Calendar;
   filter?: Filter;
   highlight?: string | null;
@@ -12,10 +12,10 @@ export interface ContributionsGraphProps {
 /**
  * Renders the contribution calendar as a grid of colored cells.
  *
- * Supports optional filtering, highlighting, day selection, and click navigation.
- * Can be used in both interactive (with filter/highlight/selection) and static modes.
+ * Supports optional filtering, highlighting, day selection, and click
+ * navigation.
  */
-export function ContributionsGraph(
+export function CalendarHeatMap(
   {
     calendar,
     filter = new Filter(),
@@ -23,7 +23,7 @@ export function ContributionsGraph(
     clickUrl,
     selectedDay = null,
     onDayClick,
-  }: ContributionsGraphProps,
+  }: CalendarHeatMapProps,
 ) {
   const dayMax = calendar.maxContributions();
 
@@ -35,7 +35,7 @@ export function ContributionsGraph(
 
   return (
     <div
-      className="contributions-graph"
+      className="calendar-heat-map"
       onClick={handleClick}
       style={clickUrl ? { cursor: "pointer" } : undefined}
     >
@@ -70,7 +70,7 @@ export interface GraphDayProps {
 }
 
 /**
- * Renders a single day cell in the contribution graph.
+ * Renders a single day cell in the calendar heat map.
  *
  * The cell is subdivided by repository contributions, with hue indicating
  * repository. The entire cell should be perceptually the same lightness, which

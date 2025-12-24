@@ -231,26 +231,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 
 [[package]]
-name = "contributions-tracker"
-version = "0.5.1"
-dependencies = [
- "anyhow",
- "clap",
- "dropshot",
- "reqwest",
- "schemars",
- "semver",
- "serde",
- "serde_json",
- "slog",
- "slog-async",
- "slog-term",
- "termcolor",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1281,6 +1261,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d"
 dependencies = [
  "bitflags",
+]
+
+[[package]]
+name = "repoyear-backend"
+version = "0.5.1"
+dependencies = [
+ "anyhow",
+ "clap",
+ "dropshot",
+ "reqwest",
+ "schemars",
+ "semver",
+ "serde",
+ "serde_json",
+ "slog",
+ "slog-async",
+ "slog-term",
+ "termcolor",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
