@@ -1,4 +1,4 @@
-# RepoYear — Heat map of GitHub contributions
+# ![](src/components/icon.svg) RepoYear — Heat map of GitHub contributions
 
 Displays a calendar heat map of GitHub contributions ([demo], [static demo]).
 
