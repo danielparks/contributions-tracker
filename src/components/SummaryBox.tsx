@@ -23,10 +23,14 @@ export function SummaryBox({ calendar, filter, selectedDay }: SummaryBoxProps) {
   }
 }
 
+const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
 /**
  * Shows year-level statistics and top repositories.
- *
- * FIXME: filter
  */
 function YearSummary(
   { calendar, filter }: { calendar: Calendar; filter: Filter },
@@ -39,7 +43,7 @@ function YearSummary(
   const firstDay = calendar.days[0]?.date;
   const lastDay = calendar.days[calendar.days.length - 1]?.date;
   const dateRange = firstDay && lastDay
-    ? `${firstDay.toLocaleDateString()} – ${lastDay.toLocaleDateString()}`
+    ? `${DATE_FORMATTER.format(firstDay)} – ${DATE_FORMATTER.format(lastDay)}`
     : "";
 
   return (
@@ -80,7 +84,7 @@ function DaySummary({ day, filter }: { day: Day; filter: Filter }) {
   const filtered = day.repositories.size - repos.length;
   return (
     <div className="summary-box">
-      <h2>{day.date.toLocaleDateString()}</h2>
+      <h2>{DATE_FORMATTER.format(day.date)}</h2>
       {filtered > 0 && (
         <p className="message filtered">
           {countNoun(filtered, "repository")} hidden
