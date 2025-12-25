@@ -111,23 +111,8 @@
 
 .sparkline {
   width: 100%;
-  display: flex;
-  gap: 1px;
   height: 20px;
   padding: 0;
-  border-bottom: 1px solid hsl(270deg 40% 70%);
-}
-
-.sparkline > div {
-  position: relative;
-  flex: 1;
-  height: 100%;
-}
-
-.sparkline > div > div {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
 }
 
 /* Collapse to 1 column */

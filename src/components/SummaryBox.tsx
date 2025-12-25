@@ -2,6 +2,7 @@ import "./SummaryBox.css";
 import { Calendar, Day, Filter, Repository } from "../model/index.ts";
 import { RepositoryName } from "./RepositoryList.tsx";
 import { Fragment } from "react";
+import { chunk, countNoun, pluralize, sum } from "../util.ts";
 
 export interface SummaryBoxProps {
   calendar: Calendar;
@@ -213,16 +214,6 @@ function RepoDayDetail(
 }
 
 /**
- * Sum an array-like.
- */
-function sum<T>(
-  items: Iterable<T> | ArrayLike<T>,
-  getValue: (item: T) => number,
-): number {
-  return Array.from(items).reduce((total, entry) => total + getValue(entry), 0);
-}
-
-/**
  * Convert an array-like of URL strings to `[url, text][]`.
  */
 function makeLinks(
@@ -233,51 +224,23 @@ function makeLinks(
 }
 
 /**
- * Return “count noun(s)”.
- */
-function countNoun(count: number, noun: string) {
-  return `${count} ${pluralize(noun, count)}`;
-}
-
-/**
- * Make a noun plural (very incomplete).
- *
- * If `count == 1`, then this will just return the singular.
- */
-function pluralize(singular: string, count = 2) {
-  if (count == 1) {
-    return singular;
-  } else if (singular.endsWith("y")) {
-    return singular.slice(0, -1) + "ies";
-  } else {
-    return singular + "s";
-  }
-}
-
-/**
  * A sparkline showing contribution intensity over time.
  *
- * Divides the calendar into ~25 segments and displays the contribution
+ * Divides the calendar into 50 segments and displays the contribution
  * count for each segment as a connected line graph.
  */
 function Sparkline({ calendar, repo }: {
   calendar: Calendar;
   repo: Repository;
 }) {
-  const segments: Day[][] = [];
-  const segmentLength = Math.ceil(calendar.days.length / 25);
-  for (let i = 0; i < calendar.days.length; i += segmentLength) {
-    segments.push(calendar.days.slice(i, i + segmentLength));
-  }
-
   const filter = Filter.withOnlyRepos(repo.url);
-  const counts = segments.map((days) =>
-    days.reduce((total, day) => total + day.filteredCount(filter), 0)
+  const counts = chunk(calendar.days, 50).map((days) =>
+    sum(days, (day) => day.filteredCount(filter))
   );
   const max = Math.max(...counts);
 
   const width = 100;
-  const height = 20;
+  const height = 19; // Actually 20, but a stroke at 20 gets clipped in half.
   const points = counts.map((count, i) => {
     const x = (i / (counts.length - 1)) * width;
     const y = height - (count / max) * height;
@@ -287,14 +250,14 @@ function Sparkline({ calendar, repo }: {
   return (
     <svg
       className="sparkline"
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 ${width} ${height + 1}`}
       preserveAspectRatio="none"
     >
       <polyline
         points={points}
         fill="none"
         stroke={repo.color()}
-        strokeWidth="2"
+        strokeWidth="1"
         vectorEffect="non-scaling-stroke"
       />
     </svg>
