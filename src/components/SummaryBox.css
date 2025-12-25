@@ -4,21 +4,22 @@
 }
 
 .summary-box > h3 {
-  margin: 30px 0 15px 0;
+  margin: 2rem 0 1rem 0;
   font-size: 16px;
+  line-height: 1rem;
   font-weight: bold;
 }
 
 .summary-box > table.stats {
   display: block;
   border-collapse: collapse;
+  margin-bottom: 1rem;
 }
 
 .summary-box > table.stats > tbody {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 10px;
   justify-content: space-between;
 }
 
@@ -31,6 +32,7 @@
   display: block;
   padding: 0;
   font-size: 28px;
+  line-height: 2rem;
   font-weight: bold;
   color: hsl(210deg 100% 45%);
 }
@@ -39,21 +41,30 @@
   display: block;
   padding: 0;
   font-size: 14px;
+  line-height: 1rem;
   font-weight: normal;
   text-align: left;
   color: #666;
 }
 
 .summary-box > .top-repos > li {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.summary-box > .top-repos > li > svg {
+  display: block;
+  height: 1.5rem;
+  width: 100%;
 }
 
 .summary-box > .top-repos > li > h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 5px 0 5px 0;
+  margin: 0.5rem 0;
   font-size: 16px;
+  line-height: 1rem;
   font-weight: normal;
 }
 
@@ -63,35 +74,36 @@
 }
 
 .summary-box > .day-repos > li {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
   clear: both;
 }
 
 .summary-box > .day-repos > li > h3 {
   margin: 0;
   font-size: 16px;
+  line-height: 2rem;
   font-weight: normal;
+  display: flex;
 }
 
 .summary-box > .day-repos > li > h3 > a {
-  display: inline-block;
-  margin-bottom: 5px;
+  flex: 1;
 }
 
 .summary-box > .day-repos .repo-badge {
-  display: inline-block;
-  float: right;
   background: hsl(120deg 60% 90%);
   color: hsl(120deg 60% 30%);
-  padding: 2px 8px;
+  padding: 0 0.5rem;
   border-radius: 3px;
   font-size: 12px;
   font-weight: normal;
+  line-height: 1rem;
+  margin: 0.5rem 0;
 }
 
 .summary-box > .day-repos > li > ul > li {
-  margin: 0 0 5px 0;
   font-size: 14px;
+  line-height: 1rem;
   color: #666;
 }
 
@@ -106,13 +118,8 @@
   color: hsl(30deg 100% 30%);
   border-left: 3px solid hsl(30deg 100% 50%);
   font-size: 14px;
+  line-height: 1rem;
   border-radius: 5px;
-}
-
-.sparkline {
-  width: 100%;
-  height: 20px;
-  padding: 0;
 }
 
 /* Collapse to 1 column */

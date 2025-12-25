@@ -4,7 +4,7 @@
 }
 
 .repository-list > h2 {
-  margin-bottom: calc(1rem - 2px); /* align li > label */
+  margin-bottom: 0.5rem;
 }
 
 .repository-list > ol {
@@ -48,8 +48,8 @@
 
 .repository-list > ol > li > label > input[type="checkbox"] {
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 1rem;
+  height: 1rem;
   margin: 0;
   cursor: pointer;
 }
