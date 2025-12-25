@@ -47,6 +47,38 @@ function YearSummary(
     ? `${DATE_FORMATTER.format(firstDay)} – ${DATE_FORMATTER.format(lastDay)}`
     : "";
 
+  // Segment contributions for each repo for sparklines.
+  interface RepoCounts {
+    repo: Repository;
+    counts: number[];
+  }
+  const topRepoCounts: RepoCounts[] = topRepos.map(
+    (repo) => {
+      const filter = Filter.withOnlyRepos(repo.url);
+      const counts = chunk(calendar.days, 50).map((days) =>
+        sum(days, (day) => day.filteredCount(filter))
+      );
+      return { repo, counts };
+    },
+  );
+
+  // Max contributions from any segment.
+  const max = Math.max(
+    ...topRepoCounts.map(({ counts }) => Math.max(...counts)),
+  );
+
+  // Convert segments from absolute counts to fraction of maximum.
+  interface RepoValues {
+    repo: Repository;
+    values: number[];
+  }
+  const topRepoValues: RepoValues[] = topRepoCounts.map(
+    ({ repo, counts }) => ({
+      repo,
+      values: counts.map((count) => count / max),
+    }),
+  );
+
   return (
     <div className="summary-box">
       <h2>{dateRange}</h2>
@@ -63,9 +95,9 @@ function YearSummary(
       />
       <h3>Top Repositories</h3>
       <ol className="top-repos">
-        {topRepos.map((repo) => (
+        {topRepoValues.map(({ repo, values }) => (
           <li key={repo.url}>
-            <Sparkline repo={repo} calendar={calendar} />
+            <Sparkline values={values} color={repo.color()} />
             <h3>
               <RepositoryName repo={repo} />
               <span className="contribution-count">{repo.contributions}</span>
@@ -229,21 +261,12 @@ function makeLinks(
  * Divides the calendar into 50 segments and displays the contribution
  * count for each segment as a connected line graph.
  */
-function Sparkline({ calendar, repo }: {
-  calendar: Calendar;
-  repo: Repository;
-}) {
-  const filter = Filter.withOnlyRepos(repo.url);
-  const counts = chunk(calendar.days, 50).map((days) =>
-    sum(days, (day) => day.filteredCount(filter))
-  );
-  const max = Math.max(...counts);
-
+function Sparkline({ values, color }: { values: number[]; color: string }) {
   const width = 100;
   const height = 19; // Actually 20, but a stroke at 20 gets clipped in half.
-  const points = counts.map((count, i) => {
-    const x = (i / (counts.length - 1)) * width;
-    const y = height - (count / max) * height;
+  const points = values.map((value, i) => {
+    const x = (i / (values.length - 1)) * width;
+    const y = height - value * height;
     return `${x},${y}`;
   }).join(" ");
 
@@ -256,7 +279,7 @@ function Sparkline({ calendar, repo }: {
       <polyline
         points={points}
         fill="none"
-        stroke={repo.color()}
+        stroke={color}
         strokeWidth="1"
         vectorEffect="non-scaling-stroke"
       />
