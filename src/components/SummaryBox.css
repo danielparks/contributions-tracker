@@ -10,12 +10,12 @@
   font-weight: bold;
 }
 
-table.stats {
+.summary-box > table.stats {
   display: block;
   border-collapse: collapse;
 }
 
-table.stats > tbody {
+.summary-box > table.stats > tbody {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -23,12 +23,12 @@ table.stats > tbody {
   justify-content: space-between;
 }
 
-table.stats > tbody > tr {
+.summary-box > table.stats > tbody > tr {
   display: flex;
   flex-direction: column-reverse;
 }
 
-table.stats > tbody > tr > td {
+.summary-box > table.stats > tbody > tr > td {
   display: block;
   padding: 0;
   font-size: 28px;
@@ -36,7 +36,7 @@ table.stats > tbody > tr > td {
   color: hsl(210deg 100% 45%);
 }
 
-table.stats > tbody > tr > th {
+.summary-box > table.stats > tbody > tr > th {
   display: block;
   padding: 0;
   font-size: 14px;
@@ -45,11 +45,11 @@ table.stats > tbody > tr > th {
   color: #666;
 }
 
-.top-repos > li {
+.summary-box > .top-repos > li {
   margin-bottom: 15px;
 }
 
-.top-repos > li > h3 {
+.summary-box > .top-repos > li > h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -58,28 +58,28 @@ table.stats > tbody > tr > th {
   font-weight: normal;
 }
 
-.top-repos .contribution-count {
+.summary-box > .top-repos .contribution-count {
   color: #666;
   font-size: 14px;
 }
 
-.day-repos > li {
+.summary-box > .day-repos > li {
   margin-bottom: 15px;
   clear: both;
 }
 
-.day-repos > li > h3 {
+.summary-box > .day-repos > li > h3 {
   margin: 0;
   font-size: 16px;
   font-weight: normal;
 }
 
-.day-repos > li > h3 > a {
+.summary-box > .day-repos > li > h3 > a {
   display: inline-block;
   margin-bottom: 5px;
 }
 
-.day-repos .repo-badge {
+.summary-box > .day-repos .repo-badge {
   display: inline-block;
   float: right;
   background: hsl(120deg 60% 90%);
@@ -90,13 +90,13 @@ table.stats > tbody > tr > th {
   font-weight: normal;
 }
 
-.day-repos > li > ul > li {
+.summary-box > .day-repos > li > ul > li {
   margin: 0 0 5px 0;
   font-size: 14px;
   color: #666;
 }
 
-.day-repos > li > ul > li a {
+.summary-box > .day-repos > li > ul > li a {
   color: hsl(210deg 100% 45%);
 }
 
