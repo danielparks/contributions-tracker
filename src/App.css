@@ -33,13 +33,14 @@ button, a.button, .pressed-button {
   background: hsl(210deg 100% 50%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  margin: 0;
+  padding: 0 1rem;
+  line-height: 2rem;
   font-size: 16px;
   border-radius: 0.5rem;
   font-weight: normal;
   text-decoration: none;
   transition: background 0.2s, transform 0.1s;
-  margin: 0;
 }
 
 button, a.button {
@@ -91,19 +92,15 @@ button.logout-button:hover {
   font-size: 14px;
 }
 
-.app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .app-header h1 {
   margin: 0;
-  font-size: 1.5em;
+  font-size: 1.5rem;
+  line-height: 2rem;
   font-weight: normal;
 }
 
-.button-group {
+.app-header .button-group {
+  float: right;
   display: flex;
   gap: 10px;
 }
