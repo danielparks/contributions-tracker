@@ -152,6 +152,12 @@ button.logout-button:hover {
   margin-top: 1.5rem;
 }
 
+.info-container.baseline {
+  /* baseline reference lines */
+  background-image: linear-gradient(to bottom, #ff000033 1px, transparent 1px);
+  background-size: 100% 1rem;
+}
+
 h2 {
   margin: 0 0 1rem 0;
   font-size: 20px;
