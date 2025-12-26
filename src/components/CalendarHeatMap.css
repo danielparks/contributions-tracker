@@ -58,6 +58,6 @@
 
 @media (max-width: 650px) {
   .calendar-heat-map {
-    margin: 1rem -1.5rem;
+    margin: 1rem -0.5rem;
   }
 }

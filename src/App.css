@@ -173,8 +173,12 @@ a > svg {
   margin-right: 0.5ch;
 }
 
-/* Collapse to 1 column */
 @media (max-width: 650px) {
+  body {
+    margin: 1em;
+  }
+
+  /* Collapse to 1 column */
   .info-container {
     display: block;
   }
