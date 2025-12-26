@@ -5,6 +5,7 @@
 
 .calendar-heat-map > .weeks {
   display: flex;
+  overflow-x: auto;
 }
 
 .calendar-heat-map > .weeks > .week {
@@ -19,6 +20,7 @@
   margin: 1px;
   padding: 0;
   aspect-ratio: 1/1;
+  min-height: 15px;
 }
 
 .calendar-heat-map > .weeks > .week > div.unknown > ol {

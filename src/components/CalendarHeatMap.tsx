@@ -40,8 +40,8 @@ export function CalendarHeatMap(
       onClick={handleClick}
       style={clickUrl ? { cursor: "pointer" } : undefined}
     >
-      <div className="weeks">
-        {[...calendar.weeks()].map((week) => (
+      <div className="weeks" dir="rtl">
+        {[...calendar.weeks()].reverse().map((week) => (
           <div key={`week ${week[0].date}`} className="week">
             {week.map((day) => (
               <GraphDay
