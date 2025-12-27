@@ -1,16 +1,16 @@
 .repository-list {
   grid-column: 2 / -1;
-  padding-left: 1rem;
+  padding-left: 1rlh;
 }
 
 .repository-list > h2 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.5rlh;
 }
 
 .repository-list > ol {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  column-gap: 0.5rem;
+  column-gap: 0.5rlh;
   row-gap: 0;
   align-items: start;
 }
@@ -25,21 +25,21 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.5rlh;
   border-radius: 5px;
   transition: background 0.2s;
 }
 
 .repository-list > ol > li > label,
 .repository-list > h2 {
-  padding-left: 0.7rem;
-  padding-right: 0.7rem;
+  padding-left: 0.7rlh;
+  padding-right: 0.7rlh;
 }
 
 .repository-list > ol,
 .repository-list > h2 {
-  margin-left: -0.7rem;
-  margin-right: -0.7rem;
+  margin-left: -0.7rlh;
+  margin-right: -0.7rlh;
 }
 
 .repository-list > ol > li > label:hover {
@@ -48,8 +48,8 @@
 
 .repository-list > ol > li > label > input[type="checkbox"] {
   flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
+  width: 1rlh;
+  height: 1rlh;
   margin: 0;
   cursor: pointer;
 }
@@ -75,7 +75,7 @@
 /* Collapse to 1 column */
 @media (max-width: 650px) {
   .repository-list {
-    margin-top: 3rem;
+    margin-top: 3rlh;
     padding-left: 0;
   }
 

@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;
-  margin: 1rem 2rem;
+  margin: 1rlh 2rlh;
 }
 
 body.compact {
@@ -14,11 +14,11 @@ ul, ol, li {
 }
 
 header, footer, .info-container {
-  margin: 1rem 0;
+  margin: 1rlh 0;
 }
 
 footer {
-  margin-top: 2rem;
+  margin-top: 2rlh;
   text-align: center;
   font-size: 80%;
   color: #666;
@@ -34,10 +34,10 @@ button, a.button, .pressed-button {
   color: white;
   border: none;
   margin: 0;
-  padding: 0 1rem;
-  line-height: 2rem;
+  padding: 0 1rlh;
+  line-height: 2rlh;
   font-size: 16px;
-  border-radius: 0.5rem;
+  border-radius: 0.5rlh;
   font-weight: normal;
   text-decoration: none;
   transition: background 0.2s, transform 0.1s;
@@ -75,14 +75,14 @@ button.logout-button:hover {
 }
 
 .login-container {
-  max-width: 30rem;
+  max-width: 30rlh;
   text-align: center;
-  margin: 4rem auto 2rem auto;
+  margin: 4rlh auto 2rlh auto;
 }
 
 .login-container p {
   color: #666;
-  margin: 1rem 0;
+  margin: 1rlh 0;
   font-size: 18px;
 }
 
@@ -94,8 +94,8 @@ button.logout-button:hover {
 
 .app-header h1 {
   margin: 0;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1.5rlh;
+  line-height: 2rlh;
   font-weight: normal;
 }
 
@@ -146,20 +146,20 @@ button.logout-button:hover {
   grid-template-columns:
     minmax(300px, 450px)
     repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 1rlh;
+  margin-top: 1.5rlh;
 }
 
 .info-container.baseline {
   /* baseline reference lines (enable with `setBaseline(true)`) */
   background-image: linear-gradient(to bottom, #ff000033 1px, transparent 1px);
-  background-size: 100% 1rem;
+  background-size: 100% 1rlh;
 }
 
 h2 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1rlh 0;
   font-size: 20px;
-  line-height: 2rem;
+  line-height: 2rlh;
 }
 
 /* Icons */
@@ -175,7 +175,7 @@ a > svg {
 
 @media (max-width: 650px) {
   body {
-    margin: 1rem;
+    margin: 1rlh;
   }
 
   /* Collapse to 1 column */

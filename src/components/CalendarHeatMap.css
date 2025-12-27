@@ -1,6 +1,6 @@
 .calendar-heat-map {
   display: block;
-  margin: 1rem -1rem;
+  margin: 1rlh -1rlh;
 }
 
 .calendar-heat-map > .weeks {
@@ -60,6 +60,6 @@
 
 @media (max-width: 650px) {
   .calendar-heat-map {
-    margin: 1rem -0.5rem;
+    margin: 1rlh -0.5rlh;
   }
 }

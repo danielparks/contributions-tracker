@@ -1,19 +1,19 @@
 .summary-box {
-  padding-right: 2rem;
+  padding-right: 2rlh;
   border-right: 1px dashed #000;
 }
 
 .summary-box > h3 {
-  margin: 2rem 0 1rem 0;
+  margin: 2rlh 0 1rlh 0;
   font-size: 16px;
-  line-height: 1rem;
+  line-height: 1rlh;
   font-weight: bold;
 }
 
 .summary-box > table.stats {
   display: block;
   border-collapse: collapse;
-  margin-bottom: 1rem;
+  margin-bottom: 1rlh;
 }
 
 .summary-box > table.stats > tbody {
@@ -32,7 +32,7 @@
   display: block;
   padding: 0;
   font-size: 28px;
-  line-height: 2rem;
+  line-height: 2rlh;
   font-weight: bold;
   color: hsl(210deg 100% 45%);
 }
@@ -41,7 +41,7 @@
   display: block;
   padding: 0;
   font-size: 14px;
-  line-height: 1rem;
+  line-height: 1rlh;
   font-weight: normal;
   text-align: left;
   color: #666;
@@ -50,13 +50,13 @@
 .summary-box > .top-repos,
 .summary-box > .day-repos {
   display: grid;
-  gap: 1rem;
+  gap: 1rlh;
   grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
 }
 
 .summary-box h4 {
   font-size: 14px;
-  line-height: 1rem;
+  line-height: 1rlh;
   font-weight: normal;
 }
 
@@ -68,7 +68,7 @@
 /* sparkline */
 .summary-box > .top-repos > li > svg {
   display: block;
-  height: 1.5rem;
+  height: 1.5rlh;
   width: 100%;
 }
 
@@ -77,7 +77,7 @@
   gap: 1ch;
   justify-content: space-between;
   align-items: center;
-  margin: 0.5rem 0 0 0;
+  margin: 0.5rlh 0 0 0;
 }
 
 .summary-box > .top-repos > li > h4 > a {
@@ -118,7 +118,7 @@
   border-radius: 3px;
   font-size: 12px;
   font-weight: normal;
-  line-height: 1rem;
+  line-height: 1rlh;
   text-indent: 0;
 }
 
@@ -132,13 +132,13 @@
 }
 
 .message {
-  margin: 1rem 0;
+  margin: 1rlh 0;
   padding: 10px;
   background: hsl(30deg 100% 95%);
   color: hsl(30deg 100% 30%);
   border-left: 3px solid hsl(30deg 100% 50%);
   font-size: 14px;
-  line-height: 1rem;
+  line-height: 1rlh;
   border-radius: 5px;
 }
 
