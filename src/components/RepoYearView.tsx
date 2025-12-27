@@ -51,3 +51,22 @@ export function RepoYearView({
     </>
   );
 }
+
+declare global {
+  var setBaseline: (on: boolean) => void;
+  interface GlobalThis {
+    setBaseline: (on: boolean) => void;
+  }
+}
+
+/**
+ * Called from web inspector to toggle baseline grid.
+ */
+globalThis.setBaseline = (on: boolean) => {
+  const list = document.querySelector(".info-container")!.classList;
+  if (on) {
+    list.add("baseline");
+  } else {
+    list.remove("baseline");
+  }
+};

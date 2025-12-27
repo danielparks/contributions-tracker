@@ -151,7 +151,7 @@ button.logout-button:hover {
 }
 
 .info-container.baseline {
-  /* baseline reference lines */
+  /* baseline reference lines (enable with `setBaseline(true)`) */
   background-image: linear-gradient(to bottom, #ff000033 1px, transparent 1px);
   background-size: 100% 1rem;
 }
