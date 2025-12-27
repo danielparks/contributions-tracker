@@ -97,6 +97,7 @@
   display: flex;
   margin: 0;
   align-items: start;
+  gap: 1ch;
 }
 
 .summary-box > .day-repos > li > h4,
@@ -113,11 +114,12 @@
 .summary-box > .day-repos .repo-badge {
   background: hsl(120deg 60% 90%);
   color: hsl(120deg 60% 30%);
-  padding: 0 0.5rem;
+  padding: 0 1ch;
   border-radius: 3px;
   font-size: 12px;
   font-weight: normal;
   line-height: 1rem;
+  text-indent: 0;
 }
 
 .summary-box > .day-repos > li > ul > li {
