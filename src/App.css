@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;
-  margin: 1em 2em;
+  margin: 1rem 2rem;
 }
 
 body.compact {
@@ -175,7 +175,7 @@ a > svg {
 
 @media (max-width: 650px) {
   body {
-    margin: 1em;
+    margin: 1rem;
   }
 
   /* Collapse to 1 column */
