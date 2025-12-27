@@ -24,6 +24,10 @@ footer {
   color: #666;
 }
 
+footer > p {
+  margin: 0;
+}
+
 .compact footer {
   display: none;
 }

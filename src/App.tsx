@@ -271,6 +271,7 @@ export default function App({ username }: { username: string | null }) {
       <Footer
         version={getAppVersion()}
         lastFetched={query.dataUpdatedAt}
+        githubAppLink
       />
     </>
   );
