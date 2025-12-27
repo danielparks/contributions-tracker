@@ -170,7 +170,7 @@ a > svg, h1 > svg {
 }
 
 a > svg {
-  margin-right: 0.5ch;
+  margin-right: 0.25em;
 }
 
 @media (max-width: 650px) {

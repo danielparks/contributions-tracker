@@ -99,6 +99,13 @@
   align-items: start;
 }
 
+.summary-box > .day-repos > li > h4,
+.summary-box > .day-repos > li > ul > li {
+  /* GitHub icon is 1em high, so very close to 1em wide, with 0.25em margin */
+  text-indent: -1.25em;
+  padding-left: 1.25em;
+}
+
 .summary-box > .day-repos > li > h4 > a {
   flex: 1;
 }
