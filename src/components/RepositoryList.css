@@ -18,6 +18,7 @@
 .repository-list > ol > li {
   margin: 0;
   padding: 0;
+  line-height: 1rlh;
 }
 
 .repository-list > ol > li > label {

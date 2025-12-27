@@ -1,6 +1,7 @@
 .summary-box {
   padding-right: 2rlh;
   border-right: 1px dashed #000;
+  line-height: 1rlh;
 }
 
 .summary-box > h3 {
